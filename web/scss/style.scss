@@ -1,0 +1,23 @@
+/* file created by charles.torris@gmail.com *//* 
+    Created on : 8 oct. 2018, 10:03:54
+    Author     : roger
+*/
+
+@mixin transition($value){ //opacity 1s ease-in-out
+                           -webkit-transition: $value;
+                           -moz-transition: $value;
+                           -ms-transition: $value;
+                           -o-transition: $value;
+                           transition: $value;
+}
+
+@mixin flexbox() {
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+}
+
+$bp : 780px;
+

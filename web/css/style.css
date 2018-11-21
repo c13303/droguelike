@@ -1,0 +1,256 @@
+/* file created by charles.torris@gmail.com */
+                                              /* 
+    Created on : 8 oct. 2018, 10:03:54
+    Author     : roger
+*/
+html {
+  max-width: 100%;
+  overflow-x: hidden; }
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  position: relative;
+  background-image: url(../img/tile.png);
+  width: 100%;
+  position: absolute; }
+  body h2 {
+    margin-top: 0; }
+  body input {
+    font-family: 'Quicksand', sans-serif; }
+  body .header {
+    display: block;
+    width: 100%; }
+    body .header #console .news {
+      color: #666; }
+    @media (min-width: 780px) {
+      body .header {
+        height: 135px;
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex; }
+        body .header .title {
+          width: 30%; }
+        body .header .logo {
+          width: 10%; }
+        body .header #console {
+          width: 60%; } }
+    @media (max-width: 780px) {
+      body .header > div {
+        display: block;
+        width: 100%;
+        height: auto; } }
+  body .hobbyist {
+    position: absolute;
+    background: white;
+    padding: 20px;
+    border: 1px solid #CCC;
+    border-radius: 10px;
+    top: 0;
+    right: 40px;
+    z-index: 200; }
+  body .hidden {
+    display: none !important; }
+  body .infoupdate {
+    color: red; }
+  body .lastupdate {
+    color: green; }
+  body .operation {
+    display: none;
+    cursor: pointer;
+    background: #CCC;
+    padding: 5px;
+    margin-bottom: 10px;
+    border: 1px solid #333; }
+    body .operation.disabled {
+      background: #EEE;
+      color: #999;
+      border-color: #999;
+      cursor: default; }
+  body .date {
+    position: absolute;
+    top: 27px;
+    left: 50%;
+    font-size: 25px;
+    text-align: left;
+    width: 300px; }
+  body #top {
+    width: 100%;
+    display: block;
+    border: 1px solid #CCC;
+    padding: 20px; }
+    body #top .info {
+      font-size: 12px; }
+  body #productname {
+    display: none; }
+  body #unitprice {
+    width: 40px; }
+  body #console {
+    background: black;
+    color: white;
+    padding: 10px;
+    height: 130px;
+    overflow-y: scroll; }
+    body #console.dev {
+      background: red; }
+  body #satan {
+    text-align: center;
+    padding: 30px;
+    font-size: 26px; }
+  body #game {
+    display: none; }
+    body #game .stat {
+      font-weight: bold; }
+    @media (min-width: 780px) {
+      body #game .row {
+        display: -webkit-box;
+        display: -moz-box;
+        display: -ms-flexbox;
+        display: -webkit-flex;
+        display: flex; } }
+    body #game .row > div {
+      background: white;
+      min-width: 200px;
+      width: 100%;
+      border: 1px solid #eaeaea;
+      padding: 10px;
+      display: inline-block;
+      vertical-align: top;
+      min-height: 280px;
+      margin: 0.5%; }
+      @media (max-width: 780px) {
+        body #game .row > div {
+          width: 100%; } }
+      @media (min-width: 780px) {
+        body #game .row > div#tools {
+          max-width: 50%; } }
+      body #game .row > div .regchart {
+        max-width: 300px; }
+    body #game #unite {
+      border: none; }
+    body #game .stats {
+      font-size: 12px;
+      padding: 10px; }
+    body #game .statprice {
+      width: 50px;
+      display: inline-block;
+      text-align: right; }
+    body #game #shop {
+      display: none; }
+      body #game #shop .item {
+        cursor: pointer;
+        padding: 5px;
+        display: inline-block;
+        border: 1px solid #CCC;
+        background-color: #CCC;
+        -webkit-transition: "opacity 0.5s ease-in-out";
+        -moz-transition: "opacity 0.5s ease-in-out";
+        -ms-transition: "opacity 0.5s ease-in-out";
+        -o-transition: "opacity 0.5s ease-in-out";
+        transition: "opacity 0.5s ease-in-out"; }
+        body #game #shop .item.buyable {
+          background-color: yellow; }
+        body #game #shop .item.active {
+          border: 1px solid red;
+          background-color: blue;
+          color: white; }
+        body #game #shop .item.cooldown {
+          background-color: red !important; }
+    body #game #spydata p {
+      height: 14px;
+      padding: 1px;
+      font-size: 14px;
+      margin: 5px; }
+    body #game #clientsbox .mp-coms-player {
+      cursor: pointer;
+      pointer-events: auto; }
+      body #game #clientsbox .mp-coms-player:hover {
+        background: #CCC; }
+    body #game #clientsbox table, body #game #clientsbox tr {
+      width: 100%; }
+      body #game #clientsbox table td, body #game #clientsbox tr td {
+        width: 25%; }
+    @media (min-width: 780px) {
+      body #game #clientsbox {
+        max-width: none;
+        width: 60%; } }
+  body td {
+    padding: 10px;
+    font-size: 14px; }
+  body button:disabled,
+  body button[disabled] {
+    opacity: 0.2; }
+  body button {
+    font-size: 13px;
+    height: 40px; }
+  body .visurow {
+    width: 50% !important; }
+  body .red {
+    color: red; }
+  body canvas {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none; }
+  body .hiddendev {
+    display: none !important; }
+  body.dev .hiddendev {
+    display: block !important; }
+  body .chart {
+    display: block;
+    width: 100%; }
+  body .strategic {
+    position: relative; }
+  body .warming {
+    position: absolute;
+    right: 0;
+    top: 20px;
+    border: 1px solid #9393bf;
+    border-radius: 100px;
+    height: 100px;
+    width: 100px;
+    text-align: center;
+    padding-top: 35px; }
+  body #piston {
+    float: left;
+    margin-right: 20px;
+    height: 100px; }
+    body #piston .inner {
+      background-color: black;
+      width: 20px; }
+  body .rowshout {
+    position: relative;
+    height: 50px;
+    overflow: hidden; }
+    body .rowshout .shout {
+      float: right; }
+  body .deco .corners {
+    pointer-events: none;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 10; }
+    body .deco .corners > div {
+      position: fixed;
+      width: 16px;
+      height: 16px; }
+    body .deco .corners .corner1 {
+      top: 0;
+      left: 0;
+      background-image: url(../img/corner1.png); }
+    body .deco .corners .corner2 {
+      top: 0;
+      right: 0;
+      background-image: url(../img/corner2.png); }
+    body .deco .corners .corner3 {
+      bottom: 0;
+      left: 0;
+      background-image: url(../img/corner3.png); }
+    body .deco .corners .corner4 {
+      bottom: 0;
+      right: 0;
+      background-image: url(../img/corner4.png); }
+  body #footer {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 20px; }
