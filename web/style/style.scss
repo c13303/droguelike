@@ -14,7 +14,7 @@
 @mixin flexbox() { 
     display: -webkit-box;
     display: -moz-box;
-    display: -ms-flexbox;
+    display: -ms-flexbox; 
     display: -webkit-flex;  
     display: flex;
 }
@@ -22,7 +22,7 @@
 $jaune : #fbf236;
 $jauneb : #e8df21;
 $rouge : #ac3232;
-
+$bleu : #086072; 
 
 $bp : 780px;  
 
@@ -30,8 +30,20 @@ $bp : 780px;
     display:none; 
 }
 
+
+input{
+    background:$rouge;
+    color:$jaune;
+}
+
 #logo{
     text-align:center;
+    @media(min-height:700px){
+        margin: 20px;
+    }
+    @media(max-height:600px){
+       display: none; 
+    }
 }
 #connect{
     text-align:center;
@@ -68,6 +80,9 @@ body{
             top: 500px;
             color: white;
             pointer-events: none;
+            .notice{
+              color : $jaune;   
+            }
         }
         #sidepanel{
             position: absolute;
@@ -79,6 +94,25 @@ body{
             .keypower{
                 color: $jaune;
             }
+        }
+    }
+    #gamecanvas{
+        pointer-events: none;
+        position: absolute;      
+    } 
+    .helper{
+        cursor: pointer;
+    } 
+    .info{
+        display:none;
+       
+    }
+    .modal-content{ 
+        background: $jaune;
+        color: $bleu;
+        h2{
+            font-size:24px;
+            font-weight:bold;
         }
     }
 }

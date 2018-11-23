@@ -1,49 +1,49 @@
 /* file created by charles.torris@gmail.com */
 
 module.exports = {
-    params : null,
-    fs : null,
-    connection : null,
-    setup : function(){
+    params: null,
+    fs: null,
+    connection: null,
+    setup: function () {
         this.params = require('../params.js');
         this.fs = require('fs');
     },
-    saveFile(filename,data,callback){
-        this.fs.writeFile(this.params.datapath+filename,data,(err)=>{
-            if(err)
+    saveFile(filename, data, callback) {
+        this.fs.writeFile(this.params.datapath + filename, data, (err) => {
+            if (err)
                 this.report(err);
             else
                 callback();
         });
     },
-    loadFile(fnam,callback){
-        console.log('Loading file : '+this.params.datapath+fnam);
-         this.fs.readFile(this.params.datapath+fnam, (err,data) => {
-            if(err)
+    loadFile(fnam, callback) {
+        console.log('Loading file : ' + this.params.datapath + fnam);
+        this.fs.readFile(this.params.datapath + fnam, (err, data) => {
+            if (err)
                 this.report(err);
             else
                 callback(data);
-         });
+        });
     },
     report: function (e) {
-        
+
         var currentdate = new Date();
-        var day = currentdate.getDate() + "-"
-                + (currentdate.getMonth() + 1) + "-"
-                + currentdate.getFullYear();
-        var datetime = currentdate.getDate() + "/"
-                + (currentdate.getMonth() + 1) + "/"
-                + currentdate.getFullYear() + " @ "
-                + currentdate.getHours() + ":"
-                + currentdate.getMinutes() + ":"
-                + currentdate.getSeconds();
+        var day = currentdate.getDate() + "-" +
+            (currentdate.getMonth() + 1) + "-" +
+            currentdate.getFullYear();
+        var datetime = currentdate.getDate() + "/" +
+            (currentdate.getMonth() + 1) + "/" +
+            currentdate.getFullYear() + " @ " +
+            currentdate.getHours() + ":" +
+            currentdate.getMinutes() + ":" +
+            currentdate.getSeconds();
         if (e.stack) {
             console.log('\nStacktrace:')
             console.log('====================')
             console.log(e.stack);
         }
-        
-        
+
+
         var note = datetime + ' : ' + e;
         try {
             var version = this.params.dev ? 'dev' : 'prod';
@@ -52,7 +52,7 @@ module.exports = {
                     console.log(err);
                 }
                 console.log(note);
-                 
+
             });
         } catch (er) {
             console.log(er);
@@ -73,5 +73,63 @@ module.exports = {
     },
     getRandomInt: function (max) {
         return Math.floor(Math.random() * Math.floor(max));
+    },
+    calculateSurface(x, y, dir, dist, style, size = 1) {
+
+        var p = [];
+        if (dir === -1) {
+            var sx = x;
+            var sy = y;
+        }
+
+        if (dir === 0) {
+            var sx = x + dist;
+            var sy = y;
+        }
+        if (dir === 1) {
+            var sx = x + dist;
+            var sy = y + dist;
+        }
+        if (dir === 2) {
+            var sx = x;
+            var sy = y + dist;
+        }
+
+        if (dir === 3) {
+            var sx = x - dist;
+            var sy = y + dist;
+        }
+
+        if (dir === 4) {
+            var sx = x - dist;
+            var sy = y;
+        }
+
+        if (dir === 5) {
+            var sx = x - dist;
+            var sy = y - dist;
+        }
+
+        if (dir === 6) {
+            var sx = x;
+            var sy = y - dist;
+        }
+
+        if (dir === 7) {
+            var sx = x + dist;
+            var sy = y - dist;
+        }
+
+        if (style === 'cross') {
+
+            p.push([sx, sy]);
+            p.push([sx + size, sy]);
+            p.push([sx - size, sy]);
+            p.push([sx, sy + size]);
+            p.push([sx, sy - size]);
+
+        }
+
+        return(p);
     }
 }

@@ -1,0 +1,111 @@
+/* file created by charles.torris@gmail.com */
+/* 
+    Created on : 8 oct. 2018, 10:03:54
+    Author     : roger
+*/
+.hidden {
+  display: none;
+}
+
+input {
+  background: #ac3232;
+  color: #fbf236;
+}
+
+#logo {
+  text-align: center;
+}
+
+@media (min-height: 700px) {
+  #logo {
+    margin: 20px;
+  }
+}
+
+@media (max-height: 600px) {
+  #logo {
+    display: none;
+  }
+}
+
+#connect {
+  text-align: center;
+}
+
+body {
+  background: url(../img/bg.png);
+  font-family: 'Yantramanav', sans-serif;
+  color: white;
+}
+
+body .centered {
+  text-align: center;
+}
+
+body #game {
+  position: relative;
+}
+
+body #game #chat {
+  position: absolute;
+  bottom: -641px;
+  width: 800px;
+  padding: 0;
+  background: 0;
+  height: 40px;
+  border: 1px solid blue;
+  color: white;
+  font-size: 20px;
+}
+
+body #game #console {
+  position: absolute;
+  height: 100px;
+  overflow-y: scroll;
+  width: 800px;
+  top: 500px;
+  color: white;
+  pointer-events: none;
+}
+
+body #game #console .notice {
+  color: #fbf236;
+}
+
+body #game #sidepanel {
+  position: absolute;
+  left: 810px;
+}
+
+body #game #sidepanel #target {
+  color: #ac3232;
+  height: 100px;
+}
+
+body #game #sidepanel .keypower {
+  color: #fbf236;
+}
+
+body #gamecanvas {
+  pointer-events: none;
+  position: absolute;
+}
+
+body .helper {
+  cursor: pointer;
+}
+
+body .info {
+  display: none;
+}
+
+body .modal-content {
+  background: #fbf236;
+  color: #086072;
+}
+
+body .modal-content h2 {
+  font-size: 24px;
+  font-weight: bold;
+}
+/*# sourceMappingURL=style.css.map */
