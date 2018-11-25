@@ -9,6 +9,10 @@ $message = filter_input(INPUT_GET, "message", FILTER_SANITIZE_STRING);
 $reconnect = filter_input(INPUT_GET, "reconnect", FILTER_SANITIZE_STRING);
 $disablereconnect = filter_input(INPUT_GET, "disablereconnect", FILTER_SANITIZE_STRING);
 
+if($disablereconnect){
+    $reconnect = 0;
+}
+
 if ($isdev) {
     $title .= " Dev";
     $v = time();
@@ -30,12 +34,16 @@ if ($isdev) {
         <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
         <link rel="icon" type="image/png" href="favicon.png" />
         <script src="//cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser.min.js"></script>
+        <script src="js/clitools.js?v=<?= $v; ?>"></script>
+        <script src="js/draw.js?v=<?= $v; ?>"></script>
+        <script src="js/dial.js?v=<?= $v; ?>"></script>
         <script src="client.js?v=<?= $v; ?>"></script>
         <link rel="stylesheet" type="text/css" href="style/reset.css">
         <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css"><!-- couillestrap looool -->
         <script src="lib/bootstrap/bootstrap.min.js"></script>
         <link rel="stylesheet" type="text/css" href="style/style.css?v=<?= $v; ?>">
         <link href="https://fonts.googleapis.com/css?family=Yantramanav" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/css?family=Anton" rel="stylesheet">
 
     </head>
 
@@ -44,6 +52,7 @@ if ($isdev) {
             <img src="img/logo.png" alt="droguelike logo" />
         </div>
         <form id="connect">
+        <div class="error"><?= $message; ?></div>
             <input type="text" id="username" placeholder="username" />
             <input type="password" placeholder="password" id="password" />
             <input type="submit" id="submit" value="login" />
@@ -67,7 +76,7 @@ if ($isdev) {
                 <img src="img/question.png" class="helper" data-info="infopowers" />
                 <div id="powers">
                 </div>
-                
+                <div class="coords"></div>
             </div>
             <canvas id="gamecanvas">
         </canvas>
@@ -75,7 +84,7 @@ if ($isdev) {
         </div>
         <input type="hidden" id="isdev" value="<?= dev; ?>" />
 
-        <input type="hidden" id="reconnect" value="<?= $reconnect; ?>" />
+        <input type="hidden" id="reconnect" value="<?= $disablereconnect ? 0 : $reconnect; ?>" />
 
 
      
@@ -95,6 +104,8 @@ if ($isdev) {
             <h2>Powers</h2>
             <p>AUTO : The power used as auto-attack melee (when you bump into ennemy)</p>
             <p>Slots 1-4 : the powers will trig with keys 1,2,3 or 4 </p>
+        </div>
+        <div class="powerinventory">
         </div>
 
 

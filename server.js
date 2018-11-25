@@ -3,6 +3,7 @@ var params = require('./params.js');
 var tools = require('./classes/tools.js');
 var rogue = require('./classes/rogue.js');
 var admin = require('./classes/admin.js');
+var data_lib = require('./classes/data_example.js');
 
 var sha256 = require('js-sha256');
 var Filter = require('bad-words');
@@ -16,7 +17,7 @@ var levels = [];
 var wss;
 var WebSocketServer = require('ws').Server;
 
-var mapSize = 64;
+mapSize = rogue.mapSize;
 var tickrate = 100;
 
 
@@ -82,27 +83,29 @@ if (params.httpsenabled) {
 var myFilter = new Filter({
     placeHolder: 'x'
 });
-var data_example = rogue.data_example;
+var data_example = data_lib.data_example;
 
-
+if (!data_example) {
+    console.log('no data example');
+    process.exit();
+}
 
 
 
 /* END OF SETUP */
 
-
 var bibles = require('./classes/bibles.js');
-bibles.init();
+bibles.init(tools);
 
 
 
 /* cd line args */
 function flush() {
-    var empty = JSON.stringify(rogue.data_example);
+    var empty = JSON.stringify(data_lib.data_example);
     var flushsessionquery = "UPDATE players SET data = ? ";
     if (wss && wss.clients) {
         wss.clients.forEach(function each(client) {
-            client.data = rogue.data_example;
+            client.data = data_lib.data_example;
         });
     }
 
@@ -174,6 +177,9 @@ function loadMap() {
     console.log('Loading map ..');
     filemap = tools.loadFile('map.cio', startServer);
 }
+
+var mapAoE = [];
+mapAoE.push(tools.matrix(mapSize, mapSize, []));
 
 function startServer(mapData) {
 
@@ -286,7 +292,6 @@ function startServer(mapData) {
     };
 
 
-    tick();
     wss.on('connection', function myconnection(ws, request) {
         try {
             /* recognize authentified player */
@@ -310,9 +315,19 @@ function startServer(mapData) {
                     'mydata': ws.data,
                     'granu': params.granu,
                     'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
-                    'bibles': bibles
+                    //  'bibles': bibles
                 }));
-                rogue.updateMyPosition(ws, wss);
+
+                
+
+                if (ws.data.isdead) {
+                    ws.send(JSON.stringify({
+                        dead: 1
+                    }));
+                } else {
+                    rogue.updateMyPosition(ws, wss);
+                }
+
             });
         } catch (e) {
             report(e);
@@ -322,13 +337,17 @@ function startServer(mapData) {
 
 
         ws.save = function save(callback) {
-            connection.query('UPDATE players SET data=? WHERE name= ?', [JSON.stringify(ws.data), ws.name], function (err, rows, fields) {
-                if (err)
-                    report(err);
-                if (callback) {
-                    callback();
-                }
-            });
+            try {
+                connection.query('UPDATE players SET data=? WHERE name= ?', [JSON.stringify(ws.data), ws.name], function (err, rows, fields) {
+                    if (err)
+                        report(err);
+                    if (callback) {
+                        callback();
+                    }
+                });
+            } catch (e) {
+                report(e);
+            }
         };
 
         ws.notice = function notice(n) {
@@ -338,11 +357,13 @@ function startServer(mapData) {
         };
 
         ws.reset = function () {
+            var name = ws.name;
+            var id = ws.id;
             ws.data = JSON.parse(JSON.stringify(data_example));
+            ws.data.name = name;
+            ws.data.id = id;
             ws.save();
-            ws.send(JSON.stringify({
-                'reset': 1
-            }));
+
         };
 
         ws.setMoveCool = function (cool) {
@@ -357,9 +378,13 @@ function startServer(mapData) {
         /*read messages from the client */
         ws.on('message', function incoming(message) {
 
+
+
+
             rogue.wss = wss;
             rogue.bibles = bibles;
             rogue.tools = tools;
+            rogue.mapAoE = mapAoE;
 
             var now = Date.now();
             var last = ws.data.time;
@@ -371,53 +396,20 @@ function startServer(mapData) {
 
 
             var json = JSON.parse(message);
-            if (json.cd === 'reset') {
-                ws.reset();
-            }
-
-            if (!json.move) console.log(ws.name + ' : ' + message);
-            /* all the recevied cds from client */
-
-            if (json.move) {
-                /* is move illegal */
-                if (!ws.data.movecooling) {
-                    var x = json.move[0];
-                    var y = json.move[1];
-                    var someone = rogue.whoIsThere(ws, wss, x, y, ws.data.z);
-                    if (!someone) {
-                        ws.data.x = x;
-                        ws.data.y = y;
-                        ws.send(JSON.stringify({
-                            'moved': [ws.data.x, ws.data.y]
-                        }));
-                        rogue.updateMyPosition(ws, wss);
-                        ws.setMoveCool(params.granu);
-                    } else {
-                        if (!ws.data.pk) {
-                            ws.notice('You bump into ' + someone.name);
-                        } else {
-
-                        }
-                        // console.log('bump into ' + someone.name);
-                    }
-                } else {
-                    //2quick
-                }
-            }
-
-            /* power use by player with a key */
-            if (json.cd === 'key' && json.v ) {
-                rogue.powerUse(wss, ws, json.v,json.dir);
-            }
-
 
 
             if (json.cd === "say") {
+                if (json.v === '/rez') {
+                    console.log(ws.name + ' ressurecting ...');
+                    ws.data.skin = 1;
+                    ws.data.isdead = null;
+                    ws.data.life.now = ws.data.life.max;
+                    rogue.updateMyPosition(ws, wss);
+                }
                 if (json.v.indexOf("/") === 0) {
                     var com = json.v.split(" ");
-                    if (com[0] === '/skin') {
+                    if (com[0] === '/skin' && com[1]) {
                         ws.data.skin = com[1];
-                        //     ws.send(JSON.stringify({'mydata': ws.data,'rskin': ws.data.skin}));
                         rogue.updateMyPosition(ws, wss);
                     }
                     console.log('--adm cd :  ' + com[0] + ' ' + com[1]);
@@ -431,6 +423,61 @@ function startServer(mapData) {
                 }
 
             }
+
+
+            if (ws.data.isdead) {
+
+                return null;
+            }
+
+
+
+
+
+
+
+
+
+            if (json.cd === 'reset') {
+                ws.reset();
+            }
+
+
+            /* CONSOLAGE */
+            if (!json.move && !json.key) console.log(ws.name + ' : ' + message);
+            /* all the recevied cds from client */
+
+            if (json.move) {
+                /* is move illegal */
+                if (!ws.data.movecooling) {
+                    var x = json.move[0];
+                    var y = json.move[1];
+                    var someone = rogue.whoIsThere(ws, wss, x, y, ws.data.z);
+                    if (!someone) {
+                        ws.data.x = x;
+                        ws.data.y = y;
+                        rogue.updateMyPosition(ws, wss);
+                        ws.setMoveCool(params.granu);
+                    } else {
+                        if (!ws.data.pk) {
+                            ws.notice('You bump into ' + someone.name);
+                        } else {
+
+                        }
+                    }
+                } else {
+                    console.log("2quick");
+                }
+            }
+
+            /* power use by player with a key */
+            if (json.cd === 'key' && json.v) {
+                rogue.powerUse(ws, json.v, json.dir, mapAoE);
+            }
+
+
+
+
 
             /* pkmode toggle */
             if (json.cd === "pkm") {
@@ -468,7 +515,7 @@ function startServer(mapData) {
 
 
 
-    // tick();
+    tick();
 
 
 
@@ -503,20 +550,66 @@ function tick() {
 
 
 
+
     /* PLAYER TICK */
 
+    var preparedPuds = []; /// there's one by level
+
     wss.clients.forEach(function each(client) {
-        
+
         try {
 
-            if(client.data.powers_cooldowns){
-                Object.keys(client.data.powers_cooldowns).forEach(function (key){
-                    if(client.data.powers_cooldowns[key]>0)
-                    client.data.powers_cooldowns[key]--;
-                   
+            /* prepare the level tick update json array */
+            if (!preparedPuds[client.data.z]) {
+                preparedPuds[client.data.z] = [];
+            }
+
+            /* player cooldowns powers */
+            if (client.data.powers_cooldowns) {
+                Object.keys(client.data.powers_cooldowns).forEach(function (key) {
+                    if (client.data.powers_cooldowns[key] > 0)
+                        client.data.powers_cooldowns[key]--;
                 });
             }
 
+            /* is player touched by AeO */
+            var x = client.data.x;
+            var y = client.data.y;
+            var z = client.data.z;
+            if (mapAoE[z][x][y].length) {
+                var fxs = mapAoE[z][x][y];
+                for (i = 0; i < fxs.length; i++) {
+                    /* touché */
+                    if (fxs[i].owner != client.id) {
+                        var damage = fxs[i].damage;
+                        var defenses = rogue.getDefenses(client);
+                        var appliedDamage = rogue.getAppliedDamage(damage, defenses);
+                        client.data.life.now -= appliedDamage;
+                        console.log(client.name + ' is touched by ' + fxs[i].power + ' and takes ' + appliedDamage + ' damage');
+                        console.log(client.data.life.now + '/' + client.data.life.max + ' life remaing');
+                        client.data.damaged = appliedDamage;
+                        /* death :o */
+                        if (client.data.life.now <= 0) {
+                            var dareport = client.data.name + ' killed by ' + fxs[i].power + ' from ' + fxs[i].owner;
+                            report(dareport);
+                            client.data.life.now = 0;
+                            client.send(JSON.stringify({
+                                dead: 1
+                            }));
+                            wss.broadcast(JSON.stringify({
+                                'notice': report
+                            }));
+                            client.data.isdead = true;
+                        }
+
+
+
+                        var pud = rogue.formatPeople(client);
+                        client.data.damaged = 0;
+                        preparedPuds[client.data.z].push(pud);
+                    }
+                }
+            }
 
 
         } catch (e) {
@@ -527,9 +620,46 @@ function tick() {
 
 
     });
-    if (!wss.clients.size) {
-       
+
+    /* on envoie l'update groupée en 1 json par personne /  tick optimisé du cul */
+    for (z = 0; z < preparedPuds.length; z++) {
+        if (preparedPuds[z].length) {
+            wss.broadcast(JSON.stringify({
+                'puds': preparedPuds[z]
+            }));
+        }
     }
+
+
+    if (!wss.clients.size) {
+
+    }
+
+
+    /* AeO cools reducers */
+    var timeos = Date.now();
+    for (z = 0; z < mapAoE.length; z++) {
+        for (x = 0; x < mapAoE[z].length; x++) {
+            for (y = 0; y < mapAoE[z][x].length; y++) {
+                for (i = 0; i < mapAoE[z][x][y].length; i++) {
+                    if (mapAoE[z][x][y][i]) {
+                        //    console.log('effect active on : ' + mapAoE[z][x][y][i].power + ' on ' + z + ',' + y + ',' + x);
+                        mapAoE[z][x][y][i].cooldown--;
+                        if (mapAoE[z][x][y][i].cooldown <= 0) {
+                            //console.log('Delete effect : ' + mapAoE[z][x][y][i].power + ' on ' + z + ',' + y + ',' + x);
+                            mapAoE[z][x][y].splice(i, 1);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    var timeos2 = Date.now();
+    var diff = timeos2 - timeos;
+    // console.log('calcul' + diff);
+
+
+
 
 
     save_clock++;

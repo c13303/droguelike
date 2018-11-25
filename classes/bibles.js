@@ -3,15 +3,15 @@
 module.exports = {
     powers: [],
     mobs: [],
-    init: function () {
+    init: function (tools) {
         var pow = {};
 
         pow.ass = {
             type: 'trig',
-            duration: 500,
+            duration: 3,
             powercool: 500,
-            movecool: 500,
-            sprite : 0,
+            movecool: 100,
+            sprite: 1,
             name: {
                 fr: 'main au cul',
                 en: 'hand to ass',
@@ -27,17 +27,22 @@ module.exports = {
             },
             damage: {
                 physical: 1,
-                humil: 1,
+                humiliation: 1,
+                sex: 0,
+                sanity: 0,
+                karma: 0,
+                money: 0
             },
             offensive: 3,
+            depth: 1,
         };
 
         pow.slap = {
             type: 'trig',
-            duration: 1000,
+            duration: 1,
             powercool: 1500,
-            movecool: 1000,
-            sprite : 0,
+            movecool: 100,
+            sprite: 0,
             name: {
                 fr: 'gifle',
                 en: 'slap',
@@ -52,14 +57,49 @@ module.exports = {
                 en: 'The palm of your hand on the face of your opponent'
             },
             damage: {
-                physical: 1,
-                humil: 1,
+                physical: 10,
+                humiliation: 5,
+                sex: 0,
+                sanity: 0,
+                karma: 0,
+                money: 0
             },
             offensive: 3,
+            depth: 1,
+        };
+
+        pow.foutre = {
+            type: 'trig',
+            duration: 10,
+            powercool: 5000,
+            movecool: 2000,
+            sprite: 2,
+            name: {
+                fr: 'foutrage',
+                en: 'foutrage',
+            },
+            surface: {
+                dist: 1,
+                style: 'cross',
+                size: 1
+            },
+            desc: {
+                fr: 'La paume de votre main sur le visage de votre adversaire',
+                en: 'The palm of your hand on the face of your opponent'
+            },
+            damage: {
+                physical: 1,
+                humiliation: 5,
+                sex: 5,
+                sanity: 0,
+                karma: 0,
+                money: 0
+            },
+            offensive: 3,
+            depth: 1,
         };
 
 
-        
 
 
         this.powers = pow;
@@ -97,6 +137,11 @@ module.exports = {
 
 
         this.mobs = mobs;
+
+        bibles = this;
+        tools.saveFile('bibles.cio', JSON.stringify(bibles), null);
+
+
     }
 
 }

@@ -93,6 +93,13 @@ body{
             }
             .keypower{
                 color: $jaune;
+                height: 32px;
+            }
+            .cooling{
+                color: $rouge;
+            }
+            .cooldown{
+                margin-left:20px;
             }
         }
     }

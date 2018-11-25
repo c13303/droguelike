@@ -86,6 +86,14 @@ body #game #sidepanel .keypower {
   color: #fbf236;
 }
 
+body #game #sidepanel .cooling {
+  color: #ac3232;
+}
+
+body #game #sidepanel .cooldown {
+  margin-left: 20px;
+}
+
 body #gamecanvas {
   pointer-events: none;
   position: absolute;

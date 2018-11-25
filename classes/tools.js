@@ -12,8 +12,11 @@ module.exports = {
         this.fs.writeFile(this.params.datapath + filename, data, (err) => {
             if (err)
                 this.report(err);
-            else
-                callback();
+            else{
+                console.log(filename + ' written');
+                if(callback) callback();
+            }
+                
         });
     },
     loadFile(fnam, callback) {
@@ -58,14 +61,16 @@ module.exports = {
             console.log(er);
         }
     },
-    matrix: function (rows, cols, defaultValue) {
+    matrix: function (rows, cols, defaultValue = null) {
 
         var arr = [];
         for (var i = 0; i < rows; i++) {
             arr.push([]);
             arr[i].push(new Array(cols));
             for (var j = 0; j < cols; j++) {
-                defaultValue = this.getRandomInt(4);
+                if (!defaultValue) {
+                    defaultValue = this.getRandomInt(4);
+                }
                 arr[i][j] = defaultValue;
             }
         }
@@ -119,6 +124,9 @@ module.exports = {
             var sx = x + dist;
             var sy = y - dist;
         }
+        if(size < 1){
+            return([[sx,sy]]);
+        }
 
         if (style === 'cross') {
 
@@ -130,6 +138,37 @@ module.exports = {
 
         }
 
-        return(p);
+        return (p);
+    },
+
+    timer(callback, delay) {
+        var id, started, remaining = delay, running;
+
+        this.start = function () {
+            running = true;
+            started = new Date();
+            id = setTimeout(callback, remaining);
+        }
+
+        this.pause = function () {
+            running = false;
+            clearTimeout(id);
+            remaining -= new Date() - started;
+        }
+
+        this.getTimeLeft = function () {
+            if (running) {
+                this.pause();
+                this.start();
+            }
+
+            return remaining;
+        }
+
+        this.getStateRunning = function () {
+            return running;
+        }
+
+        this.start();
     }
 }
