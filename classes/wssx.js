@@ -92,7 +92,7 @@ class wssx extends server {
     }
     broadcastToLevel(msg,z){
         this.clients.forEach(function each(client) {
-            if(client.data.z === z){
+            if(client.data && client.data.z === z){
                 client.send(msg);
             }            
         });
@@ -100,10 +100,11 @@ class wssx extends server {
     masssave(callback = null) {
         var itemsProcessed = 0;
         console.log('mass save');
+        var that = this;
         this.clients.forEach(function each(client) {
             itemsProcessed++;
             client.save();
-            if (itemsProcessed === this.clients.size && callback) {
+            if (itemsProcessed === that.clients.size && callback) {
                 setTimeout(callback, 100);
             }
         });
@@ -132,6 +133,7 @@ class wssx extends server {
         });
         return that;
     }
+    
     clearMobTarget(mobs,id){
         for(i=0;i<mobs.length;i++){
             if(mobs[i].target && mobs[i].target.id === id){

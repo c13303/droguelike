@@ -40,6 +40,7 @@ var mobs = {};
 $.get("data/bibles.cio?v="+Date.now(), function (data) {
     var decoded = JSON.parse(data);
     powersbible = decoded.powers;
+    mobsbible = decoded.mobs;
 });
 $.get("data/spawners.cio?v="+Date.now(), function (data) {
     var decoded = JSON.parse(data);

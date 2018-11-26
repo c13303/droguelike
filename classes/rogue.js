@@ -6,7 +6,7 @@ module.exports = {
     tools: null,
     mapAoE: null,
     mapSize: 64,
-    maxLevels : 64,
+    maxLevels: 64,
     getClientFromId(wss, id) {
         var that = null;
         this.wss.clients.forEach(function each(client) {
@@ -43,14 +43,48 @@ module.exports = {
         });
         return here;
     },
-    whoIsThere(ws, wss, x, y, z) {
+    getNextMove(x, y, tx, ty) {
+        var update = false;
+        if (tx > x) {
+            x++;
+            update = true;
+        }
+        if (tx < x) {
+            x--;
+            update = true;
+        }
+        if (ty > y) {
+            y++;
+            update = true;
+        }
+        if (ty < y) {
+            y--;
+            update = true;
+        }
+        return {
+            x: x,
+            y: y,
+            update: update
+        }
+    },
+    isPlayerHere(wss, x, y, z, name = null) {
         var that = null;
         wss.clients.forEach(function each(client) {
-            if (client.name != ws.name && client.data.x === x && client.data.y === y && client.data.z === z) {
+            if (client.name != name && client.data.x === x && client.data.y === y && client.data.z === z) {
                 that = client;
             }
         });
-
+        return that;
+    },
+    isMonsterHere(mobs, x, y, z, currentMobId = null) {
+        var that = null;
+        for (m = 0; m < mobs.length; m++) {           
+            if (mobs[m].x === x && mobs[m].y === y && mobs[m].z === z) {
+                if (currentMobId !== m) {
+                    that = mobs[m];
+                }
+            }
+        }
         return that;
     },
     updateMyPosition(ws, wss) {
@@ -78,7 +112,7 @@ module.exports = {
             return null;
         }
 
-        console.log(ws.name + ' tries to use ' + power.name[ws.data.lang]);
+    //    console.log(ws.name + ' tries to use ' + power.name[ws.data.lang]);
 
 
         /* cooldown of power use*/

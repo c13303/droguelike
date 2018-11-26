@@ -1,4 +1,3 @@
-
 function timer(callback, delay) {
     var id, started, remaining = delay,
         running;
@@ -53,34 +52,38 @@ var tools = {
             }
         }
     },
-    createCharacter(that, name, skin, x, y,isMob = false) {
+    createCharacter(that, name, skin, x, y, isMob = false) {
         var x = layer.tileToWorldX(x) + tilesize / 2;
         var y = layer.tileToWorldY(y);
         // var char = that.add.sprite(x + tilesize / 2, y, skin);
-        if(!isMob){
+        if (!isMob) {
             var char = that.add.sprite(x + tilesize / 2, y, 'skinssheet', skin);
         } else {
             var char = that.add.sprite(x + tilesize / 2, y + tilesize / 2, 'mobs', skin);
-        }        
+        }
 
         drawnPeopleIndex.push(name);
         drawnPeople[name] = {};
         drawnPeople[name].sprite = char;
-        drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
-            font: '14px Arial',
-            align: "center",
-            fill: '#ffffff'
-        });
-        drawnPeople[name].label.setAlign('center');
+
+
+        if (!isMob) {
+            drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
+                font: '14px Arial',
+                align: "center",
+                fill: '#ffffff'
+            });
+            drawnPeople[name].label.setAlign('center');
+            drawnPeople[name].label.setDepth(100);
+        }
+
         drawnPeople[name].lifebar = that.add.sprite(x + lifebarOffsetX, y + lifebarOffsetY, 'fxtiles', 0);
         drawnPeople[name].lifebar.setScale(1, 0.25);
 
-        drawnPeople[name].label.setDepth(100);
-        drawnPeople[name].lifebar.setDepth(100);
+        drawnPeople[name].lifebar.setDepth(-0.1);
         return (char);
     },
     updatePlayer(pud) {
-        
         var found = false;
         for (i = 0; i < peoplehere.length; i++) {
             if (pud.id === peoplehere[i].id) {
@@ -91,7 +94,7 @@ var tools = {
                 $.each(pud, function (key, value) {
                     peoplehere[i][key] = value;
                 });
-                found = true;  
+                found = true;
             }
         }
         if (!found) { //newplayer
@@ -115,7 +118,7 @@ var tools = {
         if (py < object.y)
             object.y -= dt;
     },
-    
+
     checkKey(evt) {
         var keyID = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode);
         return (keyID);
@@ -131,6 +134,6 @@ var tools = {
         }
         return arr;
     }
-    
-    
+
+
 };

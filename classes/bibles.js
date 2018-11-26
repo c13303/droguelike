@@ -122,6 +122,10 @@ module.exports = {
                 fr: 'le fameux manifestant pro-carburant',
                 en: 'cheap fuel protester'
             },
+            life : {
+                now: 100,
+                max: 100
+            },
             movecool : 10,
         };
 

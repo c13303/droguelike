@@ -157,7 +157,8 @@ function update() {
                 tools.createCharacter(this, keum.name, keum.skin, keum.x, keum.y);
                 tools.notice(keum.name + ' is back online');
             } else {
-                tools.createCharacter(this, keum.name, keum.skin, keum.x, keum.y,keum.mob);
+                var mobname = mobsbible[keum.mob].name[lang];
+                tools.createCharacter(this, keum.name, keum.skin, keum.x, keum.y,mobname);
             }
            
 
@@ -181,7 +182,7 @@ function update() {
                 /* UPDATE IF NOT DEAD */
 
                 tools.fluidmove(drawnPeople[keum.name].sprite, px, py);
-                tools.fluidmove(drawnPeople[keum.name].label, tx, ty);
+                if(drawnPeople[keum.name].label) tools.fluidmove(drawnPeople[keum.name].label, tx, ty);
                 tools.fluidmove(drawnPeople[keum.name].lifebar, lx, ly);
 
                 var percentLife = keum.life.now / keum.life.max;
@@ -191,7 +192,7 @@ function update() {
                     drawnPeople[keum.name].sprite.setFrame(keum.skin);
                 }
 
-                if (keum.pk != drawnPeople[keum.name].pk) {
+                if (drawnPeople[keum.name].label && keum.pk != drawnPeople[keum.name].pk) {
                     drawnPeople[keum.name].pk = keum.pk;
                     if (keum.pk) {
                         drawnPeople[keum.name].label.setStyle({

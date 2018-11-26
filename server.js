@@ -18,7 +18,8 @@ var regularStart = true;
 var data_example = data_lib.data_example;
 const userRequestMap = new WeakMap();
 var mobs = [];
-
+var occupiedOriginal = tools.matrix(mapSize, mapSize);
+var ticdiff;
 /* mysql */
 var mysql = require('mysql');
 var connection = mysql.createConnection({
@@ -55,6 +56,7 @@ function genSpawners() {
     var spawnersData = [{
         x: 10,
         y: 10,
+        z: 0,
         mob: 'giletjaune',
         batchtime: '100', // 10 s,
         batchnumber: 3,
@@ -143,6 +145,12 @@ stdin.addListener("data", function (d) {
         if (cde === 'quit') {
             wss.masssave(quit);
         }
+
+        if(cde==='tic'){
+            console.log(ticdiff + ' ms');
+        }
+
+
     } catch (e) {
         report(e);
     }
@@ -153,7 +161,7 @@ stdin.addListener("data", function (d) {
 if (regularStart) setup();
 
 function setup() {
-    tools.loadFile('waitingPowerso', "mapData", loadSpawners);
+    tools.loadFile('map.cio', "mapData", loadSpawners);
 }
 
 function loadSpawners() {
@@ -179,7 +187,8 @@ mapAoE.push(tools.matrix(mapSize, mapSize, []));
 function startServer() {
     var data = tools.data;
     mapData = data.mapData;
-    spawners = data.spawnersData;
+    spawners = JSON.parse(data.spawnersData);
+    console.log(spawners.length + ' spawners in the map');
     if (!mapData || !spawners) {
         console.log('setup failed');
         process.exit();
@@ -348,15 +357,16 @@ function startServer() {
                         return null;
                     }
 
-                    var someone = rogue.whoIsThere(ws, wss, x, y, ws.data.z);
-                    if (!someone) {
+                    var obstacle = rogue.isPlayerHere(wss, x, y, ws.data.z, ws.name);
+                    if (!obstacle) obstacle = rogue.isMonsterHere(mobs, x, y, ws.data.z);
+                    if (!obstacle) {
                         ws.data.x = x;
                         ws.data.y = y;
                         rogue.updateMyPosition(ws, wss);
                         ws.setMoveCool(params.granu);
                     } else {
                         if (!ws.data.pk) {
-                            ws.notice('You bump into ' + someone.name);
+
                         } else {
 
                         }
@@ -388,9 +398,9 @@ function startServer() {
                 'gone': ws.name
             }));
             ws.save(null);
-            wss.clearMobTarget(mobs,ws.id);
+            wss.clearMobTarget(mobs, ws.id);
             wss.clients.delete(ws);
-           
+
         });
     });
 
@@ -419,43 +429,55 @@ var save_freq = 0;
 
 function tick() {
     tic++;
+    var timeos = Date.now();
+    /*
+        if (!mobs.length) {
+            mobs = [{
+                mob: 'giletjaune',
+                x: 10,
+                y: 10,
+                z: 0,
+                life: 100,
+                skin: 0,
+                attackcool: null,
+                movecool: null,
+                target: 0,
+                life: {
+                    now: 100,
+                    max: 100
+                },
+                update: true,
+            }, {
+                mob: 'giletjaune',
+                x: 12,
+                y: 12,
+                z: 0,
+                life: 100,
+                skin: 0,
+                attackcool: null,
+                movecool: null,
+                target: 0,
+                life: {
+                    now: 100,
+                    max: 100
+                },
+                update: true,
+            }]
+        }
 
-    if (!mobs.length) {
-        mobs = [{
-            mob: 'giletjaune',
+          var spawnersData = [{
             x: 10,
             y: 10,
-            z: 0,
-            life: 100,
-            skin: 0,
-            attackcool: null,
-            movecool: null,
-            target: 0,
-            life: {
-                now: 100,
-                max: 100
-            },
-            update: true,
-        },{
             mob: 'giletjaune',
-            x: 12,
-            y: 12,
-            z: 0,
-            life: 100,
-            skin: 0,
-            attackcool: null,
-            movecool: null,
-            target: 0,
-            life: {
-                now: 100,
-                max: 100
-            },
-            update: true,
-        }]
-    }
+            batchtime: '100', // 10 s,
+            batchnumber: 3,
+            cooldown: null,
+        }];
 
+    */
     /* SERVER TICK PREPARE */
     var preparedUpdate = [];
+    var occupied = occupiedOriginal.slice(0);
     for (i = 0; i < rogue.maxLevels; i++) {
         preparedUpdate[i] = {
             moves: [],
@@ -467,10 +489,29 @@ function tick() {
 
     /* SPAWWWWWWNERS */
     if (wss.clients.size) {
-        for (i = 0; i < spawners.length; i++) {
-            var spobj = spawners[i];
+        for (spp = 0; spp < spawners.length; spp++) {
+            var spobj = spawners[spp];
             if (!spobj.cooldown) {
                 spobj.cooldown = spobj.batchtime;
+                for (sp = 0; sp < spobj.batchnumber; sp++) {
+
+                    var newmob = {
+                        mob: spobj.mob,
+                        x: spobj.x,
+                        y: spobj.y,
+                        z: spobj.z,
+                        skin: bibles.mobs[spobj.mob].skin,
+                        attackcool: null,
+                        movecool: null,
+                        target: 0,
+                        life: {
+                            now: bibles.mobs[spobj.mob].life.now,
+                            max: bibles.mobs[spobj.mob].life.max
+                        },
+                        update: true,
+                    }
+                    mobs.push(newmob);
+                }
             } else {
                 spobj.cooldown--;
             }
@@ -478,53 +519,57 @@ function tick() {
 
         /* M O B S    O______________________________O  */
         var preparedMob = nearest = null;
-        for (i = 0; i < mobs.length; i++) {
-            var mob = mobs[i];
+        for (ii = 0; ii < mobs.length; ii++) {
+            var mob = mobs[ii];
             mob.update = false;
             if (!mob.target) {
                 /* target selection */
                 nearest = wss.nearestPlayerFromPoint(mob.x, mob.y, mob.z);
                 if (nearest) {
-                    console.log('mob ' + i + ' targets ' + nearest.name);
                     mob.target = nearest;
                 }
             } else {
-               //console.log(mob.target);
+                //console.log(mob.target);
             }
 
             /* movecool */
-            if(mob.target && mob.target.data){
+            if (mob.target && mob.target.data) {
                 if (!mob.movecool) {
                     var mobdef = bibles.mobs[mob.mob];
                     mob.movecool = mobdef.movecool;
-                    if (mob.target.data.x > mob.x) {
-                        mob.x++;
-                        mob.update = true;
+                    var newMove = rogue.getNextMove(mob.x, mob.y, mob.target.data.x, mob.target.data.y);
+                    var x = newMove.x;
+                    var y = newMove.y;
+                    var moveupdate = newMove.update;
+                    if (moveupdate) {
+                        /* check obstacle */
+                        var obstacle = null;
+                        if (occupied[mob.z][x][y]) obstacle = true;
+                        if (!obstacle) obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
+                        if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
+                        if (obstacle || obstacleMob) {
+                            mob.update = false;
+                        } else {
+                            /* move validated */
+                            mob.update = true;
+                            mob.x = x;
+                            mob.y = y;
+                            occupied[mob.z][x][y] = true;
+                        }
                     }
-                    if (mob.target.data.x < mob.x) {
-                        mob.x--;
-                        mob.update = true;
-                    }
-                    if (mob.target.data.y > mob.y) {
-                        mob.y++;
-                        mob.update = true;
-                    }
-                    if (mob.target.data.y <  mob.y) {
-                        mob.y--;
-                        mob.update = true;
-                    }
-    
+
+
                 } else {
                     mob.movecool--;
                 }
             }
-            
+
 
 
             if (mob.update && mob.target) {
                 preparedMob = {
-                    id: "m" + i,
-                    name : "_m" + i,
+                    id: "m" + ii,
+                    name: "_m" + ii,
                     mob: mob.mob,
                     x: mob.x,
                     y: mob.y,
@@ -581,51 +626,54 @@ function tick() {
     }
 
     wss.clients.forEach(function each(client) {
-        try {
-            /* player cooldowns powers */
-            if (client.data.powers_cooldowns) {
-                Object.keys(client.data.powers_cooldowns).forEach(function (key) {
-                    if (client.data.powers_cooldowns[key] > 0)
-                        client.data.powers_cooldowns[key]--;
-                });
-            }
-            /* is player touched by AeO */
-            var x = client.data.x;
-            var y = client.data.y;
-            var z = client.data.z;
-            if (mapAoE[z][x][y].length) {
-                var fxs = mapAoE[z][x][y];
-                for (i = 0; i < fxs.length; i++) {
-                    /* touché */
-                    if (fxs[i].owner != client.id) {
-                        var damage = fxs[i].damage;
-                        var defenses = rogue.getDefenses(client);
-                        var appliedDamage = rogue.getAppliedDamage(damage, defenses);
-                        client.data.life.now -= appliedDamage;
-                        console.log(client.name + ' is touched by ' + fxs[i].power + ' and takes ' + appliedDamage + ' damage ' + client.data.life.now + '/' + client.data.life.max + ' life remaing');
-                        client.data.damaged = appliedDamage;
-                        /* death :o */
-                        if (client.data.life.now <= 0) {
-                            var dareport = client.data.name + ' killed by ' + fxs[i].power + ' from ' + fxs[i].owner;
-                            report(dareport);
-                            client.data.life.now = 0;
-                            client.send(JSON.stringify({
-                                dead: 1
-                            }));
-                            wss.broadcast(JSON.stringify({
-                                'notice': report
-                            }));
-                            client.data.isdead = true;
+        if (client.data) {
+            try {
+                /* player cooldowns powers */
+                if (client.data.powers_cooldowns) {
+                    Object.keys(client.data.powers_cooldowns).forEach(function (key) {
+                        if (client.data.powers_cooldowns[key] > 0)
+                            client.data.powers_cooldowns[key]--;
+                    });
+                }
+                /* is player touched by AeO */
+                var x = client.data.x;
+                var y = client.data.y;
+                var z = client.data.z;
+                if (mapAoE[z][x][y].length) {
+                    var fxs = mapAoE[z][x][y];
+                    for (i = 0; i < fxs.length; i++) {
+                        /* touché */
+                        if (fxs[i].owner != client.id) {
+                            var damage = fxs[i].damage;
+                            var defenses = rogue.getDefenses(client);
+                            var appliedDamage = rogue.getAppliedDamage(damage, defenses);
+                            client.data.life.now -= appliedDamage;
+                            console.log(client.name + ' is touched by ' + fxs[i].power + ' and takes ' + appliedDamage + ' damage ' + client.data.life.now + '/' + client.data.life.max + ' life remaing');
+                            client.data.damaged = appliedDamage;
+                            /* death :o */
+                            if (client.data.life.now <= 0) {
+                                var dareport = client.data.name + ' killed by ' + fxs[i].power + ' from ' + fxs[i].owner;
+                                report(dareport);
+                                client.data.life.now = 0;
+                                client.send(JSON.stringify({
+                                    dead: 1
+                                }));
+                                wss.broadcast(JSON.stringify({
+                                    'notice': report
+                                }));
+                                client.data.isdead = true;
+                            }
+                            var pud = rogue.formatPeople(client);
+                            client.data.damaged = 0;
+                            preparedUpdate[client.data.z].moves.push(pud);
                         }
-                        var pud = rogue.formatPeople(client);
-                        client.data.damaged = 0;
-                        preparedUpdate[client.data.z].moves.push(pud);
                     }
                 }
+            } catch (e) {
+                report(e);
             }
-        } catch (e) {
-            report(e);
         }
+
     });
 
 
@@ -651,7 +699,7 @@ function tick() {
     }
 
 
-    var timeos = Date.now();
+   
     /* AeO cools */
     for (z = 0; z < mapAoE.length; z++) {
         for (x = 0; x < mapAoE[z].length; x++) {
@@ -670,8 +718,8 @@ function tick() {
         }
     }
     var timeos2 = Date.now();
-    var diff = timeos2 - timeos;
-    // console.log('calcul' + diff);
+    ticdiff = timeos2 - timeos;
+    //console.log('calcul' + ticdiff);
 
 
 
