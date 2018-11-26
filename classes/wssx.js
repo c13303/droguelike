@@ -6,13 +6,13 @@ class wssx extends server {
         this.waitingPowers = [];
         this.waitingCools = [];
     }
-    addToWaiting(pile,z,msg){     
-        if(!this[pile][z]){
-            this[pile][z] = [];           
-        }        
+    addToWaiting(pile, z, msg) {
+        if (!this[pile][z]) {
+            this[pile][z] = [];
+        }
         this[pile][z].push(msg);
     }
-    verify(info, callback, connection, userRequestMap,data_example) {
+    verify(info, callback, connection, userRequestMap, data_example) {
         var Filter = require('bad-words');
         var myFilter = new Filter({
             placeHolder: 'x'
@@ -86,16 +86,24 @@ class wssx extends server {
     }
 
     broadcast(msg) {
-        this.clients.forEach(function each(client) {
-            client.send(msg);
-        });
-    }
-    broadcastToLevel(msg,z){
-        this.clients.forEach(function each(client) {
-            if(client.data && client.data.z === z){
+        try {
+            this.clients.forEach(function each(client) {
                 client.send(msg);
-            }            
-        });
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    }
+    broadcastToLevel(msg, z) {
+        try {
+            this.clients.forEach(function each(client) {
+                if (client.data && client.data.z === z) {
+                    client.send(msg);
+                }
+            });
+        } catch (e) {
+            console.log(e);
+        }
     }
     masssave(callback = null) {
         var itemsProcessed = 0;
@@ -119,13 +127,13 @@ class wssx extends server {
         });
         return that;
     }
-    nearestPlayerFromPoint(x,y,z){
+    nearestPlayerFromPoint(x, y, z) {
         var smallest = null;
         var that = null;
-        this.clients.forEach(function each(client) {          
+        this.clients.forEach(function each(client) {
             if (client.data && client.data.z === z) {
-                var dist = Math.sqrt(Math.pow(client.data.x - x,2) + Math.pow(client.data.y - y,2));
-                if(!smallest || dist < smallest){
+                var dist = Math.sqrt(Math.pow(client.data.x - x, 2) + Math.pow(client.data.y - y, 2));
+                if (!smallest || dist < smallest) {
                     smallest = dist;
                     that = client;
                 }
@@ -133,10 +141,10 @@ class wssx extends server {
         });
         return that;
     }
-    
-    clearMobTarget(mobs,id){
-        for(i=0;i<mobs.length;i++){
-            if(mobs[i].target && mobs[i].target.id === id){
+
+    clearMobTarget(mobs, id) {
+        for (i = 0; i < mobs.length; i++) {
+            if (mobs[i].target && mobs[i].target.id === id) {
                 console.log('cleared target of mob ' + i);
                 mobs[i].target = null;
             }
