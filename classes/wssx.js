@@ -1,16 +1,24 @@
 const server = require('ws').Server;
 
 class wssx extends server {
+    subinit() {
+        this.waitingPuds = [];
+        this.waitingPowers = [];
+        this.waitingCools = [];
+    }
+    addToWaiting(pile,z,msg){     
+        console.log(' add to pile ' + pile);  
+        if(!this[pile][z]){
+            this[pile][z] = [];           
+        }        
+        this[pile][z].push(msg);
+    }
     verify(info, callback, connection, userRequestMap,data_example) {
-
         var Filter = require('bad-words');
         var myFilter = new Filter({
             placeHolder: 'x'
         });
-
-
         var sha256 = require('js-sha256');
-
         var urlinfo = info.req.url;
         const ip = info.req.connection.remoteAddress;
         urlinfo = urlinfo.replace('/', '');
@@ -81,6 +89,13 @@ class wssx extends server {
     broadcast(msg) {
         this.clients.forEach(function each(client) {
             client.send(msg);
+        });
+    }
+    broadcastToLevel(msg,z){
+        this.clients.forEach(function each(client) {
+            if(client.data.z === z){
+                client.send(msg);
+            }            
         });
     }
     masssave(callback = null) {

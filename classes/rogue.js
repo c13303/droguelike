@@ -54,21 +54,22 @@ module.exports = {
     },
     updateMyPosition(ws, wss) {
         try {
-            if (!ws || !ws.data) return null;
-            var that = this;
-            wss.clients.forEach(function each(client) {
-                if (client.data.z === ws.data.z) {
-                    client.send(JSON.stringify({
-                        'pud': that.formatPeople(ws)
-                    }));
-                }
-            });
+            if (!ws || !ws.data) return null;            
+            var pud = this.formatPeople(ws);
+            wss.addToWaiting('waitingPuds',ws.data.z,pud);
         } catch (e) {
             if (this.tools) this.tools.report(e);
             else console.log(e);
         }
     },
     updatePowerUse(ws, surface) {
+        var msg = {
+            'who': ws.id,
+            'pwup': ws.data.poweruse,
+            'surf': surface
+        };
+        this.wss.addToWaiting('waitingPowers',ws.data.z,msg);
+        /*
         this.wss.clients.forEach(function each(client) {
             if (client.data.z === ws.data.z) {
                 client.send(JSON.stringify({
@@ -78,6 +79,7 @@ module.exports = {
                 }));
             }
         });
+        */
     },
     coolme(ws, key, time) {
         ws.send(JSON.stringify({

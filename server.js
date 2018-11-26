@@ -191,7 +191,7 @@ function startServer(mapData) {
             wss.verify(info, callback, connection, userRequestMap, data_example);
         }
     });
-
+    wss.subinit();
 
 
 
@@ -258,7 +258,7 @@ function startServer(mapData) {
         ws.reset = function () {
             ws.data = JSON.parse(JSON.stringify(data_example));
             ws.save();
-           
+
         };
 
         ws.setMoveCool = function (cool) {
@@ -408,7 +408,9 @@ function startServer(mapData) {
 
 
 
-}
+} /* eof start server */
+
+
 if (regularStart)
     loadMap();
 
@@ -429,16 +431,47 @@ function tick() {
 
     /* PLAYER TICK */
 
-    var preparedTickUpdate = []; /// there's one by level
-    var preparedPuds = [];
+
+    var preparedUpdate = [];
     wss.clients.forEach(function each(client) {
 
         try {
 
             /* prepare the level tick update json array */
-            if (!preparedPuds[client.data.z]) {
-                preparedPuds[client.data.z] = [];
+            if (!preparedUpdate[client.data.z]) {
+                preparedUpdate[client.data.z] = {
+                    moves : [],
+                    powers : []
+                }
             }
+           
+
+            /* asked moves PUD */
+            if (wss.waitingPuds.length) {
+                console.log(wss.waitingPuds.length + ' moves waiting');
+                for (i = 0; i < wss.waitingPuds.length; i++) {
+                    for (j = 0; j < wss.waitingPuds[i].length; j++) {
+                        var waitingPud = wss.waitingPuds[i][j];
+                        preparedUpdate[i].moves.push(waitingPud);
+                    }
+                }
+                wss.waitingPuds = [];
+            }
+
+            /*asked powers */
+            if (wss.waitingPowers.length) {
+                console.log(wss.waitingPowers.length + ' powers waiting');
+                for (i = 0; i < wss.waitingPowers.length; i++) {
+                    for (j = 0; j < wss.waitingPowers[i].length; j++) {
+                        var waitingPud = wss.waitingPowers[i][j];
+                        preparedUpdate[i].powers.push(waitingPud);
+                    }
+                }
+                wss.waitingPowers = [];
+            }
+
+
+
 
             /* player cooldowns powers */
             if (client.data.powers_cooldowns) {
@@ -447,7 +480,6 @@ function tick() {
                         client.data.powers_cooldowns[key]--;
                 });
             }
-
             /* is player touched by AeO */
             var x = client.data.x;
             var y = client.data.y;
@@ -461,8 +493,8 @@ function tick() {
                         var defenses = rogue.getDefenses(client);
                         var appliedDamage = rogue.getAppliedDamage(damage, defenses);
                         client.data.life.now -= appliedDamage;
-                        console.log(client.name + ' is touched by ' + fxs[i].power + ' and takes ' + appliedDamage + ' damage');
-                        console.log(client.data.life.now + '/' + client.data.life.max + ' life remaing');
+                     //   console.log(client.name + ' is touched by ' + fxs[i].power + ' and takes ' + appliedDamage + ' damage');
+                    //    console.log(client.data.life.now + '/' + client.data.life.max + ' life remaing');
                         client.data.damaged = appliedDamage;
                         /* death :o */
                         if (client.data.life.now <= 0) {
@@ -477,12 +509,9 @@ function tick() {
                             }));
                             client.data.isdead = true;
                         }
-
-
-
                         var pud = rogue.formatPeople(client);
                         client.data.damaged = 0;
-                        preparedPuds[client.data.z].push(pud);
+                        preparedUpdate[client.data.z].moves.push(pud);
                     }
                 }
             }
@@ -497,14 +526,15 @@ function tick() {
 
     });
 
-  /* on envoie l'update groupée en 1 json par personne /  tick optimisé du cul */
-  for (z = 0; z < preparedPuds.length; z++) {
-    if (preparedPuds[z].length) {
-        wss.broadcast(JSON.stringify({
-            'puds': preparedPuds[z]
-        }));
+    /* on envoie l'update groupée en 1 json par personne /  tick optimisé du cul */
+    for (z = 0; z < preparedUpdate.length; z++) {
+        if (preparedUpdate[z].moves.length || preparedUpdate[z].powers.length ) {
+            wss.broadcastToLevel(JSON.stringify({
+                'puds': preparedUpdate[z].moves,
+                'pwups': preparedUpdate[z].powers
+            }), z);
+        }
     }
-}
 
 
     if (!wss.clients.size) {
