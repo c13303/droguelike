@@ -5,19 +5,17 @@ var rogue = require('./classes/rogue.js');
 var admin = require('./classes/admin.js');
 var data_lib = require('./classes/data_example.js');
 
-var sha256 = require('js-sha256');
-var Filter = require('bad-words');
+
 var express = require('express');
 var app = express();
 var fs = require('fs');
 
-var filemap = null;
 var levels = [];
 
 var wss;
-var WebSocketServer = require('ws').Server;
+var WebSocketServer = require('./classes/wssx.js');
 
-mapSize = rogue.mapSize;
+var mapSize = 64;
 var tickrate = 100;
 
 
@@ -80,9 +78,6 @@ if (params.httpsenabled) {
 
 
 
-var myFilter = new Filter({
-    placeHolder: 'x'
-});
 var data_example = data_lib.data_example;
 
 if (!data_example) {
@@ -90,6 +85,7 @@ if (!data_example) {
     process.exit();
 }
 
+const userRequestMap = new WeakMap();
 
 
 /* END OF SETUP */
@@ -181,6 +177,7 @@ function loadMap() {
 var mapAoE = [];
 mapAoE.push(tools.matrix(mapSize, mapSize, []));
 
+
 function startServer(mapData) {
 
     report('Lancement serveur port ' + port + '------------------------------------------------------');
@@ -190,109 +187,20 @@ function startServer(mapData) {
 
     wss = new WebSocketServer({
         server: httpsServer,
-        verifyClient: function (info, callback) { /* AUTHENTIFICATION */
-            var urlinfo = info.req.url;
-            const ip = info.req.connection.remoteAddress;
-            urlinfo = urlinfo.replace('/', '');
-            urlinfo = urlinfo.split('-');
-            if (!Array.isArray(urlinfo)) {
-                callback(false);
-            }
-            var regex = /^([a-zA-Z0-9_-]+)$/;
-            var name = urlinfo[1].toLowerCase();
-            var token = urlinfo[0];
-
-            if (name.length > 10) {
-                callback(false);
-            }
-
-            if (name !== myFilter.clean(name)) {
-                callback(false);
-            }
-            if (!regex.test(name)) {
-                callback(false);
-            }
-            if (!regex.test(token)) {
-                callback(false);
-            }
-            if (!name || !token || !urlinfo[1] || !urlinfo[0]) {
-                callback(false);
-            }
-            if (urlinfo[1].toLowerCase() !== name || urlinfo[0] !== token) {
-                report('illegal name');
-                callback(false);
-            }
-            wss.clients.forEach(function each(client) {
-                if (client.name === name) {
-                    callback(false);
-                }
-            });
-            var token = sha256(token);
-            connection.query('SELECT id,name,password FROM players WHERE name=?', [name], function (err, rows, fields) {
-                if (rows[0] && rows[0].id) {
-                    if (rows[0].password === token) {
-                        userRequestMap.set(info.req, rows[0]);
-                        callback(true);
-                    } else {
-                        report(name + ' rejected');
-                        callback(false);
-                    }
-                } else {
-                    var dataclone = JSON.parse(JSON.stringify(data_example));
-                    var data = JSON.stringify(dataclone);
-                    connection.query('INSERT INTO players(name,password,data) VALUES (?,?,?)', [name, token, data], function (err) {
-                        if (err)
-                            report(err);
-                        else {
-                            report(' - New PLayer Creation : ' + name);
-                            var uzar = {
-                                'name': name,
-                                'password': token,
-                                'id': 'new'
-                            };
-                            userRequestMap.set(info.req, uzar);
-                            callback(true);
-                        }
-                    });
-                }
-            });
+        verifyClient: function(info,callback){
+            wss.verify(info,callback,connection,userRequestMap);
         }
     });
 
 
-    wss.broadcast = function broadcast(msg) {
-        wss.clients.forEach(function each(client) {
-            client.send(msg);
-        });
-    };
 
 
 
-    function getOneClient(name) {
-        var clientFound = null;
-        wss.clients.forEach(function each(client) {
-            if (client.name.toString() === name.toString()) {
-                clientFound = client;
-                return client;
-            }
-        });
-        return clientFound;
-    }
-
-
-    wss.masssave = function masssave(callback = null) {
-        var itemsProcessed = 0;
-        wss.clients.forEach(function each(client) {
-            itemsProcessed++;
-            client.save();
-            if (itemsProcessed === wss.clients.size && callback) {
-                setTimeout(callback, 100);
-            }
-        });
-    };
 
 
     wss.on('connection', function myconnection(ws, request) {
+       
+
         try {
             /* recognize authentified player */
             var userinfo = userRequestMap.get(request);
@@ -303,7 +211,8 @@ function startServer(mapData) {
             connection.query('SELECT id,name,data FROM players WHERE name=? AND password=?', [name, token], function (err, rows, fields) {
                 if (err)
                     report(err);
-                var data = JSON.parse(rows[0].data);
+                var data = JSON.parse(rows[0].data);            
+
                 ws.name = name;
                 ws.id = rows[0].id;
                 ws.data = data;
@@ -317,17 +226,7 @@ function startServer(mapData) {
                     'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
                     //  'bibles': bibles
                 }));
-
-                
-
-                if (ws.data.isdead) {
-                    ws.send(JSON.stringify({
-                        dead: 1
-                    }));
-                } else {
-                    rogue.updateMyPosition(ws, wss);
-                }
-
+                rogue.updateMyPosition(ws, wss);
             });
         } catch (e) {
             report(e);
@@ -357,13 +256,11 @@ function startServer(mapData) {
         };
 
         ws.reset = function () {
-            var name = ws.name;
-            var id = ws.id;
             ws.data = JSON.parse(JSON.stringify(data_example));
-            ws.data.name = name;
-            ws.data.id = id;
             ws.save();
-
+            ws.send(JSON.stringify({
+                'reset': 1
+            }));
         };
 
         ws.setMoveCool = function (cool) {
@@ -377,9 +274,6 @@ function startServer(mapData) {
 
         /*read messages from the client */
         ws.on('message', function incoming(message) {
-
-
-
 
             rogue.wss = wss;
             rogue.bibles = bibles;
@@ -396,55 +290,11 @@ function startServer(mapData) {
 
 
             var json = JSON.parse(message);
-
-
-            if (json.cd === "say") {
-                if (json.v === '/rez') {
-                    console.log(ws.name + ' ressurecting ...');
-                    ws.data.skin = 1;
-                    ws.data.isdead = null;
-                    ws.data.life.now = ws.data.life.max;
-                    rogue.updateMyPosition(ws, wss);
-                }
-                if (json.v.indexOf("/") === 0) {
-                    var com = json.v.split(" ");
-                    if (com[0] === '/skin' && com[1]) {
-                        ws.data.skin = com[1];
-                        rogue.updateMyPosition(ws, wss);
-                    }
-                    console.log('--adm cd :  ' + com[0] + ' ' + com[1]);
-                } else {
-                    var saydata = JSON.stringify({
-                        'who': ws.name,
-                        'chat': json.v
-                    });
-                    report(saydata);
-                    wss.broadcast(saydata);
-                }
-
-            }
-
-
-            if (ws.data.isdead) {
-
-                return null;
-            }
-
-
-
-
-
-
-
-
-
             if (json.cd === 'reset') {
                 ws.reset();
             }
 
-
-            /* CONSOLAGE */
-            if (!json.move && !json.key) console.log(ws.name + ' : ' + message);
+            if (!json.move) console.log(ws.name + ' : ' + message);
             /* all the recevied cds from client */
 
             if (json.move) {
@@ -477,7 +327,25 @@ function startServer(mapData) {
 
 
 
+            if (json.cd === "say") {
+                if (json.v.indexOf("/") === 0) {
+                    var com = json.v.split(" ");
+                    if (com[0] === '/skin') {
+                        ws.data.skin = com[1];
+                        //     ws.send(JSON.stringify({'mydata': ws.data,'rskin': ws.data.skin}));
+                        rogue.updateMyPosition(ws, wss);
+                    }
+                    console.log('--adm cd :  ' + com[0] + ' ' + com[1]);
+                } else {
+                    var saydata = JSON.stringify({
+                        'who': ws.name,
+                        'chat': json.v
+                    });
+                    report(saydata);
+                    wss.broadcast(saydata);
+                }
 
+            }
 
             /* pkmode toggle */
             if (json.cd === "pkm") {
@@ -488,12 +356,6 @@ function startServer(mapData) {
                 }
                 rogue.updateMyPosition(ws, wss);
             }
-
-
-
-
-
-
 
         });
 
@@ -525,15 +387,6 @@ if (regularStart)
     loadMap();
 
 
-function erreur(ws, what) {
-    try {
-        report('ERREUR : ' + ws.name + ':' + what);
-        ws.close();
-    } catch (e) {
-        report(e);
-    }
-}
-const userRequestMap = new WeakMap();
 
 
 
@@ -551,17 +404,18 @@ function tick() {
 
 
 
+
     /* PLAYER TICK */
 
-    var preparedPuds = []; /// there's one by level
-
+    var preparedTickUpdate = []; /// there's one by level
+    var preparedPuds = [];
     wss.clients.forEach(function each(client) {
 
         try {
 
             /* prepare the level tick update json array */
-            if (!preparedPuds[client.data.z]) {
-                preparedPuds[client.data.z] = [];
+            if (!preparedTickUpdate[client.data.z]) {
+                preparedTickUpdate[client.data.z] = [];
             }
 
             /* player cooldowns powers */
@@ -581,32 +435,22 @@ function tick() {
                 for (i = 0; i < fxs.length; i++) {
                     /* touché */
                     if (fxs[i].owner != client.id) {
+
                         var damage = fxs[i].damage;
                         var defenses = rogue.getDefenses(client);
                         var appliedDamage = rogue.getAppliedDamage(damage, defenses);
                         client.data.life.now -= appliedDamage;
                         console.log(client.name + ' is touched by ' + fxs[i].power + ' and takes ' + appliedDamage + ' damage');
                         console.log(client.data.life.now + '/' + client.data.life.max + ' life remaing');
-                        client.data.damaged = appliedDamage;
-                        /* death :o */
-                        if (client.data.life.now <= 0) {
-                            var dareport = client.data.name + ' killed by ' + fxs[i].power + ' from ' + fxs[i].owner;
-                            report(dareport);
-                            client.data.life.now = 0;
-                            client.send(JSON.stringify({
-                                dead: 1
-                            }));
-                            wss.broadcast(JSON.stringify({
-                                'notice': report
-                            }));
-                            client.data.isdead = true;
+                        var json = {
+                            'damage': {
+                                pid: client.id,
+                                damage: appliedDamage,
+                                owner: fxs[i].owner
+                            }
                         }
-
-
-
-                        var pud = rogue.formatPeople(client);
-                        client.data.damaged = 0;
-                        preparedPuds[client.data.z].push(pud);
+                        preparedTickUpdate[client.data.z].push(json);
+                        preparedPuds.push(pudjson);
                     }
                 }
             }
@@ -621,11 +465,10 @@ function tick() {
 
     });
 
-    /* on envoie l'update groupée en 1 json par personne /  tick optimisé du cul */
-    for (z = 0; z < preparedPuds.length; z++) {
-        if (preparedPuds[z].length) {
+    for (z = 0; z < preparedTickUpdate.length; z++) {
+        if (preparedTickUpdate[z].length) {
             wss.broadcast(JSON.stringify({
-                'puds': preparedPuds[z]
+                'tic': preparedTickUpdate[z]
             }));
         }
     }
@@ -636,8 +479,8 @@ function tick() {
     }
 
 
-    /* AeO cools reducers */
     var timeos = Date.now();
+    /* AeO cools */
     for (z = 0; z < mapAoE.length; z++) {
         for (x = 0; x < mapAoE[z].length; x++) {
             for (y = 0; y < mapAoE[z][x].length; y++) {
@@ -657,8 +500,6 @@ function tick() {
     var timeos2 = Date.now();
     var diff = timeos2 - timeos;
     // console.log('calcul' + diff);
-
-
 
 
 

@@ -82,8 +82,23 @@ body #game #sidepanel #target {
   height: 100px;
 }
 
+body #game #sidepanel .keynum {
+  background: url(../img/key.png);
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  color: black;
+  text-align: center;
+  padding-top: 5px;
+}
+
+body #game #sidepanel .keynum.autokey {
+  background: url(../img/autokey.png);
+}
+
 body #game #sidepanel .keypower {
   color: #fbf236;
+  height: 32px;
 }
 
 body #game #sidepanel .cooling {

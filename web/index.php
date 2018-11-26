@@ -69,8 +69,8 @@ if ($isdev) {
             <div id="console"></div>
             <div id="sidepanel">
                 <div class="notice">
-                    T : target rotation
-                    <br/>K : toggle player killer mode
+                    <div class="keynum">T</div> target selection
+                    <br/><div class="keynum">K</div> toggle player killer mode
                 </div>
                 <div id="target"></div>
                 <img src="img/question.png" class="helper" data-info="infopowers" />

@@ -88,11 +88,11 @@
                 $('#powers').html('');
                 var empty = '<div class="keypower">_</div>';
                 var keys = [];
-                keys.push(pow.auto ? '<div class="keypower keyauto power' + pow.auto.k + '" data-key="auto">[Auto] <span class="n">' + powersbible[pow.auto.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
-                keys.push(pow.a ? '<div class="keypower keya power' + pow.a.k + '" data-key="a">[1] <span class="n">' + powersbible[pow.a.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
-                keys.push(pow.b ? '<div class="keypower keyb power' + pow.b.k + '" data-key="b">[2] <span class="n">' + powersbible[pow.b.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
-                keys.push(pow.c ? '<div class="keypower keyc power' + pow.c.k + '" data-key="c">[3] <span class="n">' + powersbible[pow.c.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
-                keys.push(pow.d ? '<div class="keypower keyd power' + pow.d.k + '" data-key="d">[4] <span class="n">' + powersbible[pow.d.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
+                keys.push(pow.auto ? '<div class="keypower keyauto power' + pow.auto.k + '" data-key="auto"><div class="keynum autokey">.</div> <span class="n">' + powersbible[pow.auto.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
+                keys.push(pow.a ? '<div class="keypower keya power' + pow.a.k + '" data-key="a"><div class="keynum dakey">1</div> <span class="n">' + powersbible[pow.a.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
+                keys.push(pow.b ? '<div class="keypower keyb power' + pow.b.k + '" data-key="b"><div class="keynum dakey">2</div> <span class="n">' + powersbible[pow.b.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
+                keys.push(pow.c ? '<div class="keypower keyc power' + pow.c.k + '" data-key="c"><div class="keynum dakey">3</div> <span class="n">' + powersbible[pow.c.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
+                keys.push(pow.d ? '<div class="keypower keyd power' + pow.d.k + '" data-key="d"><div class="keynum dakey">4</div> <span class="n">' + powersbible[pow.d.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
                 for (i = 0; i < keys.length; i++) {
                     $('#powers').append(keys[i]);
                 }

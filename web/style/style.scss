@@ -91,6 +91,19 @@ body{
                 color : $rouge;
                 height:100px;
             }
+            .keynum{
+                background:url(../img/key.png);
+                display:inline-block;
+                width: 32px;
+                height: 32px;
+                color: black;
+                text-align: center;
+                padding-top: 5px;
+                &.autokey{
+                    background:url(../img/autokey.png);
+                }
+               
+            }
             .keypower{
                 color: $jaune;
                 height: 32px;
