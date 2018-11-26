@@ -440,15 +440,14 @@ function tick() {
             /* prepare the level tick update json array */
             if (!preparedUpdate[client.data.z]) {
                 preparedUpdate[client.data.z] = {
-                    moves : [],
-                    powers : []
+                    moves : [], // moves actually contains damages too
+                    powers : [] // power use
                 }
             }
            
 
-            /* asked moves PUD */
+            /* asked moves & damage PUD */
             if (wss.waitingPuds.length) {
-                console.log(wss.waitingPuds.length + ' moves waiting');
                 for (i = 0; i < wss.waitingPuds.length; i++) {
                     for (j = 0; j < wss.waitingPuds[i].length; j++) {
                         var waitingPud = wss.waitingPuds[i][j];
@@ -460,7 +459,6 @@ function tick() {
 
             /*asked powers */
             if (wss.waitingPowers.length) {
-                console.log(wss.waitingPowers.length + ' powers waiting');
                 for (i = 0; i < wss.waitingPowers.length; i++) {
                     for (j = 0; j < wss.waitingPowers[i].length; j++) {
                         var waitingPud = wss.waitingPowers[i][j];

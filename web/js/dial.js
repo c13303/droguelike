@@ -174,13 +174,6 @@ function connect() {
 
 
 
-        if (d.coolme) {
-            var key = d.key;
-            var time = d.time;
-            tools.cooldown(key, time);
-        }
-
-
 
 
     } /* end of reception */

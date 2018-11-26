@@ -5,7 +5,7 @@ module.exports = {
     bibles: null,
     tools: null,
     mapAoE: null,
-    mapSize : 64,
+    mapSize: 64,
     getClientFromId(wss, id) {
         var that = null;
         this.wss.clients.forEach(function each(client) {
@@ -53,14 +53,11 @@ module.exports = {
         return that;
     },
     updateMyPosition(ws, wss) {
-        try {
-            if (!ws || !ws.data) return null;            
-            var pud = this.formatPeople(ws);
-            wss.addToWaiting('waitingPuds',ws.data.z,pud);
-        } catch (e) {
-            if (this.tools) this.tools.report(e);
-            else console.log(e);
-        }
+
+        if (!ws || !ws.data) return null;
+        var pud = this.formatPeople(ws);
+        wss.addToWaiting('waitingPuds', ws.data.z, pud);
+
     },
     updatePowerUse(ws, surface) {
         var msg = {
@@ -68,25 +65,7 @@ module.exports = {
             'pwup': ws.data.poweruse,
             'surf': surface
         };
-        this.wss.addToWaiting('waitingPowers',ws.data.z,msg);
-        /*
-        this.wss.clients.forEach(function each(client) {
-            if (client.data.z === ws.data.z) {
-                client.send(JSON.stringify({
-                    'who': ws.id,
-                    'pwup': ws.data.poweruse,
-                    'surf': surface
-                }));
-            }
-        });
-        */
-    },
-    coolme(ws, key, time) {
-        ws.send(JSON.stringify({
-            "coolme": 1,
-            "key": key,
-            "time": time
-        }));
+        this.wss.addToWaiting('waitingPowers', ws.data.z, msg);
     },
     powerUse(ws, powerkeyboard, dir, mapAoE) {
         var equiped = ws.data.powers_equiped[powerkeyboard];
@@ -127,13 +106,12 @@ module.exports = {
                 'owner': ws.id,
                 'cooldown': power.duration
             };
-            if (x > 0 && y > 0 && x < this.mapSize && y < this.mapSize)
-            {
+            if (x > 0 && y > 0 && x < this.mapSize && y < this.mapSize) {
                 var arrer = JSON.parse(JSON.stringify(mapAoE[ws.data.z][x][y]));
                 arrer.push(content)
                 mapAoE[ws.data.z][x][y] = arrer;
             }
-               
+
         }
 
         ws.data.poweruse = powerId;

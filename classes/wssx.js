@@ -7,7 +7,6 @@ class wssx extends server {
         this.waitingCools = [];
     }
     addToWaiting(pile,z,msg){     
-        console.log(' add to pile ' + pile);  
         if(!this[pile][z]){
             this[pile][z] = [];           
         }        
