@@ -102,10 +102,6 @@ function connect() {
 
 
         /* any player updates */
-        /*
-        if (d.pud) {
-            tools.updatePlayer(d.pud);
-        }*/
 
         if (d.puds) {
             for (i = 0; i < d.puds.length; i++) {
@@ -115,21 +111,25 @@ function connect() {
 
         /* power use update */
         if (d.pwups) {
-            for (i = 0; i < d.pwups.length; i++) {              
-
-                /* if you then cooldown */
+            for (i = 0; i < d.pwups.length; i++) {
+                /* P1 cooldown */
                 if (d.pwups[i].who === pd.id) {
                     pd.mypowertimer[d.pwups[i].pwup] = new timer(function () {
                         // utile pour afficher le timer live du boutton
                     }, powersbible[d.pwups[i].pwup].powercool);
 
                 }
-
                 tools.updateKeumById(d.pwups[i].who, "poweruse", {
                     power: d.pwups[i].pwup,
                     surface: d.pwups[i].surf
                 });
-                
+            }
+        }
+
+        if (d.mobs && d.mobs.length) { 
+            for (m = 0; m < d.mobs.length; m++) {                        
+                var mob = d.mobs[m];
+                tools.updatePlayer(mob);
             }
         }
 

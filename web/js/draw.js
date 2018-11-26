@@ -19,6 +19,10 @@ function preload() {
         frameWidth: 32,
         frameHeight: 32
     });
+    this.load.spritesheet("mobs", "img/mobs.png", {
+        frameWidth: 64,
+        frameHeight: 64
+    });
 }
 
 
@@ -148,8 +152,14 @@ function update() {
 
         if ($.inArray(keum.name, drawnPeopleIndex) < 0) {
             /* create a character */
-            tools.createCharacter(this, keum.name, keum.skin, keum.x, keum.y);
-            tools.notice(keum.name + ' is back online');
+           
+            if(!keum.mob){
+                tools.createCharacter(this, keum.name, keum.skin, keum.x, keum.y);
+                tools.notice(keum.name + ' is back online');
+            } else {
+                tools.createCharacter(this, keum.name, keum.skin, keum.x, keum.y,keum.mob);
+            }
+           
 
         } else {
             /* update character */
@@ -282,20 +292,10 @@ function update() {
                     }
                 }
 
-
-
-
-
             } // end is dead
-
-
-
-
-
         }
-
-
     }
+
     /* update cooldowns */
     $.each(pd.mypowertimer, function (key, value) {
 

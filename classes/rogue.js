@@ -6,6 +6,7 @@ module.exports = {
     tools: null,
     mapAoE: null,
     mapSize: 64,
+    maxLevels : 64,
     getClientFromId(wss, id) {
         var that = null;
         this.wss.clients.forEach(function each(client) {

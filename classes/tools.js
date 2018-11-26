@@ -4,29 +4,30 @@ module.exports = {
     params: null,
     fs: null,
     connection: null,
+    data: {},
     setup: function () {
         this.params = require('../params.js');
         this.fs = require('fs');
     },
-    saveFile(filename, data, callback) {
+    saveFile(filename, data, callback = null) {
         this.fs.writeFile(this.params.datapath + filename, data, (err) => {
             if (err)
                 this.report(err);
-            else{
+            else {
                 console.log(filename + ' written');
-                if(callback) callback();
+                if (callback) callback();
             }
-                
         });
     },
-    loadFile(fnam, callback) {
+    loadFile(fnam, key, callback) {
         console.log('Loading file : ' + this.params.datapath + fnam);
         this.fs.readFile(this.params.datapath + fnam, (err, data) => {
             if (err)
                 this.report(err);
-            else
-                callback(data);
+            this.data[key] = data;
+            callback(this.data);
         });
+
     },
     report: function (e) {
 
@@ -62,16 +63,17 @@ module.exports = {
         }
     },
     matrix: function (rows, cols, defaultValue = null) {
-
         var arr = [];
         for (var i = 0; i < rows; i++) {
             arr.push([]);
             arr[i].push(new Array(cols));
             for (var j = 0; j < cols; j++) {
                 if (!defaultValue) {
-                    defaultValue = this.getRandomInt(4);
+                    daval = this.getRandomInt(4);
+                } else {
+                    daval = defaultValue
                 }
-                arr[i][j] = defaultValue;
+                arr[i][j] = daval;
             }
         }
         return arr;
@@ -124,8 +126,10 @@ module.exports = {
             var sx = x + dist;
             var sy = y - dist;
         }
-        if(size < 1){
-            return([[sx,sy]]);
+        if (size < 1) {
+            return ([
+                [sx, sy]
+            ]);
         }
 
         if (style === 'cross') {
@@ -142,7 +146,8 @@ module.exports = {
     },
 
     timer(callback, delay) {
-        var id, started, remaining = delay, running;
+        var id, started, remaining = delay,
+            running;
 
         this.start = function () {
             running = true;

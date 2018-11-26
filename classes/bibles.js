@@ -110,29 +110,19 @@ module.exports = {
 
         var mobs = {};
 
-        mobs.punkache = {
-            name: {
-                fr: 'punk à chien',
-                en: 'gutter punk',
-            },
-            desc: {
-                fr: '',
-                en: ''
-            },
-            offensive: 1,
-            defensive: 1
-        };
 
 
         mobs.giletjaune = {
+            skin: 0,
             name: {
                 fr: 'gilet jaune',
-                en: 'gutter punk',
+                en: 'yellow jacket',
             },
             desc: {
                 fr: 'le fameux manifestant pro-carburant',
-                en: 'a protester that claims the right for cheap fuel'
+                en: 'cheap fuel protester'
             },
+            movecool : 10,
         };
 
 

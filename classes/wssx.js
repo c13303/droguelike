@@ -110,13 +110,35 @@ class wssx extends server {
     };
     getClientFromId(id) {
         var that = null;
-        this.wss.clients.forEach(function each(client) {
+        this.clients.forEach(function each(client) {
             if (client.id === id) {
                 that = client;
                 return that;
             }
         });
         return that;
+    }
+    nearestPlayerFromPoint(x,y,z){
+        var smallest = null;
+        var that = null;
+        this.clients.forEach(function each(client) {          
+            if (client.data && client.data.z === z) {
+                var dist = Math.sqrt(Math.pow(client.data.x - x,2) + Math.pow(client.data.y - y,2));
+                if(!smallest || dist < smallest){
+                    smallest = dist;
+                    that = client;
+                }
+            }
+        });
+        return that;
+    }
+    clearMobTarget(mobs,id){
+        for(i=0;i<mobs.length;i++){
+            if(mobs[i].target && mobs[i].target.id === id){
+                console.log('cleared target of mob ' + i);
+                mobs[i].target = null;
+            }
+        }
     }
 }
 

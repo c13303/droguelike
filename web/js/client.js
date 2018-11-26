@@ -34,10 +34,16 @@ var drawnPeople = {};
 var tweenplayer;
 var powersbible = [];
 var mobsbible = [];
+var spawners = [];
+var mobs = {};
 
 $.get("data/bibles.cio?v="+Date.now(), function (data) {
     var decoded = JSON.parse(data);
     powersbible = decoded.powers;
+});
+$.get("data/spawners.cio?v="+Date.now(), function (data) {
+    var decoded = JSON.parse(data);
+    spawners = decoded;
 });
 
 var map;

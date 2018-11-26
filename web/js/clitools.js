@@ -53,11 +53,15 @@ var tools = {
             }
         }
     },
-    createCharacter(that, name, skin, x, y) {
+    createCharacter(that, name, skin, x, y,isMob = false) {
         var x = layer.tileToWorldX(x) + tilesize / 2;
         var y = layer.tileToWorldY(y);
         // var char = that.add.sprite(x + tilesize / 2, y, skin);
-        var char = that.add.sprite(x + tilesize / 2, y, 'skinssheet', 1);
+        if(!isMob){
+            var char = that.add.sprite(x + tilesize / 2, y, 'skinssheet', skin);
+        } else {
+            var char = that.add.sprite(x + tilesize / 2, y + tilesize / 2, 'mobs', skin);
+        }        
 
         drawnPeopleIndex.push(name);
         drawnPeople[name] = {};
@@ -74,6 +78,25 @@ var tools = {
         drawnPeople[name].label.setDepth(100);
         drawnPeople[name].lifebar.setDepth(100);
         return (char);
+    },
+    updatePlayer(pud) {
+        
+        var found = false;
+        for (i = 0; i < peoplehere.length; i++) {
+            if (pud.id === peoplehere[i].id) {
+                if (pud.name === pd.name) { // if player 1
+                    pd.x = pud.x;
+                    pd.y = pud.y;
+                }
+                $.each(pud, function (key, value) {
+                    peoplehere[i][key] = value;
+                });
+                found = true;  
+            }
+        }
+        if (!found) { //newplayer
+            peoplehere.push(pud);
+        }
     },
     notice(c) {
         var wtf = $('#console');
@@ -92,25 +115,7 @@ var tools = {
         if (py < object.y)
             object.y -= dt;
     },
-    updatePlayer(pud) {
-        var found = false;
-        for (i = 0; i < peoplehere.length; i++) {
-            if (pud.id === peoplehere[i].id) {
-                if (pud.name === pd.name) { // if player 1
-                    pd.x = pud.x;
-                    pd.y = pud.y;
-                }
-                $.each(pud, function (key, value) {
-                    peoplehere[i][key] = value;
-                });
-                found = true;
-               
-            }
-        }
-        if (!found) { //newplayer
-            peoplehere.push(pud);
-        }
-    },
+    
     checkKey(evt) {
         var keyID = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode);
         return (keyID);
