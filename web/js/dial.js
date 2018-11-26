@@ -219,7 +219,8 @@
             e.preventDefault();
             ws.send(JSON.stringify({
                 cd: 'say',
-                v: $('#chat').val()
+                v: $('#chat').val(),
+                cur : [caseX,caseY]
             }));
             $('#chat').val('');
         });

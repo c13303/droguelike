@@ -1,7 +1,7 @@
 const server = require('ws').Server;
 
 class wssx extends server {
-    verify(info, callback, connection, userRequestMap) {
+    verify(info, callback, connection, userRequestMap,data_example) {
 
         var Filter = require('bad-words');
         var myFilter = new Filter({
@@ -39,7 +39,7 @@ class wssx extends server {
             callback(false);
         }
         if (urlinfo[1].toLowerCase() !== name || urlinfo[0] !== token) {
-            report('illegal name');
+            console.log('illegal name');
             callback(false);
         }
         this.clients.forEach(function each(client) {
@@ -54,7 +54,7 @@ class wssx extends server {
                     userRequestMap.set(info.req, rows[0]);
                     callback(true);
                 } else {
-                    report(name + ' rejected');
+                    console.log(name + ' rejected');
                     callback(false);
                 }
             } else {
@@ -62,9 +62,9 @@ class wssx extends server {
                 var data = JSON.stringify(dataclone);
                 connection.query('INSERT INTO players(name,password,data) VALUES (?,?,?)', [name, token, data], function (err) {
                     if (err)
-                        report(err);
+                        console.log(err);
                     else {
-                        report(' - New PLayer Creation : ' + name);
+                        console.log(' - New PLayer Creation : ' + name);
                         var uzar = {
                             'name': name,
                             'password': token,

@@ -104,6 +104,7 @@ var tools = {
                     peoplehere[i][key] = value;
                 });
                 found = true;
+               
             }
         }
         if (!found) { //newplayer

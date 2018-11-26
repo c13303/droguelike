@@ -17,7 +17,8 @@ var config = {
         update: update,
     }
 };
-
+var caseX;
+var caseY;
 var level;
 var layer;
 var tiles;

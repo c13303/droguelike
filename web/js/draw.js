@@ -1,21 +1,21 @@
 
 function preload() {
 
-    this.load.spritesheet("skinssheet", "img/sprites/skinssheet.png", {
+    this.load.spritesheet("skinssheet", "img/skinssheet.png", {
         frameWidth: 64,
         frameHeight: 64
     });
-    this.load.image('selector', 'img/sprites/selector.png');
+    this.load.image('selector', 'img/selector.png');
     this.load.image("tiles", "img/tilesettest.png");
     this.load.spritesheet("fxtiles", "img/FXtileset.png", {
         frameWidth: 32,
         frameHeight: 32
     });
-    this.load.spritesheet("powers", "img/sprites/powers.png", {
+    this.load.spritesheet("powers", "img/powers.png", {
         frameWidth: 32,
         frameHeight: 32
     });
-    this.load.spritesheet("explosheet", "img/sprites/explo-sheet.png", {
+    this.load.spritesheet("explosheet", "img/explo-sheet.png", {
         frameWidth: 32,
         frameHeight: 32
     });
@@ -74,8 +74,8 @@ function update() {
 
     const worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);
 
-    var caseX = layer.worldToTileX(worldPoint.x);
-    var caseY = layer.worldToTileY(worldPoint.y);
+    caseX = layer.worldToTileX(worldPoint.x);
+    caseY = layer.worldToTileY(worldPoint.y);
     $('.coords').html(caseX + ',' + caseY);
     /* cursor */
     cursor.x = layer.tileToWorldX(caseX) + 16;

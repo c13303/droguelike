@@ -6,7 +6,16 @@ module.exports = {
     tools: null,
     mapAoE: null,
     mapSize : 64,
-    
+    getClientFromId(wss, id) {
+        var that = null;
+        this.wss.clients.forEach(function each(client) {
+            if (client.id === id) {
+                that = client;
+                return that;
+            }
+        });
+        return that;
+    },
     formatPeople(ws) {
         return ({
             id: ws.id,

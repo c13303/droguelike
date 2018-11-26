@@ -187,8 +187,8 @@ function startServer(mapData) {
 
     wss = new WebSocketServer({
         server: httpsServer,
-        verifyClient: function(info,callback){
-            wss.verify(info,callback,connection,userRequestMap);
+        verifyClient: function (info, callback) {
+            wss.verify(info, callback, connection, userRequestMap, data_example);
         }
     });
 
@@ -199,7 +199,7 @@ function startServer(mapData) {
 
 
     wss.on('connection', function myconnection(ws, request) {
-       
+
 
         try {
             /* recognize authentified player */
@@ -211,7 +211,7 @@ function startServer(mapData) {
             connection.query('SELECT id,name,data FROM players WHERE name=? AND password=?', [name, token], function (err, rows, fields) {
                 if (err)
                     report(err);
-                var data = JSON.parse(rows[0].data);            
+                var data = JSON.parse(rows[0].data);
 
                 ws.name = name;
                 ws.id = rows[0].id;
@@ -258,9 +258,7 @@ function startServer(mapData) {
         ws.reset = function () {
             ws.data = JSON.parse(JSON.stringify(data_example));
             ws.save();
-            ws.send(JSON.stringify({
-                'reset': 1
-            }));
+           
         };
 
         ws.setMoveCool = function (cool) {
@@ -290,6 +288,53 @@ function startServer(mapData) {
 
 
             var json = JSON.parse(message);
+
+
+            if (json.cd === "say") {
+                if (json.v === '/rez') {
+                    console.log(ws.name + ' ressurecting ...');
+                    ws.data.skin = 1;
+                    ws.data.isdead = null;
+                    ws.data.life.now = ws.data.life.max;
+                    rogue.updateMyPosition(ws, wss);
+                }
+                if (json.v.indexOf("/") === 0) {
+                    var com = json.v.split(" ");
+                    if (com[0] === '/skin' && com[1]) {
+                        ws.data.skin = com[1];
+                        rogue.updateMyPosition(ws, wss);
+                    }
+                    console.log('--adm cd :  ' + com[0] + ' ' + com[1]);
+                } else {
+                    var saydata = JSON.stringify({
+                        'who': ws.name,
+                        'chat': json.v
+                    });
+                    report(saydata);
+                    wss.broadcast(saydata);
+                }
+
+            }
+
+
+            if (ws.data.isdead) {
+
+                return null;
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             if (json.cd === 'reset') {
                 ws.reset();
             }
@@ -327,25 +372,6 @@ function startServer(mapData) {
 
 
 
-            if (json.cd === "say") {
-                if (json.v.indexOf("/") === 0) {
-                    var com = json.v.split(" ");
-                    if (com[0] === '/skin') {
-                        ws.data.skin = com[1];
-                        //     ws.send(JSON.stringify({'mydata': ws.data,'rskin': ws.data.skin}));
-                        rogue.updateMyPosition(ws, wss);
-                    }
-                    console.log('--adm cd :  ' + com[0] + ' ' + com[1]);
-                } else {
-                    var saydata = JSON.stringify({
-                        'who': ws.name,
-                        'chat': json.v
-                    });
-                    report(saydata);
-                    wss.broadcast(saydata);
-                }
-
-            }
 
             /* pkmode toggle */
             if (json.cd === "pkm") {
@@ -401,10 +427,6 @@ function tick() {
     tic++;
     /* SERVER TICK */
 
-
-
-
-
     /* PLAYER TICK */
 
     var preparedTickUpdate = []; /// there's one by level
@@ -414,8 +436,8 @@ function tick() {
         try {
 
             /* prepare the level tick update json array */
-            if (!preparedTickUpdate[client.data.z]) {
-                preparedTickUpdate[client.data.z] = [];
+            if (!preparedPuds[client.data.z]) {
+                preparedPuds[client.data.z] = [];
             }
 
             /* player cooldowns powers */
@@ -435,22 +457,32 @@ function tick() {
                 for (i = 0; i < fxs.length; i++) {
                     /* touché */
                     if (fxs[i].owner != client.id) {
-
                         var damage = fxs[i].damage;
                         var defenses = rogue.getDefenses(client);
                         var appliedDamage = rogue.getAppliedDamage(damage, defenses);
                         client.data.life.now -= appliedDamage;
                         console.log(client.name + ' is touched by ' + fxs[i].power + ' and takes ' + appliedDamage + ' damage');
                         console.log(client.data.life.now + '/' + client.data.life.max + ' life remaing');
-                        var json = {
-                            'damage': {
-                                pid: client.id,
-                                damage: appliedDamage,
-                                owner: fxs[i].owner
-                            }
+                        client.data.damaged = appliedDamage;
+                        /* death :o */
+                        if (client.data.life.now <= 0) {
+                            var dareport = client.data.name + ' killed by ' + fxs[i].power + ' from ' + fxs[i].owner;
+                            report(dareport);
+                            client.data.life.now = 0;
+                            client.send(JSON.stringify({
+                                dead: 1
+                            }));
+                            wss.broadcast(JSON.stringify({
+                                'notice': report
+                            }));
+                            client.data.isdead = true;
                         }
-                        preparedTickUpdate[client.data.z].push(json);
-                        preparedPuds.push(pudjson);
+
+
+
+                        var pud = rogue.formatPeople(client);
+                        client.data.damaged = 0;
+                        preparedPuds[client.data.z].push(pud);
                     }
                 }
             }
@@ -465,13 +497,14 @@ function tick() {
 
     });
 
-    for (z = 0; z < preparedTickUpdate.length; z++) {
-        if (preparedTickUpdate[z].length) {
-            wss.broadcast(JSON.stringify({
-                'tic': preparedTickUpdate[z]
-            }));
-        }
+  /* on envoie l'update groupée en 1 json par personne /  tick optimisé du cul */
+  for (z = 0; z < preparedPuds.length; z++) {
+    if (preparedPuds[z].length) {
+        wss.broadcast(JSON.stringify({
+            'puds': preparedPuds[z]
+        }));
     }
+}
 
 
     if (!wss.clients.size) {
