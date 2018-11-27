@@ -45,9 +45,9 @@ var tools = {
         }, time + laginput);
     },
     updateKeumById(id, key, value) {
-        for (i = 0; i < peoplehere.length; i++) {
-            if (peoplehere[i].id === id) {
-                peoplehere[i][key] = value;
+        for (bi = 0; bi < peoplehere.length; bi++) {
+            if (peoplehere[bi].id === id) {
+                peoplehere[bi][key] = value;
                 // return (peoplehere[i]); // fait planter quand trop rapproché 4 some reason o_O
             }
         }
@@ -67,15 +67,15 @@ var tools = {
         drawnPeople[name].sprite = char;
 
 
-        if (!isMob) {
-            drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
-                font: '14px Arial',
-                align: "center",
-                fill: '#ffffff'
-            });
-            drawnPeople[name].label.setAlign('center');
-            drawnPeople[name].label.setDepth(100);
-        }
+        // if (!isMob) {
+        drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
+            font: '14px Arial',
+            align: "center",
+            fill: '#ffffff'
+        });
+        drawnPeople[name].label.setAlign('center');
+        drawnPeople[name].label.setDepth(100);
+        //   }
 
         drawnPeople[name].lifebar = that.add.sprite(x + lifebarOffsetX, y + lifebarOffsetY, 'fxtiles', 0);
         drawnPeople[name].lifebar.setScale(1, 0.25);
@@ -100,6 +100,29 @@ var tools = {
         if (!found) { //newplayer
             peoplehere.push(pud);
         }
+    },
+    killMobs(killingPile) {
+        console.log(peoplehere);
+        console.log(killingPile);
+        
+        /*
+        for (dmi = 0; dmi < peoplehere.length; dmi++) {
+            for (dmj = 0; dmj < killingPile.length; dmj++) {
+                if (killingPile[dmj] === peoplehere[dmi].id) {
+                    console.log('KillMobs : killing ' + peoplehere[dmi].name);
+                    peoplehere[dmi].killMob = true;
+                    killingPile.splice(dmj,1);
+                }
+            }
+        }*/
+        $.each(peoplehere,function(indexKeum,keum){
+            $.each(killingPile,function(indexKill, kill){
+                if(kill === keum.id){
+                    keum.killMob = true;  
+                    killingPile.splice(indexKill,1);                  
+                }
+            });
+        });
     },
     notice(c) {
         var wtf = $('#console');

@@ -3,7 +3,10 @@
  * 
  * CONNEXION
  */
+
+
 function connect() {
+    
     clearTimeout(autoreco);
     token = $('#password').val();
     user = $('#username').val();
@@ -59,6 +62,7 @@ function connect() {
             console.log(d);
 
         if (d.startgame && d.level) {
+
             $('#connect').remove();
             $('#autoreconnect').remove();
             $('#game').removeClass("hidden");
@@ -104,33 +108,41 @@ function connect() {
         /* any player updates */
 
         if (d.puds) {
-            for (i = 0; i < d.puds.length; i++) {
-                tools.updatePlayer(d.puds[i]);
+            for (pudI = 0; pudI < d.puds.length; pudI++) {
+                tools.updatePlayer(d.puds[pudI]);
             }
         }
 
         /* power use update */
         if (d.pwups) {
-            for (i = 0; i < d.pwups.length; i++) {
+            for (puI = 0; puI < d.pwups.length; puI++) {
                 /* P1 cooldown */
-                if (d.pwups[i].who === pd.id) {
-                    pd.mypowertimer[d.pwups[i].pwup] = new timer(function () {
+                if (d.pwups[puI].who === pd.id) {
+                    pd.mypowertimer[d.pwups[puI].pwup] = new timer(function () {
                         // utile pour afficher le timer live du boutton
-                    }, powersbible[d.pwups[i].pwup].powercool);
+                    }, powersbible[d.pwups[puI].pwup].powercool);
 
                 }
-                tools.updateKeumById(d.pwups[i].who, "poweruse", {
-                    power: d.pwups[i].pwup,
-                    surface: d.pwups[i].surf
+                tools.updateKeumById(d.pwups[puI].who, "poweruse", {
+                    power: d.pwups[puI].pwup,
+                    surface: d.pwups[puI].surf
                 });
             }
         }
 
-        if (d.mobs && d.mobs.length) { 
-            for (m = 0; m < d.mobs.length; m++) {                        
+        /* mobs update */
+        if (d.mobs && d.mobs.length) {
+            for (m = 0; m < d.mobs.length; m++) {
                 var mob = d.mobs[m];
                 tools.updatePlayer(mob);
             }
+        }
+
+        /* dead mobs update */
+        if (d.dm && d.dm.length) {           
+           
+            killingPile.push.apply(killingPile,d.dm);
+           
         }
 
 

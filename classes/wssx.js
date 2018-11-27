@@ -145,7 +145,7 @@ class wssx extends server {
     clearMobTarget(mobs, id) {
         for (i = 0; i < mobs.length; i++) {
             if (mobs[i].target && mobs[i].target.id === id) {
-                console.log('cleared target of mob ' + i);
+               // console.log('cleared target of mob ' + i);
                 mobs[i].target = null;
             }
         }

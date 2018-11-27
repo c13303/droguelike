@@ -64,16 +64,16 @@ module.exports = {
     },
     matrix: function (rows, cols, defaultValue = null) {
         var arr = [];
-        for (var i = 0; i < rows; i++) {
+        for (var matrixi = 0; matrixi < rows; matrixi++) {
             arr.push([]);
-            arr[i].push(new Array(cols));
-            for (var j = 0; j < cols; j++) {
+            arr[matrixi].push(new Array(cols));
+            for (var matrixj = 0; matrixj < cols; matrixj++) {
                 if (!defaultValue) {
                     daval = this.getRandomInt(4);
                 } else {
                     daval = defaultValue
                 }
-                arr[i][j] = daval;
+                arr[matrixi][matrixj] = daval;
             }
         }
         return arr;
@@ -175,5 +175,8 @@ module.exports = {
         }
 
         this.start();
+    },
+    getDist(x1, x2, y1, y2) {
+        return (Math.sqrt(Math.pow(x1 - x2, 2) - Math.pow(y1 - y2, 2)));
     }
 }

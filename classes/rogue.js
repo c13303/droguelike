@@ -43,6 +43,32 @@ module.exports = {
         });
         return here;
     },
+    getMobsInZ(z, mobs) {
+        var here = [];
+        for (iz = 0; iz < mobs.length; iz++) {
+            if (mobs[iz].z === z) {
+                var fMob = this.formatMob(mobs[iz]);
+                here.push(fMob);
+            }
+        }
+        return here;
+    },
+    formatMob(mob) {
+        var format = {
+            id: mob.id,
+            name: mob.name,
+            mob: mob.mob,
+            x: mob.x,
+            y: mob.y,
+            skin: mob.skin,
+            life: {
+                now: mob.life.now,
+                max: mob.life.max
+            },
+            attack: false
+        };
+        return (format);
+    },
     getNextMove(x, y, tx, ty) {
         var update = false;
         if (tx > x) {
@@ -78,7 +104,7 @@ module.exports = {
     },
     isMonsterHere(mobs, x, y, z, currentMobId = null) {
         var that = null;
-        for (m = 0; m < mobs.length; m++) {           
+        for (m = 0; m < mobs.length; m++) {
             if (mobs[m].x === x && mobs[m].y === y && mobs[m].z === z) {
                 if (currentMobId !== m) {
                     that = mobs[m];
@@ -112,7 +138,7 @@ module.exports = {
             return null;
         }
 
-    //    console.log(ws.name + ' tries to use ' + power.name[ws.data.lang]);
+        //    console.log(ws.name + ' tries to use ' + power.name[ws.data.lang]);
 
 
         /* cooldown of power use*/
@@ -131,10 +157,10 @@ module.exports = {
         /* calcul of AREA O_____O + duration of effect */
 
         var surface = this.tools.calculateSurface(ws.data.x, ws.data.y, dir, power.surface.dist, power.surface.style, power.surface.size);
-        for (i = 0; i < surface.length; i++) {
-            // console.log('surface empiled : ' + surface[i][0]+','+surface[i][1]);
-            var x = surface[i][0];
-            var y = surface[i][1];
+        for (is = 0; is < surface.length; is++) {
+            // console.log('surface empiled : ' + surface[is][0]+','+surface[is][1]);
+            var x = surface[is][0];
+            var y = surface[is][1];
             var content = {
                 'power': powerId,
                 'damage': this.getPowerOffensiveDamage(ws, power),
@@ -194,6 +220,31 @@ module.exports = {
         var money_damage = damages.money_damage - defenses.money;
         var damage = physical_damage + humiliation_damage + sanity_damage + sex_damage + money_damage;
         return (damage);
+    },
+    applyDamage(entity, mapAoE) {
+        if (mapAoE.length) {
+            var fxs = mapAoE;
+            for (ifff = 0; ifff < fxs.length; ifff++) {
+                if (fxs[ifff].owner != entity.id) {
+                    var damage = fxs[ifff].damage;
+                    var defenses = this.getDefenses(entity);
+                    var appliedDamage = this.getAppliedDamage(damage, defenses);
+                    entity.life.now -= appliedDamage;
+                  //  console.log(entity.name + ' is touched by ' + fxs[ifff].power + ' and takes ' + appliedDamage + ' damage ' + entity.life.now + '/' + entity.life.max + ' life remaing');
+                    entity.damaged = appliedDamage;
+                    /* death :o */
+                    if (entity.life.now <= 0) {
+                        var dareport = entity.name + ' killed by ' + fxs[ifff].power + ' from ' + fxs[ifff].owner;
+                        //console.log(dareport);
+                        entity.life.now = 0;                        
+                        entity.isdead = true;           
+                        
+                    }
+                   
+                }
+            }
+        }
+        return(entity);
     }
 
 

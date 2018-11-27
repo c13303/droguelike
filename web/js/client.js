@@ -28,8 +28,10 @@ var pd = {}; //playerData lol
 var laginput = 50; //ms to stay sync with server
 
 var lang = 'fr';
-var peoplehere = [];
 var drawnPeopleIndex = [];
+var peoplehere = [];
+var killingPile = [];
+
 var drawnPeople = {};
 var tweenplayer;
 var powersbible = [];
@@ -37,15 +39,18 @@ var mobsbible = [];
 var spawners = [];
 var mobs = {};
 
-$.get("data/bibles.cio?v="+Date.now(), function (data) {
-    var decoded = JSON.parse(data);
-    powersbible = decoded.powers;
-    mobsbible = decoded.mobs;
+$.get("data/powers.json?v="+Date.now(), function (data) {    
+    powersbible = data;
 });
-$.get("data/spawners.cio?v="+Date.now(), function (data) {
-    var decoded = JSON.parse(data);
-    spawners = decoded;
+$.get("data/mobs.json?v="+Date.now(), function (data) {    
+    mobsbible = data;
 });
+$.get("data/spawners.json?v="+Date.now(), function (data) {  
+    spawners = data;
+});
+
+
+
 
 var map;
 var tilefx;
