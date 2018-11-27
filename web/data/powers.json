@@ -31,7 +31,7 @@
     },
     "slap": {
         "type": "trig",
-        "duration": 1,
+        "duration": 2,
         "powercool": 1500,
         "movecool": 100,
         "sprite": 0,

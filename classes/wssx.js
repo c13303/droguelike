@@ -131,7 +131,7 @@ class wssx extends server {
         var smallest = null;
         var that = null;
         this.clients.forEach(function each(client) {
-            if (client.data && client.data.z === z) {
+            if (client.data && client.data.z === z && !client.data.isdead) {
                 var dist = Math.sqrt(Math.pow(client.data.x - x, 2) + Math.pow(client.data.y - y, 2));
                 if (!smallest || dist < smallest) {
                     smallest = dist;

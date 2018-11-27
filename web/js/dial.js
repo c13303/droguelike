@@ -133,7 +133,7 @@ function connect() {
         /* mobs update */
         if (d.mobs && d.mobs.length) {
             for (m = 0; m < d.mobs.length; m++) {
-                var mob = d.mobs[m];
+                var mob = d.mobs[m];               
                 tools.updatePlayer(mob);
             }
         }

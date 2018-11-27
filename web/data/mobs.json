@@ -10,8 +10,8 @@
             "en": "cheap fuel protester"
         },
         "life": {
-            "now": 10,
-            "max": 10
+            "now": 30,
+            "max": 30
         },
         "movecool": 3
     }

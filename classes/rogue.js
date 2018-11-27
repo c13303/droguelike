@@ -31,6 +31,23 @@ module.exports = {
             isdead: ws.data.isdead
         });
     },
+    formatMob(mob) {
+        var format = {
+            id: mob.id,
+            name: mob.name,
+            mob: mob.mob,
+            x: mob.x,
+            y: mob.y,
+            skin: mob.skin,
+            life: {
+                now: mob.life.now,
+                max: mob.life.max
+            },
+            attack: false,
+            damaged : mob.damaged
+        };
+        return (format);
+    },
     getPeopleInZ(z, wss, ws) {
         var here = [];
         var that = this;
@@ -52,22 +69,6 @@ module.exports = {
             }
         }
         return here;
-    },
-    formatMob(mob) {
-        var format = {
-            id: mob.id,
-            name: mob.name,
-            mob: mob.mob,
-            x: mob.x,
-            y: mob.y,
-            skin: mob.skin,
-            life: {
-                now: mob.life.now,
-                max: mob.life.max
-            },
-            attack: false
-        };
-        return (format);
     },
     getNextMove(x, y, tx, ty) {
         var update = false;
@@ -221,6 +222,7 @@ module.exports = {
         var damage = physical_damage + humiliation_damage + sanity_damage + sex_damage + money_damage;
         return (damage);
     },
+    /*
     applyDamage(entity, mapAoE) {
         if (mapAoE.length) {
             var fxs = mapAoE;
@@ -230,12 +232,9 @@ module.exports = {
                     var defenses = this.getDefenses(entity);
                     var appliedDamage = this.getAppliedDamage(damage, defenses);
                     entity.life.now -= appliedDamage;
-                  //  console.log(entity.name + ' is touched by ' + fxs[ifff].power + ' and takes ' + appliedDamage + ' damage ' + entity.life.now + '/' + entity.life.max + ' life remaing');
                     entity.damaged = appliedDamage;
-                    /* death :o */
                     if (entity.life.now <= 0) {
                         var dareport = entity.name + ' killed by ' + fxs[ifff].power + ' from ' + fxs[ifff].owner;
-                        //console.log(dareport);
                         entity.life.now = 0;                        
                         entity.isdead = true;           
                         
@@ -246,6 +245,7 @@ module.exports = {
         }
         return(entity);
     }
+    */
 
 
 }

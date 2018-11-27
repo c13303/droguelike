@@ -67,15 +67,15 @@ var tools = {
         drawnPeople[name].sprite = char;
 
 
-        // if (!isMob) {
-        drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
-            font: '14px Arial',
-            align: "center",
-            fill: '#ffffff'
-        });
-        drawnPeople[name].label.setAlign('center');
-        drawnPeople[name].label.setDepth(100);
-        //   }
+        if (!isMob) {
+            drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
+                font: '14px Arial',
+                align: "center",
+                fill: '#ffffff'
+            });
+            drawnPeople[name].label.setAlign('center');
+            drawnPeople[name].label.setDepth(100);
+        }
 
         drawnPeople[name].lifebar = that.add.sprite(x + lifebarOffsetX, y + lifebarOffsetY, 'fxtiles', 0);
         drawnPeople[name].lifebar.setScale(1, 0.25);
@@ -104,7 +104,7 @@ var tools = {
     killMobs(killingPile) {
         console.log(peoplehere);
         console.log(killingPile);
-        
+
         /*
         for (dmi = 0; dmi < peoplehere.length; dmi++) {
             for (dmj = 0; dmj < killingPile.length; dmj++) {
@@ -115,11 +115,11 @@ var tools = {
                 }
             }
         }*/
-        $.each(peoplehere,function(indexKeum,keum){
-            $.each(killingPile,function(indexKill, kill){
-                if(kill === keum.id){
-                    keum.killMob = true;  
-                    killingPile.splice(indexKill,1);                  
+        $.each(peoplehere, function (indexKeum, keum) {
+            $.each(killingPile, function (indexKill, kill) {
+                if (kill === keum.id) {
+                    keum.killMob = true;
+                    killingPile.splice(indexKill, 1);
                 }
             });
         });

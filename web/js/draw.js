@@ -170,10 +170,8 @@ function update() {
                 selector.y = drawnPeople[keum.name].sprite.y - 42;
             }
             drawnPeople[keum.name].sprite.setDepth(keum.y);
-
             for (killindex = 0; killindex < killingPile.length; killindex++) {
-                if (keum.name === killingPile[killindex]) {
-                    
+                if (keum.name === killingPile[killindex]) {                    
                     drawnPeople[keum.name].sprite.destroy();
                     drawnPeople[keum.name].lifebar.destroy();
                     if (drawnPeople[keum.name].label) drawnPeople[keum.name].label.destroy();
@@ -183,7 +181,6 @@ function update() {
                             drawnPeopleIndex.splice(dpi, 1);
                         }
                     }
-                    console.log('DrawKill : killing ' + keum.name);
                     killingPile.splice(killindex,1);
                     peoplehere.splice(loopIndexPeople,1);
                     keum.killMob = 1;
@@ -252,7 +249,7 @@ function update() {
                         targets: keum[powerspritekey],
                         scaleX: 1.5,
                         scaleY: 1.5,
-                        duration: powersbible[power].duration * 100,
+                        duration: powersbible[power].duration * 50,
                         delay: 0,
                         repeat: 0,
                         yoyo: true,

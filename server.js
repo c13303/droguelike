@@ -355,7 +355,7 @@ function startServer() {
             ws.data.security.last = now;
 
             var json = JSON.parse(message);
-            if (!json.move) console.log(ws.name + ' : ' + message);
+            if (!json.move && !json.cd) console.log(ws.name + ' : ' + message);
 
 
             /* Commande From Clients */
@@ -549,14 +549,32 @@ function tick() {
             var x = mob.x;
             var y = mob.y;
             var z = mob.z;
-            mob = rogue.applyDamage(mob, mapAoE[z][x][y]);
+            if (mapAoE[z][x][y].length) {
+                var fxtile = mapAoE[z][x][y];
+                for (ifff = 0; ifff < fxtile.length; ifff++) {
+                    if (fxtile[ifff].owner != 'mob') {
+                        var damage = fxtile[ifff].damage;
+                        var defenses = rogue.getDefenses(mob);
+                        var appliedDamage = rogue.getAppliedDamage(damage, defenses);
+                        mob.life.now -= appliedDamage;
+                        mob.damaged = appliedDamage;
+                        mob.update = true;
+                        if (mob.life.now <= 0) {
+                            var dareport = mob.name + ' killed by ' + fxtile[ifff].power + ' from ' + fxtile[ifff].owner;
+                            mob.life.now = 0;                        
+                            mob.isdead = true;        
+                            
+                        }
+                       
+                    }
+                }
+            }
+            
 
             if (mob.isdead) {
                 /* MOB DIES */
 
                 preparedUpdate[mob.z].deadmobs.push(mob.id);
-                console.log(mob.id + ' killed');
-
                 mobs.splice(ii, 1);
                 mob = null;
 
@@ -592,8 +610,7 @@ function tick() {
                             if (occupied[mob.z][x][y]) obstacle = true;
                             if (!obstacle) obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
                             if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
-                            if (obstacle || obstacleMob) {
-                                mob.update = false;
+                            if (obstacle || obstacleMob) {                               
                                 mob.target = null;
                             } else {
                                 /* move validated */
@@ -677,19 +694,18 @@ function tick() {
                 var y = client.data.y;
                 var z = client.data.z;
                 if (mapAoE[z][x][y].length) {
-                    var fxs = mapAoE[z][x][y];
-                    for (i = 0; i < fxs.length; i++) {
+                    var fxtile = mapAoE[z][x][y];
+                    for (i = 0; i < fxtile.length; i++) {
                         /* touché */
-                        if (fxs[i].owner != client.id) {
-                            var damage = fxs[i].damage;
+                        if (fxtile[i].owner != client.id) {
+                            var damage = fxtile[i].damage;
                             var defenses = rogue.getDefenses(client);
                             var appliedDamage = rogue.getAppliedDamage(damage, defenses);
                             client.data.life.now -= appliedDamage;
-                            //  console.log(client.name + ' is touched by ' + fxs[i].power + ' and takes ' + appliedDamage + ' damage ' + client.data.life.now + '/' + client.data.life.max + ' life remaing');
                             client.data.damaged = appliedDamage;
                             /* death :o */
                             if (client.data.life.now <= 0) {
-                                var dareport = client.data.name + ' killed by ' + fxs[i].power + ' from ' + fxs[i].owner;
+                                var dareport = client.data.name + ' killed by ' + fxtile[i].power + ' from ' + fxtile[i].owner;
                                 report(dareport);
                                 client.data.life.now = 0;
                                 client.send(JSON.stringify({
@@ -699,6 +715,7 @@ function tick() {
                                     'notice': report
                                 }));
                                 client.data.isdead = true;
+                                wss.clearMobTarget(mobs,client.data.id);
                             }
                             var pud = rogue.formatPeople(client);
                             client.data.damaged = 0;
