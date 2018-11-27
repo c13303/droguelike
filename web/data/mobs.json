@@ -1,0 +1,18 @@
+{
+    "giletjaune": {
+        "skin": 0,
+        "name": {
+            "fr": "gilet jaune",
+            "en": "yellow jacket"
+        },
+        "desc": {
+            "fr": "le fameux manifestant pro-carburant",
+            "en": "cheap fuel protester"
+        },
+        "life": {
+            "now": 10,
+            "max": 10
+        },
+        "movecool": 3
+    }
+}
