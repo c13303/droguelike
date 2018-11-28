@@ -114,7 +114,8 @@ function connect() {
         }
 
         /* power use update */
-        if (d.pwups) {
+        if (d.pwups && d.pwups.length) {
+            console.log(d.pwups);
             for (puI = 0; puI < d.pwups.length; puI++) {
                 /* P1 cooldown */
                 if (d.pwups[puI].who === pd.id) {

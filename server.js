@@ -1,4 +1,5 @@
 /* fromage server */
+console.log(' --- go --- ');
 var params = require('./params.js');
 var tools = require('./classes/tools.js');
 var rogue = require('./classes/rogue.js');
@@ -201,21 +202,15 @@ stdin.addListener("data", function (d) {
 if (regularStart) setup();
 
 function setup() {
-    tools.loadFile('map.json', "mapData", loadMobs);
-}
+    tools.loadFile('map.json', "mapData");
+    tools.loadFile('mobs.json', "mobsBible");
+    tools.loadFile('powers.json', 'powersBible');
+    tools.loadFile('spawners.json', "spawnersData");
+    tools.loadFile('shapes.json', "shapesData");
 
-function loadMobs() {
-    tools.loadFile('mobs.json', "mobsBible", loadPowers);
-}
+    setTimeout(function(){startServer()},1000);
 
-function loadPowers() {
-    tools.loadFile('powers.json', 'powersBible', loadSpawners);
 }
-
-function loadSpawners() {
-    tools.loadFile('spawners.json', "spawnersData", startServer);
-}
-
 
 
 var mapAoE = [];
@@ -243,7 +238,7 @@ function startServer() {
         console.log('setup failed');
         process.exit();
     }
-    report('Lancement serveur port ' + port + '------------------------------------------------------');
+    report('- - - - Lancement serveur port ' + port);
 
     var levels = JSON.parse(mapData);
 
@@ -327,12 +322,15 @@ function startServer() {
 
         };
 
-        ws.setMoveCool = function (cool) {
+        ws.setMoveCool = function (cool,holdingPower = false) {
             clearTimeout(ws.data.currentCool);
             ws.data.movecooling = true;
             var that = ws;
             ws.data.currentCool = setTimeout(function () {
                 that.data.movecooling = false;
+                if(that.data.holdingPower){
+                    rogue.powerUse(that, that.data.holdingPower.power, that.data.holdingPower.dir, mapAoE,true);                
+                }
             }, cool);
         };
 
@@ -435,7 +433,7 @@ function startServer() {
             }
 
             /* power use by player with a key */
-            if (json.cd === 'key' && json.v) {
+            if (json.cd === 'key' && json.v && !ws.data.holdingPower) {
                 rogue.powerUse(ws, json.v, json.dir, mapAoE);
             }
 

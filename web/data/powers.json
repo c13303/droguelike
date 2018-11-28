@@ -1,9 +1,10 @@
 {
     "ass": {
+        "id" : "ass",
         "type": "trig",
         "duration": 3,
         "powercool": 500,
-        "movecool": 100,
+        "delay": 0,
         "sprite": 1,
         "name": {
             "fr": "main au cul",
@@ -30,10 +31,11 @@
         "depth": 1
     },
     "slap": {
+        "id" : "slap",
         "type": "trig",
         "duration": 2,
         "powercool": 1500,
-        "movecool": 100,
+        "delay": 0,
         "sprite": 0,
         "name": {
             "fr": "gifle",
@@ -60,10 +62,11 @@
         "depth": 1
     },
     "foutre": {
+        "id" : "foutre",
         "type": "trig",
         "duration": 10,
         "powercool": 5000,
-        "movecool": 2000,
+        "delay": 1000,
         "sprite": 2,
         "name": {
             "fr": "foutrage",
@@ -88,5 +91,38 @@
         },
         "offensive": 3,
         "depth": 1
+    },
+    "nazi": {
+        "id" : "nazi",
+        "type": "trig",
+        "duration": 10,
+        "powercool": 100,
+        "delay": 100,
+        "sprite": 2,
+        "name": {
+            "fr": "alt-right propaganda",
+            "en": "alt-right propaganda"
+        },
+        "surface": {
+            "dist": 1,
+            "style": "cross",
+            "shape": "nazi",
+            "size": 1
+        },
+        "desc": {
+            "fr": "La paume de votre main sur le visage de votre adversaire",
+            "en": "The palm of your hand on the face of your opponent"
+        },
+        "damage": {
+            "physical": 1,
+            "humiliation": 5,
+            "sex": 5,
+            "sanity": 0,
+            "karma": 0,
+            "money": 0
+        },
+        "offensive": 3,
+        "depth": 1
+
     }
 }

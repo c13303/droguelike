@@ -19,12 +19,13 @@ module.exports = {
             }
         });
     },
-    loadFile(fnam, key, callback) {
+    loadFile(fnam, key, callback = null) {
         console.log('Loading file : ' + this.params.datapath + fnam);
         this.fs.readFile(this.params.datapath + fnam, (err, data) => {
             if (err)
                 this.report(err);
             this.data[key] = data;
+            if(callback)
             callback(this.data);
         });
 
