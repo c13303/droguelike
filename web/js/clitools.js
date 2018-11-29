@@ -85,14 +85,23 @@ var tools = {
     },
     updatePlayer(pud) {
         var found = false;
-        for (i = 0; i < peoplehere.length; i++) {
-            if (pud.id === peoplehere[i].id) {
+        for (PeopleUpdateIndex = 0; PeopleUpdateIndex < peoplehere.length; PeopleUpdateIndex++) {
+            if (pud.id === peoplehere[PeopleUpdateIndex].id) {
                 if (pud.name === pd.name) { // if player 1
                     pd.x = pud.x;
                     pd.y = pud.y;
+                    pd.holding = pud.isH ? true : false;                    
                 }
+
+                if(pud.isH){
+                    peoplehere[PeopleUpdateIndex].holdDrawTrigger = true;                    
+                    peoplehere[PeopleUpdateIndex].cursorDelayTrigger = pud.isH.delay;    
+                    peoplehere[PeopleUpdateIndex].aim = pud.isH.aim;
+                    
+                }
+
                 $.each(pud, function (key, value) {
-                    peoplehere[i][key] = value;
+                    peoplehere[PeopleUpdateIndex][key] = value;
                 });
                 found = true;
             }

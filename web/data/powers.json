@@ -65,7 +65,7 @@
         "id" : "foutre",
         "type": "trig",
         "duration": 10,
-        "powercool": 5000,
+        "powercool": 0,
         "delay": 1000,
         "sprite": 2,
         "name": {
@@ -73,7 +73,7 @@
             "en": "foutrage"
         },
         "surface": {
-            "dist": 1,
+            "dist": 5,
             "style": "cross",
             "size": 1
         },

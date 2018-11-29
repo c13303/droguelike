@@ -83,6 +83,10 @@ function update() {
     /* cursor */
     cursor.x = layer.tileToWorldX(caseX) + 16;
     cursor.y = layer.tileToWorldY(caseY) + 16;
+
+
+
+    /* direction selection */
     dir = -1;
     if (caseX > pd.x && caseY == pd.y) {
         dir = 0;
@@ -109,6 +113,9 @@ function update() {
         dir = 7;
     }
     pd.dir = dir;
+    pd.aim = [caseX, caseY];
+
+
 
     if (this.input.manager.activePointer.isDown && !cooldowns.move) {
         /* move order */
@@ -171,7 +178,7 @@ function update() {
             }
             drawnPeople[keum.name].sprite.setDepth(keum.y);
             for (killindex = 0; killindex < killingPile.length; killindex++) {
-                if (keum.name === killingPile[killindex]) {                    
+                if (keum.name === killingPile[killindex]) {
                     drawnPeople[keum.name].sprite.destroy();
                     drawnPeople[keum.name].lifebar.destroy();
                     if (drawnPeople[keum.name].label) drawnPeople[keum.name].label.destroy();
@@ -181,8 +188,8 @@ function update() {
                             drawnPeopleIndex.splice(dpi, 1);
                         }
                     }
-                    killingPile.splice(killindex,1);
-                    peoplehere.splice(loopIndexPeople,1);
+                    killingPile.splice(killindex, 1);
+                    peoplehere.splice(loopIndexPeople, 1);
                     keum.killMob = 1;
                 }
             }
@@ -196,7 +203,7 @@ function update() {
                     drawnPeople[keum.name].sprite.setFrame(0);
                     drawnPeople[keum.name].sprite.clearTint();
                 }
-                
+
 
 
 
@@ -204,8 +211,9 @@ function update() {
                 /* UPDATE IF NOT DEAD */
 
                 tools.fluidmove(drawnPeople[keum.name].sprite, px, py);
-                if (drawnPeople[keum.name].label) tools.fluidmove(drawnPeople[keum.name].label, tx, ty);
                 tools.fluidmove(drawnPeople[keum.name].lifebar, lx, ly);
+                if (drawnPeople[keum.name].label) tools.fluidmove(drawnPeople[keum.name].label, tx, ty);
+
 
                 var percentLife = keum.life.now / keum.life.max;
                 drawnPeople[keum.name].lifebar.setScale(percentLife, 0.25);
@@ -227,8 +235,48 @@ function update() {
                     }
                 }
 
+                /* holding */
+                if (keum.holdDrawTrigger) {
+                    keum.holdDrawTrigger = false;
+                    this.tweens.add({
+                        targets: drawnPeople[keum.name].sprite,
+                        x: {
+                            getEnd: function (target, key, value) {
+                                return value + Phaser.Math.Between(-10, 10);
+                            }
+                        },
+                        ease: 'Linear',
+                        duration: 50,
+                        yoyo: true,
+                        repeat: 12
+                    });
+                }
+
+
+
+                /* apply cursor for power delayed LOL */
+                if (keum.cursorDelayTrigger) {
+                    keum.cursorPowerDelayed = keum.cursorDelayTrigger / 10;
+                    keum.cursorDelayTrigger = null;
+                    keum.cursorPowerDelayedSprite = this.add.sprite(layer.tileToWorldX(keum.aim[0]) + 16, layer.tileToWorldX(keum.aim[1]) + 16, 'fxtiles', 0);
+                }
+
+                if (keum.cursorPowerDelayed > 0) {
+                    keum.cursorPowerDelayed--;
+                } else {
+                    if (keum.cursorPowerDelayedSprite) {
+                        keum.cursorPowerDelayedSprite.destroy();
+                        keum.cursorPowerDelayedSprite = null;
+                    }
+                }
+
+
+
+
                 /* power USE LOL */
                 if (keum.poweruse) {
+
+
                     var power = keum.poweruse.power;
                     var surface = keum.poweruse.surface;
                     keum.poweruse = false;

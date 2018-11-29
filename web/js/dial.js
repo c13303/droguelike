@@ -6,7 +6,7 @@
 
 
 function connect() {
-    
+
     clearTimeout(autoreco);
     token = $('#password').val();
     user = $('#username').val();
@@ -92,11 +92,11 @@ function connect() {
             $('#powers').html('');
             var empty = '<div class="keypower">_</div>';
             var keys = [];
-            keys.push(pow.auto ? '<div class="keypower keyauto power' + pow.auto.k + '" data-key="auto"><div class="keynum autokey">.</div> <span class="n">' + powersbible[pow.auto.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
-            keys.push(pow.a ? '<div class="keypower keya power' + pow.a.k + '" data-key="a"><div class="keynum dakey">1</div> <span class="n">' + powersbible[pow.a.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
-            keys.push(pow.b ? '<div class="keypower keyb power' + pow.b.k + '" data-key="b"><div class="keynum dakey">2</div> <span class="n">' + powersbible[pow.b.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
-            keys.push(pow.c ? '<div class="keypower keyc power' + pow.c.k + '" data-key="c"><div class="keynum dakey">3</div> <span class="n">' + powersbible[pow.c.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
-            keys.push(pow.d ? '<div class="keypower keyd power' + pow.d.k + '" data-key="d"><div class="keynum dakey">4</div> <span class="n">' + powersbible[pow.d.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
+            keys.push(pow.auto ? '<div class="keypower keyauto power' + pow.auto.k + '" data-key="auto" data-power="' + pow.auto.k + '"><div class="keynum autokey">.</div> <span class="n">' + powersbible[pow.auto.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
+            keys.push(pow.a ? '<div class="keypower keya power' + pow.a.k + '" data-key="a" data-power="' + pow.a.k + '"><div class="keynum dakey">1</div> <span class="n">' + powersbible[pow.a.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
+            keys.push(pow.b ? '<div class="keypower keyb power' + pow.b.k + '" data-key="b" data-power="' + pow.b.k + '"><div class="keynum dakey">2</div> <span class="n">' + powersbible[pow.b.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
+            keys.push(pow.c ? '<div class="keypower keyc power' + pow.c.k + '" data-key="c" data-power="' + pow.c.k + '"><div class="keynum dakey">3</div> <span class="n">' + powersbible[pow.c.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
+            keys.push(pow.d ? '<div class="keypower keyd power' + pow.d.k + '" data-key="d" data-power="' + pow.d.k + '"><div class="keynum dakey">4</div> <span class="n">' + powersbible[pow.d.k].name[lang] + '<span class="cooldown"></span></div>' : empty);
             for (i = 0; i < keys.length; i++) {
                 $('#powers').append(keys[i]);
             }
@@ -108,22 +108,24 @@ function connect() {
         /* any player updates */
 
         if (d.puds) {
-            for (pudI = 0; pudI < d.puds.length; pudI++) {
-                tools.updatePlayer(d.puds[pudI]);
+            for (pudI = 0; pudI < d.puds.length; pudI++) {               
+                tools.updatePlayer(d.puds[pudI]); // tout se retrouve dans keum ^^ 
             }
         }
 
         /* power use update */
-        if (d.pwups && d.pwups.length) {
-            console.log(d.pwups);
+        if (d.pwups && d.pwups.length) {           
             for (puI = 0; puI < d.pwups.length; puI++) {
                 /* P1 cooldown */
                 if (d.pwups[puI].who === pd.id) {
+                    pd.holding = false;
                     pd.mypowertimer[d.pwups[puI].pwup] = new timer(function () {
                         // utile pour afficher le timer live du boutton
                     }, powersbible[d.pwups[puI].pwup].powercool);
 
-                }
+                }             
+                    
+
                 tools.updateKeumById(d.pwups[puI].who, "poweruse", {
                     power: d.pwups[puI].pwup,
                     surface: d.pwups[puI].surf
@@ -134,20 +136,23 @@ function connect() {
         /* mobs update */
         if (d.mobs && d.mobs.length) {
             for (m = 0; m < d.mobs.length; m++) {
-                var mob = d.mobs[m];               
+                var mob = d.mobs[m];
                 tools.updatePlayer(mob);
             }
         }
 
         /* dead mobs update */
-        if (d.dm && d.dm.length) {           
-           
-            killingPile.push.apply(killingPile,d.dm);
-           
+        if (d.dm && d.dm.length) {
+            killingPile.push.apply(killingPile, d.dm);
+
         }
 
 
-
+        /* recadrage */
+        if( d.rcdr){
+            console.log('recadrage');
+            tools.updatePlayer(d.rcdr);
+        }
 
 
 
@@ -301,40 +306,43 @@ function connect() {
                 tools.notice('no target ! press T to select a target');
             }
             */
-            if (!$('.keya').hasClass('cooling') && (keyCode === 38 || keyCode === 49)) {
-                $('.keya').addClass('cooling');
+
+            var powerUse = null;
+
+            function keyUse(myclass){
+               
+                $(myclass).addClass('cooling');
+                powerUse = $(myclass).data('power');
+                if($(myclass).data('key'))
                 ws.send(JSON.stringify({
                     cd: 'key',
-                    v: 'a',
-                    dir: pd.dir
-                }));
-            }
-            if (!$('.keyb').hasClass('cooling') && keyCode === 233 || keyCode === 50) {
-                $('.keyb').addClass('cooling');
-                ws.send(JSON.stringify({
-                    cd: 'key',
-                    v: 'b',
-                    dir: pd.dir
+                    v: $(myclass).data('key'),
+                    dir: pd.dir,
+                    aim : pd.aim
                 }));
             }
 
-            if (!$('.keyc').hasClass('cooling') && keyCode === 34 || keyCode === 51) {
-                $('.keyc').addClass('cooling');
-                ws.send(JSON.stringify({
-                    cd: 'key',
-                    v: 'c',
-                    dir: pd.dir
-                }));
+
+            if (!pd.holding) {
+                if (!$('.keya').hasClass('cooling') && (keyCode === 38 || keyCode === 49)) {
+                    keyUse('.keya');
+                }
+                if (!$('.keyb').hasClass('cooling') && keyCode === 233 || keyCode === 50) {
+                    keyUse('.keyb');
+                }
+
+                if (!$('.keyc').hasClass('cooling') && keyCode === 34 || keyCode === 51) {
+                    keyUse('.keyc');
+                }
+
+                if (!$('.keyd').hasClass('cooling') && keyCode === 39 || keyCode === 52) {
+                    keyUse('.keyd');
+                }
+                
             }
 
-            if (!$('.keyd').hasClass('cooling') && keyCode === 39 || keyCode === 52) {
-                $('.keyd').addClass('cooling');
-                ws.send(JSON.stringify({
-                    cd: 'key',
-                    v: 'd',
-                    dir: pd.dir
-                }));
-            }
+
+
         }
     });
 

@@ -89,23 +89,11 @@ process.argv.forEach(function (val, index, array) {
 });
 
 function regen() {
-    regularStart = false;
     levels.push(tools.matrix(mapSize, mapSize));
-    tools.saveFile('map.json', JSON.stringify(levels), genSpawners);
+    tools.saveFile('map.json', JSON.stringify(levels));
 }
 
-function genSpawners() {
-    var spawnersData = [{
-        x: 10,
-        y: 10,
-        z: 0,
-        mob: 'giletjaune',
-        batchtime: '100', // 10 s,
-        batchnumber: 1,
-        cooldown: null,
-    }];
-    tools.saveFile('spawners.json', JSON.stringify(spawnersData), setup);
-}
+
 
 
 /* HTTPS (OR NOT) */
@@ -208,7 +196,9 @@ function setup() {
     tools.loadFile('spawners.json', "spawnersData");
     tools.loadFile('shapes.json', "shapesData");
 
-    setTimeout(function(){startServer()},1000);
+    setTimeout(function () {
+        startServer()
+    }, 1000);
 
 }
 
@@ -283,7 +273,7 @@ function startServer() {
                     'mobs': rogue.getMobsInZ(ws.data.z, mobs)
                     //  'bibles': bibles
                 }));
-                rogue.updateMyPosition(ws, wss);
+                rogue.updateMyPosition(ws);
             });
         } catch (e) {
             report(e);
@@ -322,129 +312,135 @@ function startServer() {
 
         };
 
-        ws.setMoveCool = function (cool,holdingPower = false) {
+        ws.setMoveCool = function (cool, holdingPower = false) {
             clearTimeout(ws.data.currentCool);
             ws.data.movecooling = true;
             var that = ws;
             ws.data.currentCool = setTimeout(function () {
                 that.data.movecooling = false;
-                if(that.data.holdingPower){
-                    rogue.powerUse(that, that.data.holdingPower.power, that.data.holdingPower.dir, mapAoE,true);                
+                if (that.data.holdingPower) {
+                    rogue.powerUse(that, that.data.holdingPower.power, that.data.holdingPower.aim, mapAoE, true);
                 }
             }, cool);
         };
 
         /*read messages from the client */
         ws.on('message', function incoming(message) {
+            try {
+                rogue.wss = wss;
+                rogue.bibles = bibles;
+                rogue.tools = tools;
+                rogue.mapAoE = mapAoE;
 
-            rogue.wss = wss;
-            rogue.bibles = bibles;
-            rogue.tools = tools;
-            rogue.mapAoE = mapAoE;
+                var now = Date.now();
+                var last = ws.data.time;
 
-            var now = Date.now();
-            var last = ws.data.time;
-
-            /* security flood monitor */
-            var diff = now - ws.data.security.last;
-            if (diff > params.antiFloodDelay) {
-                ws.data.security.floods++;
-            }
-            ws.data.security.last = now;
-
-            var json = JSON.parse(message);
-            if (!json.move && !json.cd) console.log(ws.name + ' : ' + message);
-
-
-            /* Commande From Clients */
-            if (json.cd === "say") {
-                if (json.v === '/rez') {
-                    console.log(ws.name + ' ressurecting ...');
-                    ws.data.skin = 1;
-                    ws.data.isdead = null;
-                    ws.data.life.now = ws.data.life.max;
-                    rogue.updateMyPosition(ws, wss);
+                /* security flood monitor */
+                var diff = now - ws.data.security.last;
+                if (diff > params.antiFloodDelay) {
+                    ws.data.security.floods++;
                 }
-                if (json.v.indexOf("/") === 0) {
-                    var com = json.v.split(" ");
-                    if (com[0] === '/skin' && com[1]) {
-                        ws.data.skin = com[1];
-                        rogue.updateMyPosition(ws, wss);
+                ws.data.security.last = now;
+
+                var json = JSON.parse(message);
+                if (!json.move && !json.cd) console.log(ws.name + ' : ' + message);
+
+
+                /* Commande From Clients */
+                if (json.cd === "say") {
+                    if (json.v === '/rez') {
+                        console.log(ws.name + ' ressurecting ...');
+                        ws.data.skin = 1;
+                        ws.data.isdead = null;
+                        ws.data.life.now = ws.data.life.max;
+                        rogue.updateMyPosition(ws);
                     }
-                    console.log('--adm cd :  ' + com[0] + ' ' + com[1]);
-                } else {
-                    try {
-                        var saydata = JSON.stringify({
-                            'who': ws.name,
-                            'chat': json.v
-                        });
-                        report(saydata);
-                        wss.broadcast(saydata);
-                    } catch (e) {
-                        report(e);
-                    }
-
-                }
-
-            }
-
-            /* Dead = null */
-            if (ws.data.isdead) {
-                return null;
-            }
-
-            if (json.cd === 'reset') {
-                ws.reset();
-            }
-
-
-            if (json.move) {
-                /* is move illegal */
-
-
-                if (!ws.data.movecooling) {
-                    var x = json.move[0];
-                    var y = json.move[1];
-
-                    var dist = Math.sqrt(Math.pow(ws.data.x - x, 2) + Math.pow(ws.data.y - y, 2));
-                    if (dist > 1.42) {
-                        ws.data.security.floods++;
-                        report('illegal move O_o');
-                        return null;
-                    }
-
-                    var obstacle = rogue.isPlayerHere(wss, x, y, ws.data.z, ws.name);
-                    if (!obstacle) obstacle = rogue.isMonsterHere(mobs, x, y, ws.data.z);
-                    if (!obstacle) {
-                        ws.data.x = x;
-                        ws.data.y = y;
-                        rogue.updateMyPosition(ws, wss);
-                        ws.setMoveCool(params.granu);
-                    } else {
-                        if (!ws.data.pk) {
-
-                        } else {
-
+                    if (json.v.indexOf("/") === 0) {
+                        var com = json.v.split(" ");
+                        if (com[0] === '/skin' && com[1]) {
+                            ws.data.skin = com[1];
+                            rogue.updateMyPosition(ws);
                         }
+                        console.log('--adm cd :  ' + com[0] + ' ' + com[1]);
+                    } else {
+                        try {
+                            var saydata = JSON.stringify({
+                                'who': ws.name,
+                                'chat': json.v
+                            });
+                            report(saydata);
+                            wss.broadcast(saydata);
+                        } catch (e) {
+                            report(e);
+                        }
+
                     }
-                } else {
-                    //  console.log("2quick");
-                }
-            }
 
-            /* power use by player with a key */
-            if (json.cd === 'key' && json.v && !ws.data.holdingPower) {
-                rogue.powerUse(ws, json.v, json.dir, mapAoE);
-            }
-
-            /* pkmode toggle */
-            if (json.cd === "pkm") {
-                if (ws.data.pk === true) {
-                    ws.data.pk = false;
-                } else {
-                    ws.data.pk = true;
                 }
-                rogue.updateMyPosition(ws, wss);
+
+                /* Dead = null */
+                if (ws.data.isdead) {
+                    return null;
+                }
+
+                if (json.cd === 'reset') {
+                    ws.reset();
+                }
+
+
+                if (json.move) {
+                    /* is move illegal */
+
+
+                    if (!ws.data.movecooling) {
+                        var x = json.move[0];
+                        var y = json.move[1];
+
+                        var dist = Math.sqrt(Math.pow(ws.data.x - x, 2) + Math.pow(ws.data.y - y, 2));
+                        if (dist > 1.42) {
+                            /* RECADRAGE */
+                            ws.send(JSON.stringify({
+                                'rcdr': rogue.formatPeople(ws)
+                            }));
+                            return null;
+                        }
+
+                        var obstacle = rogue.isPlayerHere(wss, x, y, ws.data.z, ws.name);
+                        if (!obstacle) obstacle = rogue.isMonsterHere(mobs, x, y, ws.data.z);
+                        if (!obstacle) {
+                            ws.data.x = x;
+                            ws.data.y = y;
+                            rogue.updateMyPosition(ws);
+                            ws.setMoveCool(params.granu);
+                        } else {
+                            if (!ws.data.pk) {
+
+                            } else {
+
+                            }
+                        }
+                    } else {
+                        //  console.log("2quick");
+                    }
+                }
+
+                /* power use by player with a key */
+                if (json.cd === 'key' && json.v && !ws.data.holdingPower) {
+                    console.log(json);
+                    rogue.powerUse(ws, json.v, json.aim, mapAoE);
+                }
+
+                /* pkmode toggle */
+                if (json.cd === "pkm") {
+                    if (ws.data.pk === true) {
+                        ws.data.pk = false;
+                    } else {
+                        ws.data.pk = true;
+                    }
+                    rogue.updateMyPosition(ws);
+                }
+            } catch (e) {
+                report(e);
             }
         });
 
@@ -559,15 +555,15 @@ function tick() {
                         mob.update = true;
                         if (mob.life.now <= 0) {
                             var dareport = mob.name + ' killed by ' + fxtile[ifff].power + ' from ' + fxtile[ifff].owner;
-                            mob.life.now = 0;                        
-                            mob.isdead = true;        
-                            
+                            mob.life.now = 0;
+                            mob.isdead = true;
+
                         }
-                       
+
                     }
                 }
             }
-            
+
 
             if (mob.isdead) {
                 /* MOB DIES */
@@ -608,7 +604,7 @@ function tick() {
                             if (occupied[mob.z][x][y]) obstacle = true;
                             if (!obstacle) obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
                             if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
-                            if (obstacle || obstacleMob) {                               
+                            if (obstacle || obstacleMob) {
                                 mob.target = null;
                             } else {
                                 /* move validated */
@@ -713,7 +709,7 @@ function tick() {
                                     'notice': report
                                 }));
                                 client.data.isdead = true;
-                                wss.clearMobTarget(mobs,client.data.id);
+                                wss.clearMobTarget(mobs, client.data.id);
                             }
                             var pud = rogue.formatPeople(client);
                             client.data.damaged = 0;

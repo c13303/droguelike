@@ -68,9 +68,9 @@ var emptylevel;
 var cursor;
 var lastUpdate = Date.now();
 var damageLabels = {};
-
-
-
+var cursorPowerDelayed = null;
+var cursorPowerDelayedSprite;
+var cursorDelayTrigger;
 
 
 

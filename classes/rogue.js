@@ -28,7 +28,8 @@ module.exports = {
             pk: ws.data.pk,
             life: ws.data.life,
             damaged: ws.data.damaged,
-            isdead: ws.data.isdead
+            isdead: ws.data.isdead,
+            isH: ws.data.holdingPower ? { "delay" : ws.data.holdingPower.power.delay, "aim" : ws.data.holdingPower.aim} : 0, // is holding power
         });
     },
     formatMob(mob) {
@@ -114,11 +115,10 @@ module.exports = {
         }
         return that;
     },
-    updateMyPosition(ws, wss) {
-
-        if (!ws || !ws.data) return null;
+    updateMyPosition(ws) {
+        if (!ws || !ws.data || !this.wss) return null;
         var pud = this.formatPeople(ws);
-        wss.addToWaiting('waitingPuds', ws.data.z, pud);
+        this.wss.addToWaiting('waitingPuds', ws.data.z, pud);
 
     },
     updatePowerUse(ws, surface) {
@@ -129,56 +129,56 @@ module.exports = {
         };
         this.wss.addToWaiting('waitingPowers', ws.data.z, msg);
     },
-    powerUse(ws, powerkeyboard, dir, mapAoE, afterHold = false) {
+
+
+
+
+    /* AREA OF EFFECT AoE */
+    powerUse(ws, powerkeyboard, aim, mapAoE, afterHold = false) {
         if (afterHold) {
             var power = powerkeyboard;
             var powerId = power.id;
-          //  console.log(ws.name + ' unleach power !' + power.name.en);
-
+           // console.log(ws.name + ' unleach power !' + power.name.en);
         } else {
-            //console.log('trig use power');
+           //console.log('trig use power');
             var equiped = ws.data.powers_equiped[powerkeyboard];
             if (!equiped) return null;
             var powerId = equiped.k;
             var power = this.bibles.powers[powerId];
             /* cooldown of power use*/
             if (ws.data.powers_cooldowns[powerId] > 0) {
-               console.log("CLIENT FLOOD " + powerId + " shit still cooling down bitch : " + ws.data.powers_cooldowns[powerId]);
+                console.log("CLIENT FLOOD " + powerId + " shit still cooling down bitch : " + ws.data.powers_cooldowns[powerId]);
                 ws.data.security.floods++;
                 return null;
             } else {
                 ws.data.powers_cooldowns[powerId] = null;
             }
         }
-
-
-        if (!power.type) {
-           // console.log('error no valid power here ! ');
-            return null;
-        }
-
-
+        if (!power.type) return null;
 
         ws.data.powers_cooldowns[powerId] = power.powercool / 100;
+
         if (power.delay && !afterHold) {
             ws.data.movecooling = true;
             ws.setMoveCool(power.delay, power);
+            var surface = this.tools.calculateSurface(ws.data.x, ws.data.y, aim, power.surface.dist, power.surface.style, power.surface.size);
             ws.data.holdingPower = {
                 power: power,
-                dir: dir
+                aim: surface[0], // first point 
             }
-           // console.log(ws.name + ' holds ' + power.name.en);
+           //  console.log(ws.name + ' holds ' + power.name.en);
+            this.updateMyPosition(ws);
             return null;
         }
         if (afterHold) {
             ws.data.holdingPower = false;
         }
 
-     //   console.log('> use of power ' + power.name.en);
+        //   console.log('> use of power ' + power.name.en);
         /* calcul of AREA O_____O + duration of effect */
 
-        var surface = this.tools.calculateSurface(ws.data.x, ws.data.y, dir, power.surface.dist, power.surface.style, power.surface.size);
-      //  console.log(surface);
+        var surface = this.tools.calculateSurface(ws.data.x, ws.data.y, aim, power.surface.dist, power.surface.style, power.surface.size);
+        //  console.log(surface);
         for (is = 0; is < surface.length; is++) {
             var x = surface[is][0];
             var y = surface[is][1];

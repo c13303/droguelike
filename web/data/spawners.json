@@ -1,1 +1,9 @@
-[{"x":10,"y":10,"z":0,"mob":"giletjaune","batchtime":"100","batchnumber":1,"cooldown":null}]
+[{
+    "x": 10,
+    "y": 10,
+    "z": 0,
+    "mob": "giletjaune",
+    "batchtime": 0,
+    "batchnumber": 1,
+    "cooldown": null
+}]

@@ -25,8 +25,8 @@ module.exports = {
             if (err)
                 this.report(err);
             this.data[key] = data;
-            if(callback)
-            callback(this.data);
+            if (callback)
+                callback(this.data);
         });
 
     },
@@ -82,51 +82,72 @@ module.exports = {
     getRandomInt: function (max) {
         return Math.floor(Math.random() * Math.floor(max));
     },
-    calculateSurface(x, y, dir, dist, style, size = 1) {
+    calculateSurface(x, y, aim, dist, style, size = 1) {
 
         var p = [];
-        if (dir === -1) {
-            var sx = x;
-            var sy = y;
+        var caseX = aim[0];
+        var caseY = aim[1];
+        var sx = null;
+        var sy = null;
+
+        if (Math.sqrt(Math.pow(x - caseX, 2)) <= dist) {
+            var sx = caseX;
+        }
+        if (Math.sqrt(Math.pow(y - caseY, 2)) <= dist) {
+            var sy = caseY;
         }
 
+
+        /* direction selection */
+        dir = -1;
+        if (caseX > x && caseY == y) dir = 0;
+        if (caseX > x && caseY > y) dir = 1;
+        if (caseX == x && caseY > y) dir = 2;
+        if (caseX < x && caseY > y) dir = 3;
+        if (caseX < x && caseY === y) dir = 4;
+        if (caseX < x && caseY < y) dir = 5;
+        if (caseX === x && caseY < y) dir = 6;
+        if (caseX > x && caseY < y) dir = 7;
+        if (dir === -1) {
+            var dirsx = x;
+            var dirsy = y;
+        }
         if (dir === 0) {
-            var sx = x + dist;
-            var sy = y;
+            var dirsx = x + dist;
+            var dirsy = y;
         }
         if (dir === 1) {
-            var sx = x + dist;
-            var sy = y + dist;
+            var dirsx = x + dist;
+            var dirsy = y + dist;
         }
         if (dir === 2) {
-            var sx = x;
-            var sy = y + dist;
+            var dirsx = x;
+            var dirsy = y + dist;
         }
-
         if (dir === 3) {
-            var sx = x - dist;
-            var sy = y + dist;
+            var dirsx = x - dist;
+            var dirsy = y + dist;
         }
-
         if (dir === 4) {
-            var sx = x - dist;
-            var sy = y;
+            var dirsx = x - dist;
+            var dirsy = y;
         }
-
         if (dir === 5) {
-            var sx = x - dist;
-            var sy = y - dist;
+            var dirsx = x - dist;
+            var dirsy = y - dist;
         }
-
         if (dir === 6) {
-            var sx = x;
-            var sy = y - dist;
+            var dirsx = x;
+            var dirsy = y - dist;
         }
-
         if (dir === 7) {
-            var sx = x + dist;
-            var sy = y - dist;
+            var dirsx = x + dist;
+            var dirsy = y - dist;
         }
+        if (!sx) sx = dirsx;
+        if (!sy) sy = dirsy
+
+
         if (size < 1) {
             return ([
                 [sx, sy]
@@ -134,13 +155,11 @@ module.exports = {
         }
 
         if (style === 'cross') {
-
             p.push([sx, sy]);
             p.push([sx + size, sy]);
             p.push([sx - size, sy]);
             p.push([sx, sy + size]);
             p.push([sx, sy - size]);
-
         }
 
         return (p);
