@@ -30,6 +30,37 @@
         "offensive": 3,
         "depth": 1
     },
+    "microtarte": {
+        "id" : "microtarte",
+        "type": "trig",
+        "duration": 3,
+        "powercool": 500,
+        "delay": 0,
+        "sprite": 1,
+        "name": {
+            "fr": "main au cul",
+            "en": "hand to ass"
+        },
+        "surface": {
+            "dist": 1,
+            "style": "cross",
+            "size": 0
+        },
+        "desc": {
+            "fr": "La paume de votre main sur cul de votre adversaire",
+            "en": "The palm of your hand on the ass of your opponent"
+        },
+        "damage": {
+            "physical": 1,
+            "humiliation": 1,
+            "sex": 0,
+            "sanity": 0,
+            "karma": 0,
+            "money": 0
+        },
+        "offensive": 3,
+        "depth": 1
+    },
     "slap": {
         "id" : "slap",
         "type": "trig",
@@ -96,15 +127,15 @@
         "id" : "nazi",
         "type": "trig",
         "duration": 10,
-        "powercool": 100,
-        "delay": 100,
-        "sprite": 2,
+        "powercool": 3000,
+        "delay": 2000,
+        "sprite": 3,
         "name": {
             "fr": "alt-right propaganda",
             "en": "alt-right propaganda"
         },
         "surface": {
-            "dist": 1,
+            "dist": 5,
             "style": "cross",
             "shape": "nazi",
             "size": 1

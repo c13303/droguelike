@@ -13,6 +13,7 @@
             "now": 30,
             "max": 30
         },
-        "movecool": 3
+        "movecool": 3,
+        "attack" : "microtarte"
     }
 }

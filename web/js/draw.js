@@ -243,6 +243,7 @@ function update() {
                 /* apply cursor for power delayed LOL */
                 if (keum.cursorDelayTrigger) {
                    // console.log(keum.cursorDelayTrigger);
+                    if(keum.cursorPowerDelayedSprite) keum.cursorPowerDelayedSprite.destroy();
                     keum.cursorPowerDelayed = keum.cursorDelayTrigger / 10;
                     keum.cursorDelayTrigger = null;
                     keum.cursorPowerDelayedSprite = this.add.sprite(layer.tileToWorldX(keum.aim[0]) + 16, layer.tileToWorldX(keum.aim[1]) + 16, 'fxtiles', 1);

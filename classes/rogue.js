@@ -29,7 +29,10 @@ module.exports = {
             life: ws.data.life,
             damaged: ws.data.damaged,
             isdead: ws.data.isdead,
-            isH: ws.data.holdingPower ? { "delay" : ws.data.holdingPower.power.delay, "aim" : ws.data.holdingPower.aim} : 0, // is holding power
+            isH: ws.data.holdingPower ? {
+                "delay": ws.data.holdingPower.power.delay,
+                "aim": ws.data.holdingPower.aim
+            } : 0, // is holding power
         });
     },
     formatMob(mob) {
@@ -95,6 +98,11 @@ module.exports = {
             update: update
         }
     },
+    getRandomMove(x, y) {
+        var rx = x + 1 - this.tools.getRandomInt(3);
+        var ry = y + 1 - this.tools.getRandomInt(3);
+        return ([rx, ry]);
+    },
     isPlayerHere(wss, x, y, z, name = null) {
         var that = null;
         wss.clients.forEach(function each(client) {
@@ -121,81 +129,106 @@ module.exports = {
         this.wss.addToWaiting('waitingPuds', ws.data.z, pud);
 
     },
-    updatePowerUse(ws, surface) {
+    updatePowerUse(id, z, poweruse, surface) {
         var msg = {
-            'who': ws.id,
-            'pwup': ws.data.poweruse,
+            'who': id,
+            'pwup': poweruse,
             'surf': surface
         };
-        this.wss.addToWaiting('waitingPowers', ws.data.z, msg);
+        this.wss.addToWaiting('waitingPowers', z, msg);
     },
 
 
 
 
     /* AREA OF EFFECT AoE */
-    powerUse(ws, powerkeyboard, aim, mapAoE, afterHold = false) {
+    powerUse(actor, powerkeyboard, aim, mapAoE, afterHold = false, isMob = false) {
+
+        if (!isMob) {
+            var departX = actor.data.x;
+            var departY = actor.data.y;
+            var monZ = actor.data.z;
+        } else {
+            var departX = actor.x;
+            var departY = actor.y;
+            var monZ = actor.z;
+            var power = powerkeyboard;
+            var powerId = power.id;
+        }
+
         if (afterHold) {
             var power = powerkeyboard;
             var powerId = power.id;
-           // console.log(ws.name + ' unleach power !' + power.name.en);
-        } else {
-           //console.log('trig use power');
-            var equiped = ws.data.powers_equiped[powerkeyboard];
+        } else if (!isMob) {
+            /* power use from player only */
+            var equiped = actor.data.powers_equiped[powerkeyboard];
             if (!equiped) return null;
             var powerId = equiped.k;
             var power = this.bibles.powers[powerId];
-            /* cooldown of power use*/
-            if (ws.data.powers_cooldowns[powerId] > 0) {
-                /* skill not ready */               
+            if (actor.data.powers_cooldowns[powerId] > 0) {
+                /* skill not ready */
                 return null;
             } else {
-                ws.data.powers_cooldowns[powerId] = null;
+                actor.data.powers_cooldowns[powerId] = null;
             }
         }
-        if (!power.type) return null;
-
-        ws.data.powers_cooldowns[powerId] = power.powercool / 100;
-
-        if (power.delay && !afterHold) {
-            ws.data.movecooling = true;
-            ws.setMoveCool(power.delay, power);
-            var surface = this.tools.calculateSurface(ws.data.x, ws.data.y, aim, power.surface.dist, power.surface.style, power.surface.size);
-            ws.data.holdingPower = {
-                power: power,
-                aim: surface[0], // first point 
-            }
-           //  console.log(ws.name + ' holds ' + power.name.en);
-            this.updateMyPosition(ws);
+        if (!power.type) {
+            console.log('power not defined error');
             return null;
         }
-        if (afterHold) {
-            ws.data.holdingPower = false;
+        if (!isMob) actor.data.powers_cooldowns[powerId] = power.powercool / 100;
+
+        if (power.delay && !afterHold) {
+            /* HOLDING POWER IN CASE OF POWER DELAY */
+            var surface = this.tools.calculateSurface(departX, departY, aim, power);
+            if (!isMob) {
+                actor.data.movecooling = true;
+                actor.setMoveCool(power.delay, power);
+                actor.data.holdingPower = {
+                    power: power,
+                    aim: surface[0], // first point 
+                }
+                this.updateMyPosition(actor);
+                return null;
+            } else {
+                /* mob holding */
+                actor.movecool = power.delay;
+                setTimeout(function () {
+                    rogue.powerUse(actor, power, aime, mapAoE, true, true);
+                }, power.delay);
+            }
+
+        }
+        if (afterHold && !isMob) {
+            actor.data.holdingPower = false;
         }
 
-        //   console.log('> use of power ' + power.name.en);
         /* calcul of AREA O_____O + duration of effect */
 
-        var surface = this.tools.calculateSurface(ws.data.x, ws.data.y, aim, power.surface.dist, power.surface.style, power.surface.size);
-        //  console.log(surface);
+        var surface = this.tools.calculateSurface(departX, departY, aim, power);
         for (is = 0; is < surface.length; is++) {
+            
+            var damage = this.getPowerOffensiveDamage(actor, power);
+            
             var x = surface[is][0];
             var y = surface[is][1];
             var content = {
                 'power': powerId,
-                'damage': this.getPowerOffensiveDamage(ws, power),
-                'owner': ws.id,
-                'cooldown': power.duration
+                'damage': damage,
+                'owner': !isMob ? actor.id : 'mob',
+                'cooldown': power.duration,
+                'isMob': isMob
             };
             if (x > 0 && y > 0 && x < this.mapSize && y < this.mapSize) {
-                var arrer = JSON.parse(JSON.stringify(mapAoE[ws.data.z][x][y]));
+                var arrer = JSON.parse(JSON.stringify(mapAoE[monZ][x][y]));
                 arrer.push(content)
-                mapAoE[ws.data.z][x][y] = arrer;
+                mapAoE[monZ][x][y] = arrer;
             }
         }
-
-        ws.data.poweruse = powerId;
-        this.updatePowerUse(ws, surface);
+        if (!isMob) {
+            actor.data.poweruse = powerId;
+        }
+        this.updatePowerUse(actor.id, monZ, powerId, surface);
     },
     getDefenses(ws) {
         var defenses = {
@@ -219,8 +252,8 @@ module.exports = {
         }
         return (buffers);
     },
-    getPowerOffensiveDamage(wsattack, power) {
-        var buffers = this.getBuffers(wsattack);
+    getPowerOffensiveDamage(attacker, power) {
+        var buffers = this.getBuffers(attacker);
         var damages = {
             physical_damage: power.damage.physical + buffers.physical,
             humiliation_damage: power.damage.humiliation + buffers.physical,

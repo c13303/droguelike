@@ -82,8 +82,12 @@ module.exports = {
     getRandomInt: function (max) {
         return Math.floor(Math.random() * Math.floor(max));
     },
-    calculateSurface(x, y, aim, dist, style, size = 1) {
+    calculateSurface(x, y, aim, power) {
 
+        var dist = power.surface.dist;
+        var style = power.surface.style;
+        var size = power.surface.size;
+        var isshape = power.surface.shape ? power.surface.shape : null;
         var p = [];
         var caseX = aim[0];
         var caseY = aim[1];
@@ -153,14 +157,33 @@ module.exports = {
                 [sx, sy]
             ]);
         }
-
-        if (style === 'cross') {
-            p.push([sx, sy]);
-            p.push([sx + size, sy]);
-            p.push([sx - size, sy]);
-            p.push([sx, sy + size]);
-            p.push([sx, sy - size]);
+        if(style){
+            if (style === 'cross') {
+                p.push([sx, sy]);
+                p.push([sx + size, sy]);
+                p.push([sx - size, sy]);
+                p.push([sx, sy + size]);
+                p.push([sx, sy - size]);
+            }
         }
+        if(isshape){
+            var shape = this.shapes[isshape];
+            
+
+            var center = shape[5][5];
+            for(shapeIndex = 0; shapeIndex < shape.length; shapeIndex++){
+                var line = shape[shapeIndex];
+                for(shapeIndexY = 0; shapeIndexY < line.length; shapeIndexY++){
+                    var col = line[shapeIndexY];
+                    if(col){
+                        var positionX = sx +(shapeIndexY - 5);
+                        var positionY = sy +(shapeIndex - 5);                        
+                        p.push([positionX, positionY]);
+                    }
+                }
+            }
+        }
+        
 
         return (p);
     },
@@ -197,6 +220,6 @@ module.exports = {
         this.start();
     },
     getDist(x1, x2, y1, y2) {
-        return (Math.sqrt(Math.pow(x1 - x2, 2) - Math.pow(y1 - y2, 2)));
+        return (Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)));
     }
 }
