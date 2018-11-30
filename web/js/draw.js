@@ -46,6 +46,7 @@ function create() {
     /* player 1 */
     player = tools.createCharacter(this, pd.name, pd.skin, pd.x, pd.y);
 
+
     /* camera bound */
     this.cameras.main.setBounds(0, 0, map.widthInPixels, map.heightInPixels);
     this.cameras.main.startFollow(player);
@@ -235,10 +236,33 @@ function update() {
                     }
                 }
 
+
+
+
+
+                /* apply cursor for power delayed LOL */
+                if (keum.cursorDelayTrigger) {
+                   // console.log(keum.cursorDelayTrigger);
+                    keum.cursorPowerDelayed = keum.cursorDelayTrigger / 10;
+                    keum.cursorDelayTrigger = null;
+                    keum.cursorPowerDelayedSprite = this.add.sprite(layer.tileToWorldX(keum.aim[0]) + 16, layer.tileToWorldX(keum.aim[1]) + 16, 'fxtiles', 1);
+                    keum.cursorPowerDelayedSprite.setDepth(-1).setAlpha(0.5);
+                }
+
+
+                if (keum.release && keum.cursorPowerDelayedSprite) {
+                    keum.cursorPowerDelayedSprite.destroy();
+                    keum.cursorPowerDelayedSprite = null;
+                    keum.release = false;
+                }
+
+
                 /* holding */
                 if (keum.holdDrawTrigger) {
                     keum.holdDrawTrigger = false;
-                    this.tweens.add({
+                    var repeat = keum.cursorPowerDelayed / 50;
+                     /* animation shaking */
+                    var config = {
                         targets: drawnPeople[keum.name].sprite,
                         x: {
                             getEnd: function (target, key, value) {
@@ -248,35 +272,27 @@ function update() {
                         ease: 'Linear',
                         duration: 50,
                         yoyo: true,
-                        repeat: 12
-                    });
-                }
-
-
-
-                /* apply cursor for power delayed LOL */
-                if (keum.cursorDelayTrigger) {
-                    keum.cursorPowerDelayed = keum.cursorDelayTrigger / 10;
-                    keum.cursorDelayTrigger = null;
-                    keum.cursorPowerDelayedSprite = this.add.sprite(layer.tileToWorldX(keum.aim[0]) + 16, layer.tileToWorldX(keum.aim[1]) + 16, 'fxtiles', 0);
-                }
-
-                if (keum.cursorPowerDelayed > 0) {
-                    keum.cursorPowerDelayed--;
-                } else {
-                    if (keum.cursorPowerDelayedSprite) {
-                        keum.cursorPowerDelayedSprite.destroy();
-                        keum.cursorPowerDelayedSprite = null;
+                        repeat: repeat
+                    };
+                    if (keum.id === pd.id) {
+                        this.cameras.main.stopFollow(player);
+                        var that = this;
+                        config.onComplete = function () {
+                            that.cameras.main.startFollow(player);
+                        }
                     }
+                    keum.shakingtween = this.tweens.add(config);
                 }
+
+
+
+
 
 
 
 
                 /* power USE LOL */
                 if (keum.poweruse) {
-
-
                     var power = keum.poweruse.power;
                     var surface = keum.poweruse.surface;
                     keum.poweruse = false;
@@ -292,7 +308,7 @@ function update() {
                             sprite.setDepth(0);
                         keum[powerspritekey].push(sprite);
                     }
-
+                    /* animation power use */
                     this.tweens.add({
                         targets: keum[powerspritekey],
                         scaleX: 1.5,
@@ -315,7 +331,6 @@ function update() {
 
                 /* damaged */
                 if (keum.damaged) {
-
                     var damage = keum.damaged;
                     keum.damaged = null;
 
@@ -324,11 +339,12 @@ function update() {
                         align: "center",
                         fill: '#ff0000'
                     });
+                    keum.damageLabel.setDepth(100);
                     var rangeDom = 50;
                     var randX = tools.getRandomInt(rangeDom) - rangeDom / 2;
                     var randY = tools.getRandomInt(rangeDom) - rangeDom / 2;
                     var duration = 500;
-
+                    /* animation damage text */
                     this.tweens.add({
                         targets: keum.damageLabel,
                         props: {

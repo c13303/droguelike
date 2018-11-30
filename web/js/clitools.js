@@ -65,8 +65,6 @@ var tools = {
         drawnPeopleIndex.push(name);
         drawnPeople[name] = {};
         drawnPeople[name].sprite = char;
-
-
         if (!isMob) {
             drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
                 font: '14px Arial',
@@ -76,10 +74,8 @@ var tools = {
             drawnPeople[name].label.setAlign('center');
             drawnPeople[name].label.setDepth(100);
         }
-
         drawnPeople[name].lifebar = that.add.sprite(x + lifebarOffsetX, y + lifebarOffsetY, 'fxtiles', 0);
         drawnPeople[name].lifebar.setScale(1, 0.25);
-
         drawnPeople[name].lifebar.setDepth(-0.1);
         return (char);
     },
@@ -93,11 +89,12 @@ var tools = {
                     pd.holding = pud.isH ? true : false;                    
                 }
 
-                if(pud.isH){
+                if(pud.isH){ /*holding power and shake delay */
+                   // console.log(pud.isH);
+                    peoplehere[PeopleUpdateIndex].release = null;
                     peoplehere[PeopleUpdateIndex].holdDrawTrigger = true;                    
                     peoplehere[PeopleUpdateIndex].cursorDelayTrigger = pud.isH.delay;    
-                    peoplehere[PeopleUpdateIndex].aim = pud.isH.aim;
-                    
+                    peoplehere[PeopleUpdateIndex].aim = pud.isH.aim;                    
                 }
 
                 $.each(pud, function (key, value) {

@@ -122,7 +122,6 @@ function connect() {
                     pd.mypowertimer[d.pwups[puI].pwup] = new timer(function () {
                         // utile pour afficher le timer live du boutton
                     }, powersbible[d.pwups[puI].pwup].powercool);
-
                 }             
                     
 
@@ -130,6 +129,7 @@ function connect() {
                     power: d.pwups[puI].pwup,
                     surface: d.pwups[puI].surf
                 });
+                tools.updateKeumById(d.pwups[puI].who,"release",true);
             }
         }
 
@@ -282,8 +282,8 @@ function connect() {
                 if (!peoplehere.length) {
                     tools.notice('No one to target here ...');
                 }
-                for (i = 0; i < peoplehere.length; i++) {
-                    var man = peoplehere[i];
+                for (targetSelIndex = 0; targetSelIndex < peoplehere.length; targetSelIndex++) {
+                    var man = peoplehere[targetSelIndex];
                     var dist = Math.sqrt(Math.pow(man.x - pd.x, 2) + Math.pow(man.y + pd.y, 2));
                     if (man.id !== pd.id && (!pd.target || man.id !== pd.target.id) && dist < 800) {
                         pd.target = {

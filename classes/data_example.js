@@ -22,7 +22,7 @@ module.exports = {
         powers_cooldowns: {},
         powers_equiped: {
             auto: {
-                k: 'slap',
+                k: 'ass',
                 cool: 0
             },
             a: {

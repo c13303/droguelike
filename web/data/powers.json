@@ -20,8 +20,8 @@
             "en": "The palm of your hand on the ass of your opponent"
         },
         "damage": {
-            "physical": 1,
-            "humiliation": 1,
+            "physical": 10,
+            "humiliation": 10,
             "sex": 0,
             "sanity": 0,
             "karma": 0,

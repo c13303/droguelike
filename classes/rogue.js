@@ -147,8 +147,7 @@ module.exports = {
             var power = this.bibles.powers[powerId];
             /* cooldown of power use*/
             if (ws.data.powers_cooldowns[powerId] > 0) {
-                console.log("CLIENT FLOOD " + powerId + " shit still cooling down bitch : " + ws.data.powers_cooldowns[powerId]);
-                ws.data.security.floods++;
+                /* skill not ready */               
                 return null;
             } else {
                 ws.data.powers_cooldowns[powerId] = null;

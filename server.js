@@ -413,11 +413,7 @@ function startServer() {
                             rogue.updateMyPosition(ws);
                             ws.setMoveCool(params.granu);
                         } else {
-                            if (!ws.data.pk) {
-
-                            } else {
-
-                            }
+                            rogue.powerUse(ws, 'auto', [x,y], mapAoE);
                         }
                     } else {
                         //  console.log("2quick");
@@ -425,8 +421,7 @@ function startServer() {
                 }
 
                 /* power use by player with a key */
-                if (json.cd === 'key' && json.v && !ws.data.holdingPower) {
-                    console.log(json);
+                if (json.cd === 'key' && json.v && !ws.data.holdingPower) {                    
                     rogue.powerUse(ws, json.v, json.aim, mapAoE);
                 }
 

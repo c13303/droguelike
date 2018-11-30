@@ -37,6 +37,7 @@ if ($isdev) {
         <script src="js/clitools.js?v=<?= $v; ?>"></script>
         <script src="js/draw.js?v=<?= $v; ?>"></script>
         <script src="js/dial.js?v=<?= $v; ?>"></script>
+        <script src="js/vars.js?v=<?= $v; ?>"></script>
         <script src="js/client.js?v=<?= $v; ?>"></script>
         <link rel="stylesheet" type="text/css" href="style/reset.css">
         <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css"><!-- couillestrap looool -->
