@@ -73,3 +73,28 @@ var cursorPowerDelayed = null;
 var cursorPowerDelayedSprite;
 var cursorDelayTrigger;
 
+var wallLayer = wallData = null;
+
+$.get("data/wallz.json?v=" + Date.now(), function (data) {
+    wallData = data.layers[0].data;
+    var reformat = [];
+    var limit = 64;
+    var index = 0;
+    var line = 0;
+    for (wiiX = 0; wiiX < wallData.length; wiiX++) {
+        if(index >= limit){
+            index = 0;
+            line++;
+        }
+        if(!reformat[index]){
+            reformat.push([]);
+        }
+        reformat[line].push(wallData[wiiX]-1);
+        index++;
+
+    }
+    wallData = reformat;
+    console.log(reformat);
+    
+
+});

@@ -1,24 +1,27 @@
 function preload() {
 
-    this.load.spritesheet("skinssheet", "img/skinssheet.png", {
+    this.load.spritesheet("skinssheet", "img/skinssheet.png?v="+v, {
         frameWidth: 64,
         frameHeight: 64
     });
-    this.load.image('selector', 'img/selector.png');
-    this.load.image("tiles", "img/tilesettest.png");
-    this.load.spritesheet("fxtiles", "img/FXtileset.png", {
+    var v = Date.now();
+    this.load.image('selector', 'img/selector.png?v='+v);
+    this.load.image("tiles", "img/tilesettest.png?v="+v);
+    this.load.image("wallz", "img/wallzsheet.png?v="+v);
+
+    this.load.spritesheet("fxtiles", "img/FXtileset.png?v="+v, {
         frameWidth: 32,
         frameHeight: 32
     });
-    this.load.spritesheet("powers", "img/powers.png", {
+    this.load.spritesheet("powers", "img/powers.png?v="+v, {
         frameWidth: 32,
         frameHeight: 32
     });
-    this.load.spritesheet("explosheet", "img/explo-sheet.png", {
+    this.load.spritesheet("explosheet", "img/explo-sheet.png?v="+v, {
         frameWidth: 32,
         frameHeight: 32
     });
-    this.load.spritesheet("mobs", "img/mobs.png", {
+    this.load.spritesheet("mobs", "img/mobs.png?v="+v, {
         frameWidth: 64,
         frameHeight: 64
     });
@@ -37,6 +40,15 @@ function create() {
     tiles = map.addTilesetImage("tiles");
     layer = map.createDynamicLayer(0, tiles, 0, 0);
     layer.setDepth(-50);
+
+    var wallzTilemap = this.make.tilemap({
+        data : wallData,
+        tileWidth: 32,
+        tileHeight: 32
+    });
+    var wallTiles = wallzTilemap.addTilesetImage("wallz");
+    wallLayer = wallzTilemap.createDynamicLayer(0,wallTiles,0,0);
+    layer.setDepth(-49);
 
     /* cursor */
     cursor = this.add.sprite(400, 300, 'fxtiles', 3);

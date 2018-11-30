@@ -3632,6 +3632,7 @@
     },
     "express": "latest",
     "js-sha256": "latest",
-    "bad-words": "latest"
+    "bad-words": "latest",
+    "xml2js": "latest"
   }
 }

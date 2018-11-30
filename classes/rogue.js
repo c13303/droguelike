@@ -1,10 +1,12 @@
 /* file created by charles.torris@gmail.com */
 
 module.exports = {
-    wss: null,
-    bibles: null,
+    wss: [],
+    bibles: {},
     tools: null,
-    mapAoE: null,
+    mapAoE: [],
+    wallz: [],
+    mobs: [],
     mapSize: 64,
     maxLevels: 64,
     getClientFromId(wss, id) {
@@ -103,10 +105,10 @@ module.exports = {
         var ry = y + 1 - this.tools.getRandomInt(3);
         return ([rx, ry]);
     },
-    isPlayerHere(wss, x, y, z, name = null) {
+    isPlayerHere(wss, x, y, z, idPlayer = null) {
         var that = null;
         wss.clients.forEach(function each(client) {
-            if (client.name != name && client.data.x === x && client.data.y === y && client.data.z === z) {
+            if (client.id != idPlayer && client.data.x === x && client.data.y === y && client.data.z === z) {
                 that = client;
             }
         });
@@ -123,6 +125,34 @@ module.exports = {
         }
         return that;
     },
+    isWall(x, y, z) {
+        if (this.wallz[z][x][y] > -1) return true;
+        else return false;
+    },
+    isObstacle(x, y, z, idPlayer = null, mobId = null) {
+        var mobs = this.mobs;
+        var wss = this.wss;
+
+        if (!this.wallz[z]) {
+            console.log('NO WALLZ LOOOL' + z);
+            process.exit();
+        }
+        if (this.isWall(x, y, z))
+            return "wall";
+
+        var isplayer = this.isPlayerHere(wss, x, y, z, idPlayer);
+        if (isplayer) return ({
+            "player": isplayer
+        });
+
+        var ismob = this.isMonsterHere(mobs, x, y, z, mobId);
+        if (ismob) return {
+            "mob": ismob
+        };
+
+        return (null);
+    },
+
     updateMyPosition(ws) {
         if (!ws || !ws.data || !this.wss) return null;
         var pud = this.formatPeople(ws);
@@ -180,7 +210,7 @@ module.exports = {
 
         if (power.delay && !afterHold) {
             /* HOLDING POWER IN CASE OF POWER DELAY */
-            var surface = this.tools.calculateSurface(departX, departY, aim, power);
+            var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power,this.wallz);
             if (!isMob) {
                 actor.data.movecooling = true;
                 actor.setMoveCool(power.delay, power);
@@ -205,11 +235,11 @@ module.exports = {
 
         /* calcul of AREA O_____O + duration of effect */
 
-        var surface = this.tools.calculateSurface(departX, departY, aim, power);
+        var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power,this.wallz);
         for (is = 0; is < surface.length; is++) {
-            
+
             var damage = this.getPowerOffensiveDamage(actor, power);
-            
+
             var x = surface[is][0];
             var y = surface[is][1];
             var content = {

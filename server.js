@@ -21,6 +21,7 @@ var mobs = [];
 var occupiedOriginal = tools.matrix(mapSize, mapSize);
 var ticdiff;
 var bibles = {};
+var myglobals = {};
 var shapesData;
 var debug;
 /* mysql */
@@ -203,11 +204,10 @@ function setup() {
     tools.loadFile('spawners.json', "spawnersData");
     tools.loadFile('shapes.json', "shapesData");
     tools.loadFile('player_model.json', "data_example");
+    tools.loadFile('wallz.json', "wallzData");
 
-    rogue.wss = wss;
-    rogue.bibles = bibles;
-    rogue.tools = tools;
-    rogue.mapAoE = mapAoE;
+
+
 
     setTimeout(function () {
         startServer();
@@ -238,8 +238,35 @@ function startServer() {
     spawners = JSON.parse(data.spawnersData);
     data_example = JSON.parse(data.data_example);
     tools.shapes = JSON.parse(data.shapesData);
-    console.log(spawners.length + ' spawners in the map');
-    if (!mapData || !spawners) {
+
+    
+
+    /* WALLZ BUILDUING */
+    var JsonWallz = JSON.parse(data.wallzData);
+    rogue.wallz = tools.matrix(64, 64);
+    var lastLevel = null;
+    rogue.mobs = mobs;
+    for (wallLevel = 0; wallLevel < 64; wallLevel++) {
+        if (JsonWallz.layers[wallLevel]) {
+            var levelRawData = JsonWallz.layers[wallLevel].data;
+            var formatedData = tools.reformatJsonFromTiledSoftware(levelRawData);
+            lastLevel = wallLevel;
+            tools.saveFile('wallz/' + wallLevel + '.json', JSON.stringify(formatedData));
+        } else {
+            var formatedData = tools.matrix(64, 64, -1);
+        }
+        rogue.wallz[wallLevel] = formatedData;
+    }
+    console.log("Walled levels : " + lastLevel);
+    console.log("Wall test : " + rogue.wallz[0][37][7]);
+    console.log("Wall test : " + rogue.wallz[0][10][10]);
+
+
+
+
+
+    console.log(spawners.length + ' spawners in the map, ' + rogue.wallz.length + ' wall levels');
+    if (!mapData || !spawners || !rogue.wallz.length) {
         console.log('setup failed');
         process.exit();
     }
@@ -252,27 +279,36 @@ function startServer() {
 
     var levels = JSON.parse(mapData);
 
-    wss = new WebSocketServer({
+    rogue.wss = wss = new WebSocketServer({
         server: httpsServer,
         verifyClient: function (info, callback) {
             wss.verify(info, callback, connection, userRequestMap, data_example);
         }
     });
     wss.subinit();
+    
+    rogue.bibles = bibles;
+    rogue.tools = tools;
+    rogue.mapAoE = mapAoE;
 
 
-
-
-
+    
+    
 
     wss.on('connection', function myconnection(ws, request) {
 
         try {
+            /*
             rogue.wss = wss;
             rogue.bibles = bibles;
             rogue.tools = tools;
             rogue.mapAoE = mapAoE;
-
+            */
+           if(!rogue.wallz.length){
+               console.log('conare');
+               process.exit();
+           }
+            
             /* recognize authentified player */
             var userinfo = userRequestMap.get(request);
             var name = userinfo.name.replace(/\W/g, '');
@@ -426,16 +462,14 @@ function startServer() {
                             }));
                             return null;
                         }
-
-                        var obstacle = rogue.isPlayerHere(wss, x, y, ws.data.z, ws.name);
-                        if (!obstacle) obstacle = rogue.isMonsterHere(mobs, x, y, ws.data.z);
+                        var obstacle = rogue.isObstacle(x,y,ws.data.z,ws.id);
                         if (!obstacle) {
                             ws.data.x = x;
                             ws.data.y = y;
                             rogue.updateMyPosition(ws);
                             ws.setMoveCool(params.granu);
                         } else {
-                            rogue.powerUse(ws, 'auto', [x, y], mapAoE);
+                            if(obstacle!='wall')  rogue.powerUse(ws, 'auto', [x, y], mapAoE);
                         }
                     } else {
                         //  console.log("2quick");
@@ -574,12 +608,12 @@ function tick() {
                         mob.target = null;
                     }
                     var mobPower = bibles.powers[mob.attack];
-                    if (!mobPower) console.log('no mob power :('+mob.attack); 
-                    if(dist <= mobPower.surface.dist){
+                    if (!mobPower) console.log('no mob power :(' + mob.attack);
+                    if (dist <= mobPower.surface.dist) {
                         /* ATTACK */
-                        rogue.powerUse(mob, mobPower, [mob.target.data.x,mob.target.data.y], mapAoE,false,true);
+                        rogue.powerUse(mob, mobPower, [mob.target.data.x, mob.target.data.y], mapAoE, false, true);
                     }
-                   
+
                 }
 
                 /* movecool */
@@ -589,6 +623,7 @@ function tick() {
                     var y = newMove[1];
                     var obstacle = null;
                     if (occupied[mob.z][x][y]) obstacle = true;
+                    if (rogue.wallz[mob.z][x][y] > -1) obstacle = true;
                     if (!obstacle) obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
                     if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
                     if (!obstacle) {
@@ -612,6 +647,7 @@ function tick() {
                             /* check obstacle */
                             var obstacle = null;
                             if (occupied[mob.z][x][y]) obstacle = true;
+                            if (rogue.wallz[mob.z][x][y] > -1) obstacle = true;
                             if (!obstacle) obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
                             if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
                             if (obstacle || obstacleMob) {
@@ -645,40 +681,41 @@ function tick() {
         }
 
         /* SPAWWWWWWNERS */
-        for (spp = 0; spp < spawners.length; spp++) {
+        for (spp = 0; spp < spawners.length; spp++) { // foreach spawner
             var spobj = spawners[spp];
-            if (!spobj.cooldown) {
+            if (spobj.cooldown <= 0) {
                 spobj.cooldown = spobj.batchtime;
-                for (sp = 0; sp < spobj.batchnumber; sp++) {
-
-                    if (occupied[spobj.z][spobj.x][spobj.y]) obstacle = true;
-                    if (!obstacle) obstacle = rogue.isPlayerHere(wss, spobj.x, spobj.y, spobj.z);
-                    if (!obstacle) obstacle = rogue.isMonsterHere(mobs, spobj.x, spobj.y, spobj.z);
-
-                    if (mobs.length < 10 && !obstacle) {
-                        mobIndex++;
-                        var newmob = {
-                            id: '_m' + mobIndex,
-                            name: '_m' + mobIndex,
-                            mob: spobj.mob,
-                            x: spobj.x,
-                            y: spobj.y,
-                            z: spobj.z,
-                            skin: bibles.mobs[spobj.mob].skin,
-                            attackcool: null,
-                            movecool: null,
-                            attack : bibles.mobs[spobj.mob].attack,
-                            target: 0,
-                            life: {
-                                now: bibles.mobs[spobj.mob].life.now,
-                                max: bibles.mobs[spobj.mob].life.max
-                            },
-                            update: true,
+                if (occupied[spobj.z][spobj.x][spobj.y]) obstacle = true;
+                if (rogue.wallz[spobj.z][spobj.x][spobj.y] > -1) obstacle = true;
+                if (!obstacle) obstacle = rogue.isPlayerHere(wss, spobj.x, spobj.y, spobj.z);
+                if (!obstacle) obstacle = rogue.isMonsterHere(mobs, spobj.x, spobj.y, spobj.z);
+                if (!obstacle) {
+                    for (sp = 0; sp < spobj.batchnumber; sp++) { // foreach batch
+                        if (mobs.length < 10) {
+                            mobIndex++;
+                            var newmob = {
+                                id: '_m' + mobIndex,
+                                name: '_m' + mobIndex,
+                                mob: spobj.mob,
+                                x: spobj.x,
+                                y: spobj.y,
+                                z: spobj.z,
+                                skin: bibles.mobs[spobj.mob].skin,
+                                attackcool: null,
+                                movecool: null,
+                                attack: bibles.mobs[spobj.mob].attack,
+                                target: 0,
+                                life: {
+                                    now: bibles.mobs[spobj.mob].life.now,
+                                    max: bibles.mobs[spobj.mob].life.max
+                                },
+                                update: true,
+                            }
+                            mobs.push(newmob);
                         }
-                        mobs.push(newmob);
                     }
-
                 }
+
             } else {
                 spobj.cooldown--;
             }
@@ -744,12 +781,12 @@ function tick() {
                     var fxtile = mapAoE[z][x][y];
                     for (damageTileIndex = 0; damageTileIndex < fxtile.length; damageTileIndex++) {
                         /* touché */
-                       
+
                         if (fxtile[damageTileIndex].owner != client.id && !client.data.isdead) {
-                            var damage = fxtile[damageTileIndex].damage; 
+                            var damage = fxtile[damageTileIndex].damage;
                             var defenses = rogue.getDefenses(client);
                             var appliedDamage = rogue.getAppliedDamage(damage, defenses);
-                            if(isNaN(appliedDamage)){
+                            if (isNaN(appliedDamage)) {
                                 console.log('damage sucks');
                                 process.exit();
                             }

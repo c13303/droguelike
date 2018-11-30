@@ -82,7 +82,7 @@ module.exports = {
     getRandomInt: function (max) {
         return Math.floor(Math.random() * Math.floor(max));
     },
-    calculateSurface(x, y, aim, power) {
+    calculateSurface(x, y, z, aim, power, wallz) {
 
         var dist = power.surface.dist;
         var style = power.surface.style;
@@ -157,7 +157,7 @@ module.exports = {
                 [sx, sy]
             ]);
         }
-        if(style){
+        if (style) {
             if (style === 'cross') {
                 p.push([sx, sy]);
                 p.push([sx + size, sy]);
@@ -166,24 +166,29 @@ module.exports = {
                 p.push([sx, sy - size]);
             }
         }
-        if(isshape){
+        if (isshape) {
             var shape = this.shapes[isshape];
-            
-
             var center = shape[5][5];
-            for(shapeIndex = 0; shapeIndex < shape.length; shapeIndex++){
+            for (shapeIndex = 0; shapeIndex < shape.length; shapeIndex++) {
                 var line = shape[shapeIndex];
-                for(shapeIndexY = 0; shapeIndexY < line.length; shapeIndexY++){
+                for (shapeIndexY = 0; shapeIndexY < line.length; shapeIndexY++) {
                     var col = line[shapeIndexY];
-                    if(col){
-                        var positionX = sx +(shapeIndexY - 5);
-                        var positionY = sy +(shapeIndex - 5);                        
+                    if (col) {
+                        var positionX = sx + (shapeIndexY - 5);
+                        var positionY = sy + (shapeIndex - 5);
                         p.push([positionX, positionY]);
                     }
                 }
             }
         }
-        
+        /* cleanage wall */
+        for (pX = 0; pX < p.length; pX++) {
+            var myX = p[pX][0];
+            var myY = p[pX][1];
+            if (wallz[z][myX][myY] > -1) {
+                p.splice(pX, 1);
+            }
+        }
 
         return (p);
     },
@@ -221,5 +226,29 @@ module.exports = {
     },
     getDist(x1, x2, y1, y2) {
         return (Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)));
+    },
+    reformatJsonFromTiledSoftware(wallData) {
+        var reformat = this.matrix(64, 64, null);
+        var limit = 64;
+        var index = 0;
+        var line = 0;
+        for (wiiX = 0; wiiX < wallData.length; wiiX++) {
+            if (index >= limit) {
+                index = 0;
+                line++;
+            }
+            /*
+                        if(!reformat[wiiX]){
+                            reformat.push([]);
+                        }
+                        if(!reformat[wiiX][line]){
+                            reformat[wiiX].push([]);
+                        } */
+
+            reformat[index][line] = wallData[wiiX] - 1;
+
+            index++;
+        }
+        return reformat;
     }
 }
