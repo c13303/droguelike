@@ -61,12 +61,12 @@ function connect() {
         if (consolage)
             console.log(d);
 
-        if (d.startgame && d.level) {
-
+        if (d.startgame && level) {
+            console.log('firestarter');
             $('#connect').remove();
             $('#autoreconnect').remove();
             $('#game').removeClass("hidden");
-            level = d.level;
+           
             pd = d.mydata;
             pd.mypowertimer = {};
 
@@ -78,14 +78,10 @@ function connect() {
 
 
             game = new Phaser.Game(config);
+          //  $('#logo').remove();
 
         }
-        /*
-            if (d.bibles) {               
-                powersbible = d.bibles.powers;
-                mobsbible = d.bibles.mobs;
-            }
-*/
+      
         /* full update powers */
         if (d.mydata && d.mydata.powers_equiped) {
             var pow = d.mydata.powers_equiped;

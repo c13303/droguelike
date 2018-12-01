@@ -7,11 +7,24 @@ var game;
 var dev;
 var consolage = null;
 var canvas = document.getElementById("gamecanvas");
+var ZOOM = 2;
 var config = {
     type: Phaser.AUTO,
-    width: 800,
-    height: 600,
+    width: 1368 / 2,
+    height: 768 / 2,
     canvas: canvas,
+    pixelArt: true,
+    callbacks: {
+        postBoot: function (game) {
+
+            var config = game.config;
+            var style = game.canvas.style;
+            style.width = (ZOOM * config.width) + 'px';
+            style.height = (ZOOM * config.height) + 'px';
+
+        }
+    },
+
     scene: {
         preload: preload,
         create: create,
@@ -22,7 +35,7 @@ var caseX;
 var caseY;
 var level;
 var layer;
-var tiles;
+var tiles = floorz = null;
 var tilesize = 32;
 var pd = {}; //playerData lol
 
@@ -64,7 +77,6 @@ cooldowntimers = {};
 cooldowns = {};
 cooldownbible = {};
 
-var emptylevel;
 
 var cursor;
 var lastUpdate = Date.now();
@@ -75,26 +87,13 @@ var cursorDelayTrigger;
 
 var wallLayer = wallData = null;
 
-$.get("data/wallz.json?v=" + Date.now(), function (data) {
-    wallData = data.layers[0].data;
-    var reformat = [];
-    var limit = 64;
-    var index = 0;
-    var line = 0;
-    for (wiiX = 0; wiiX < wallData.length; wiiX++) {
-        if(index >= limit){
-            index = 0;
-            line++;
-        }
-        if(!reformat[index]){
-            reformat.push([]);
-        }
-        reformat[line].push(wallData[wiiX]-1);
-        index++;
 
-    }
-    wallData = reformat;
-    console.log(reformat);
-    
+$.get("data/formatedLevels/level0_floor.json?v=" + Date.now(), function (data) {
+    level = data;
+    console.log(level.length);
+});
 
+$.get("data/formatedLevels/level0_wallz.json?v=" + Date.now(), function (data) {
+    wallData = data;
+    console.log(wallData.length);
 });

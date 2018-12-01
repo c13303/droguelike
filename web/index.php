@@ -79,8 +79,7 @@ if ($isdev) {
                 </div>
                 <div class="coords"></div>
             </div>
-            <canvas id="gamecanvas">
-        </canvas>
+  
 
         </div>
         <input type="hidden" id="isdev" value="<?= dev; ?>" />

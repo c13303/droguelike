@@ -1,138 +1,178 @@
-/* file created by charles.torris@gmail.com *//* 
+/* file created by charles.torris@gmail.com */
+/* 
     Created on : 8 oct. 2018, 10:03:54
     Author     : roger
 */
 
-@mixin transition($value){ //opacity 1s ease-in-out
-                           -webkit-transition: $value;
-                           -moz-transition: $value;
-                           -ms-transition: $value;
-                           -o-transition: $value;
-                           transition: $value;
+@mixin transition($value) {
+    //opacity 1s ease-in-out
+    -webkit-transition: $value;
+    -moz-transition: $value;
+    -ms-transition: $value;
+    -o-transition: $value;
+    transition: $value;
 }
 
-@mixin flexbox() { 
+@mixin flexbox() {
     display: -webkit-box;
     display: -moz-box;
-    display: -ms-flexbox; 
-    display: -webkit-flex;  
+    display: -ms-flexbox;
+    display: -webkit-flex;
     display: flex;
 }
 
-$jaune : #fbf236;
-$jauneb : #e8df21;
+$jaune : #eadb74;
+$jauneb : #eadb74;
 $rouge : #ac3232;
-$bleu : #086072; 
+$bleu : #086072;
+ $blanc: white;
+$bp : 780px;
 
-$bp : 780px;  
-
-.hidden{
-    display:none; 
+.hidden {
+    display: none;
 }
 
 
-input{
-    background:$rouge;
-    color:$jaune;
+input {
+    background: $rouge;
+    color: $jaune;
 }
 
-#logo{
-    text-align:center;
-    @media(min-height:700px){
+#logo {
+    text-align: center;
+
+    @media(min-height: 700px) {
         margin: 20px;
     }
-    @media(max-height:600px){
-       display: none; 
+
+    @media(max-height:600px) {
+        display: none;
     }
 }
-#connect{
-    text-align:center;
+
+#connect {
+    text-align: center;
 }
 
-body{
-    background:url(../img/bg.png);
+body {
+    background: url(../img/bg.png);
     font-family: 'Yantramanav', sans-serif;
-    color:white;
-   
-    .centered{
-        text-align:center;
+    color: white;
+
+    .centered {
+        text-align: center;
 
     }
-    #game{
+
+    #game {
         position: relative;
 
-        #chat{
-            position: absolute;
-            bottom: -641px;
-            width: 800px;
+        #chat {
+            position: fixed;
+           bottom:50px;
+            width: 100%;
             padding: 0;
             background: 0;
             height: 40px;
-            border: 1px solid blue;
+            border:none;
             color: white;
             font-size: 20px;
         }
-        #console{
-            position: absolute;
+
+        #console {
             height: 100px;
             overflow-y: scroll;
-            width: 800px;
-            top: 500px;
+            position: fixed;
+            bottom: 100px;
+            width: 100%;
+
+
             color: white;
             pointer-events: none;
-            .notice{
-              color : $jaune;   
+
+            .notice {
+                color: $jaune;
             }
         }
-        #sidepanel{
-            position: absolute;
-            left: 810px;
-            #target{
-                color : $rouge;
-                height:100px;
+
+        #sidepanel {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            #target {
+                color: $rouge;
+                height: 100px;
+                display: none;
             }
-            .keynum{
-                background:url(../img/key.png);
-                display:inline-block;
+
+            .notice {
+                display: none;
+            }
+
+            .helper {
+                display: none;
+            }
+
+            .keynum {
+                background: url(../img/key.png);
+                display: inline-block;
                 width: 32px;
                 height: 32px;
                 color: black;
                 text-align: center;
                 padding-top: 5px;
-                &.autokey{
-                    background:url(../img/autokey.png);
+
+                &.autokey {
+                    background: url(../img/autokey.png);
                 }
-               
+
             }
-            .keypower{
-                color: $jaune;
+
+            .keypower {
+                display: inline-block;
+                width: 19%;
+                color: $blanc;
                 height: 32px;
             }
-            .cooling{
+
+            .cooling {
                 color: $rouge;
             }
-            .cooldown{
-                margin-left:20px;
+
+            .cooldown {
+                margin-left: 20px;
             }
         }
     }
-    #gamecanvas{
-        pointer-events: none;
-        position: absolute;      
-    } 
-    .helper{
-        cursor: pointer;
-    } 
-    .info{
-        display:none;
-       
+
+    canvas {
+        display: block;
+    margin: auto;
     }
-    .modal-content{ 
+    canvas,img{
+        image-rendering: crisp-edges;
+        image-rendering: -moz-crisp-edges;
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: optimize-contrast;
+        -ms-interpolation-mode: nearest-neighbor;
+    }
+
+    .helper {
+        cursor: pointer;
+    }
+
+    .info {
+        display: none;
+
+    }
+
+    .modal-content {
         background: $jaune;
         color: $bleu;
-        h2{
-            font-size:24px;
-            font-weight:bold;
+
+        h2 {
+            font-size: 24px;
+            font-weight: bold;
         }
     }
 }

@@ -6,7 +6,6 @@ var rogue = require('./classes/rogue.js');
 var express = require('express');
 var app = express();
 var fs = require('fs');
-var levels = [];
 var spawners = [];
 var wss;
 var WebSocketServer = require('./classes/wssx.js');
@@ -86,16 +85,16 @@ process.argv.forEach(function (val, index, array) {
         port = params.port_dev;
     }
     if (val === '-regen') {
-        regen();
+        //   regen();
     }
 });
-
+/*
 function regen() {
     levels.push(tools.matrix(mapSize, mapSize));
     tools.saveFile('map.json', JSON.stringify(levels));
 }
 
-
+*/
 
 
 /* HTTPS (OR NOT) */
@@ -198,20 +197,24 @@ stdin.addListener("data", function (d) {
 if (regularStart) setup();
 
 function setup() {
-    tools.loadFile('map.json', "mapData");
+
     tools.loadFile('mobs.json', "mobsBible");
     tools.loadFile('powers.json', 'powersBible');
     tools.loadFile('spawners.json', "spawnersData");
     tools.loadFile('shapes.json', "shapesData");
     tools.loadFile('player_model.json', "data_example");
-    tools.loadFile('wallz.json', "wallzData");
 
+    /*
+        tools.loadFile('map.json', "mapData");
+        tools.loadFile('wallz.json', "wallzData");
+    */
 
+    tools.loadFile('levels/level0.json', "level0");
 
 
     setTimeout(function () {
         startServer();
-    }, 1000);
+    }, 2000);
 
 }
 
@@ -232,16 +235,16 @@ mapAoE.push(tools.matrix(mapSize, mapSize, []));
 
 function startServer() {
     var data = tools.data;
-    mapData = data.mapData;
     bibles.mobs = JSON.parse(data.mobsBible);
     bibles.powers = JSON.parse(data.powersBible);
     spawners = JSON.parse(data.spawnersData);
     data_example = JSON.parse(data.data_example);
     tools.shapes = JSON.parse(data.shapesData);
 
-    
+
 
     /* WALLZ BUILDUING */
+    /*
     var JsonWallz = JSON.parse(data.wallzData);
     rogue.wallz = tools.matrix(64, 64);
     var lastLevel = null;
@@ -260,13 +263,39 @@ function startServer() {
     console.log("Walled levels : " + lastLevel);
     console.log("Wall test : " + rogue.wallz[0][37][7]);
     console.log("Wall test : " + rogue.wallz[0][10][10]);
+*/
+
+    var level0 = JSON.parse(data.level0);
+
+    rogue.wallz = tools.matrix(64, 0);
+    rogue.mobs = mobs;
+    level0.layers.forEach(function each(layer) {
+        var levelRawData = layer.data;
+        var formatedData = tools.reformatJsonFromTiledSoftware(levelRawData);
+        if (!formatedData) {
+            console.log('Layer Data Missing');
+            process.exit();
+        }        
+        if (layer.name == "floor") {
+            tools.saveFile('formatedLevels/level0_floor.json', JSON.stringify(formatedData));
+        }
+        if (layer.name == "wall") {
+            tools.saveFile('formatedLevels/level0_wallz.json', JSON.stringify(formatedData));
+
+            var newArray = formatedData[0].map(function(col, i){
+                return formatedData.map(function(row){
+                    return row[i];
+                });
+            });
 
 
-
+            rogue.wallz[0] = newArray;
+        }
+    });
 
 
     console.log(spawners.length + ' spawners in the map, ' + rogue.wallz.length + ' wall levels');
-    if (!mapData || !spawners || !rogue.wallz.length) {
+    if (!spawners || !rogue.wallz.length) {
         console.log('setup failed');
         process.exit();
     }
@@ -277,7 +306,6 @@ function startServer() {
 
     report('- - - - Lancement serveur port ' + port);
 
-    var levels = JSON.parse(mapData);
 
     rogue.wss = wss = new WebSocketServer({
         server: httpsServer,
@@ -286,14 +314,14 @@ function startServer() {
         }
     });
     wss.subinit();
-    
+
     rogue.bibles = bibles;
     rogue.tools = tools;
     rogue.mapAoE = mapAoE;
 
 
-    
-    
+
+
 
     wss.on('connection', function myconnection(ws, request) {
 
@@ -304,11 +332,11 @@ function startServer() {
             rogue.tools = tools;
             rogue.mapAoE = mapAoE;
             */
-           if(!rogue.wallz.length){
-               console.log('conare');
-               process.exit();
-           }
-            
+            if (!rogue.wallz.length) {
+                console.log('conare');
+                process.exit();
+            }
+
             /* recognize authentified player */
             var userinfo = userRequestMap.get(request);
             var name = userinfo.name.replace(/\W/g, '');
@@ -327,7 +355,6 @@ function startServer() {
                 ws.data.id = rows[0].id;
                 ws.send(JSON.stringify({
                     'startgame': 1,
-                    'level': levels[ws.data.z],
                     'mydata': ws.data,
                     'granu': params.granu,
                     'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
@@ -462,14 +489,14 @@ function startServer() {
                             }));
                             return null;
                         }
-                        var obstacle = rogue.isObstacle(x,y,ws.data.z,ws.id);
+                        var obstacle = rogue.isObstacle(x, y, ws.data.z, ws.id);
                         if (!obstacle) {
                             ws.data.x = x;
                             ws.data.y = y;
                             rogue.updateMyPosition(ws);
                             ws.setMoveCool(params.granu);
                         } else {
-                            if(obstacle!='wall')  rogue.powerUse(ws, 'auto', [x, y], mapAoE);
+                            if (obstacle != 'wall') rogue.powerUse(ws, 'auto', [x, y], mapAoE);
                         }
                     } else {
                         //  console.log("2quick");

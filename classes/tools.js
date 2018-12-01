@@ -70,7 +70,7 @@ module.exports = {
             arr[matrixi].push(new Array(cols));
             for (var matrixj = 0; matrixj < cols; matrixj++) {
                 if (!defaultValue) {
-                    daval = this.getRandomInt(4);
+                    daval = this.getRandomInt(10);
                 } else {
                     daval = defaultValue
                 }
@@ -245,7 +245,7 @@ module.exports = {
                             reformat[wiiX].push([]);
                         } */
 
-            reformat[index][line] = wallData[wiiX] - 1;
+            reformat[line][index] = wallData[wiiX] - 1;
 
             index++;
         }

@@ -9,7 +9,7 @@
 
 input {
   background: #ac3232;
-  color: #fbf236;
+  color: #eadb74;
 }
 
 #logo {
@@ -47,39 +47,49 @@ body #game {
 }
 
 body #game #chat {
-  position: absolute;
-  bottom: -641px;
-  width: 800px;
+  position: fixed;
+  bottom: 50px;
+  width: 100%;
   padding: 0;
   background: 0;
   height: 40px;
-  border: 1px solid blue;
+  border: none;
   color: white;
   font-size: 20px;
 }
 
 body #game #console {
-  position: absolute;
   height: 100px;
   overflow-y: scroll;
-  width: 800px;
-  top: 500px;
+  position: fixed;
+  bottom: 100px;
+  width: 100%;
   color: white;
   pointer-events: none;
 }
 
 body #game #console .notice {
-  color: #fbf236;
+  color: #eadb74;
 }
 
 body #game #sidepanel {
-  position: absolute;
-  left: 810px;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 
 body #game #sidepanel #target {
   color: #ac3232;
   height: 100px;
+  display: none;
+}
+
+body #game #sidepanel .notice {
+  display: none;
+}
+
+body #game #sidepanel .helper {
+  display: none;
 }
 
 body #game #sidepanel .keynum {
@@ -97,7 +107,9 @@ body #game #sidepanel .keynum.autokey {
 }
 
 body #game #sidepanel .keypower {
-  color: #fbf236;
+  display: inline-block;
+  width: 19%;
+  color: white;
   height: 32px;
 }
 
@@ -109,9 +121,17 @@ body #game #sidepanel .cooldown {
   margin-left: 20px;
 }
 
-body #gamecanvas {
-  pointer-events: none;
-  position: absolute;
+body canvas {
+  display: block;
+  margin: auto;
+}
+
+body canvas, body img {
+  image-rendering: crisp-edges;
+  image-rendering: -moz-crisp-edges;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: optimize-contrast;
+  -ms-interpolation-mode: nearest-neighbor;
 }
 
 body .helper {
@@ -123,7 +143,7 @@ body .info {
 }
 
 body .modal-content {
-  background: #fbf236;
+  background: #eadb74;
   color: #086072;
 }
 
