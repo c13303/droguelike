@@ -1,9 +1,9 @@
 [{
-    "x": 63,
-    "y": 63,
+    "x": 23,
+    "y": 9,
     "z": 0,
     "mob": "giletjaune",
     "batchtime": 10000,
-    "batchnumber": 1,
+    "batchnumber": 3,
     "cooldown": null
 }]

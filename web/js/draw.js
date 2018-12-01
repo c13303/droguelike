@@ -346,11 +346,10 @@ function update() {
                 if (keum.damaged) {
                     var damage = keum.damaged;
                     keum.damaged = null;
-
                     keum.damageLabel = this.add.text(drawnPeople[keum.name].sprite.x, drawnPeople[keum.name].sprite.y - 64, damage, {
-                        font: '20px Anton',
+                        font: '15px cioFont',
                         align: "center",
-                        fill: '#ff0000'
+                        fill: '#d77355'
                     });
                     keum.damageLabel.setDepth(100);
                     var rangeDom = 50;

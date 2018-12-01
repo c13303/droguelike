@@ -43,8 +43,6 @@ if ($isdev) {
         <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css"><!-- couillestrap looool -->
         <script src="lib/bootstrap/bootstrap.min.js"></script>
         <link rel="stylesheet" type="text/css" href="style/style.css?v=<?= $v; ?>">
-        <link href="https://fonts.googleapis.com/css?family=Yantramanav" rel="stylesheet">
-        <link href="https://fonts.googleapis.com/css?family=Anton" rel="stylesheet">
 
     </head>
 

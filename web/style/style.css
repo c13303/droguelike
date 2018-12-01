@@ -3,13 +3,23 @@
     Created on : 8 oct. 2018, 10:03:54
     Author     : roger
 */
+@font-face {
+  font-family: "cioFont";
+  src: url("./fonts/Pixellari.eot");
+  /* IE9 Compat Modes */
+  src: url("./fonts/Pixellari.eot?#iefix") format("embedded-opentype"), url("./fonts/Pixellari.otf") format("opentype"), url("./fonts/Pixellari.svg") format("svg"), url("./fonts/Pixellari.ttf") format("truetype"), url("./fonts/Pixellari.woff") format("woff"), url("./fonts/Pixellari.woff2") format("woff2");
+  /* Modern Browsers */
+  font-weight: normal;
+  font-style: normal;
+}
+
 .hidden {
   display: none;
 }
 
 input {
-  background: #ac3232;
-  color: #eadb74;
+  background: #d77355;
+  color: #e6c86e;
 }
 
 #logo {
@@ -34,8 +44,9 @@ input {
 
 body {
   background: url(../img/bg.png);
-  font-family: 'Yantramanav', sans-serif;
   color: white;
+  font-family: "cioFont";
+  font-size: 20px;
 }
 
 body .centered {
@@ -55,7 +66,6 @@ body #game #chat {
   height: 40px;
   border: none;
   color: white;
-  font-size: 20px;
 }
 
 body #game #console {
@@ -69,7 +79,7 @@ body #game #console {
 }
 
 body #game #console .notice {
-  color: #eadb74;
+  color: #e6c86e;
 }
 
 body #game #sidepanel {
@@ -78,8 +88,15 @@ body #game #sidepanel {
   width: 100%;
 }
 
+body #game #sidepanel #powers {
+  background: black;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+}
+
 body #game #sidepanel #target {
-  color: #ac3232;
+  color: #d77355;
   height: 100px;
   display: none;
 }
@@ -109,12 +126,12 @@ body #game #sidepanel .keynum.autokey {
 body #game #sidepanel .keypower {
   display: inline-block;
   width: 19%;
-  color: white;
+  color: #dcf5ff;
   height: 32px;
 }
 
 body #game #sidepanel .cooling {
-  color: #ac3232;
+  color: #d77355;
 }
 
 body #game #sidepanel .cooldown {
@@ -126,7 +143,8 @@ body canvas {
   margin: auto;
 }
 
-body canvas, body img {
+body canvas,
+body img {
   image-rendering: crisp-edges;
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-optimize-contrast;
@@ -143,8 +161,8 @@ body .info {
 }
 
 body .modal-content {
-  background: #eadb74;
-  color: #086072;
+  background: #e6c86e;
+  color: #508cd7;
 }
 
 body .modal-content h2 {

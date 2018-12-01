@@ -67,9 +67,9 @@ var tools = {
         drawnPeople[name].sprite = char;
         if (!isMob) {
             drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
-                font: '14px Arial',
+                font: '12px cioFont',
                 align: "center",
-                fill: '#ffffff'
+                fill: '#dcf5ff'
             });
             drawnPeople[name].label.setAlign('center');
             drawnPeople[name].label.setDepth(100);

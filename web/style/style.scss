@@ -21,12 +21,34 @@
     display: flex;
 }
 
-$jaune : #eadb74;
-$jauneb : #eadb74;
-$rouge : #ac3232;
-$bleu : #086072;
- $blanc: white;
+$jaune : #e6c86e;
+$jauneb : #e6c86e;
+$rouge : #d77355;
+$bleu : #508cd7;
+$blanc: #dcf5ff;
 $bp : 780px;
+
+
+@font-face {
+    font-family: "cioFont";
+    src: url("./fonts/Pixellari.eot");
+    /* IE9 Compat Modes */
+    src: url("./fonts/Pixellari.eot?#iefix") format("embedded-opentype"),
+        /* IE6-IE8 */
+        url("./fonts/Pixellari.otf") format("opentype"),
+        /* Open Type Font */
+        url("./fonts/Pixellari.svg") format("svg"),
+        /* Legacy iOS */
+        url("./fonts/Pixellari.ttf") format("truetype"),
+        /* Safari, Android, iOS */
+        url("./fonts/Pixellari.woff") format("woff"),
+        /* Modern Browsers */
+        url("./fonts/Pixellari.woff2") format("woff2");
+    /* Modern Browsers */
+    font-weight: normal;
+    font-style: normal;
+}
+
 
 .hidden {
     display: none;
@@ -56,8 +78,9 @@ input {
 
 body {
     background: url(../img/bg.png);
-    font-family: 'Yantramanav', sans-serif;
     color: white;
+    font-family: "cioFont";
+    font-size: 20px;
 
     .centered {
         text-align: center;
@@ -69,14 +92,14 @@ body {
 
         #chat {
             position: fixed;
-           bottom:50px;
+            bottom: 50px;
             width: 100%;
             padding: 0;
             background: 0;
             height: 40px;
-            border:none;
+            border: none;
             color: white;
-            font-size: 20px;
+
         }
 
         #console {
@@ -99,6 +122,14 @@ body {
             position: fixed;
             bottom: 0;
             width: 100%;
+
+            #powers {
+                background: black;
+                position: fixed;
+                bottom: 0;
+                width: 100%;
+            }
+
             #target {
                 color: $rouge;
                 height: 100px;
@@ -147,9 +178,11 @@ body {
 
     canvas {
         display: block;
-    margin: auto;
+        margin: auto;
     }
-    canvas,img{
+
+    canvas,
+    img {
         image-rendering: crisp-edges;
         image-rendering: -moz-crisp-edges;
         image-rendering: -webkit-optimize-contrast;
