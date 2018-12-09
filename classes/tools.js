@@ -155,7 +155,7 @@ module.exports = {
 
         if (size < 1) {
             return ([
-                [sx, sy]
+                [sx, sy,1]
             ]);
         }
         if (style) {

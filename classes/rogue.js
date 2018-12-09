@@ -249,7 +249,9 @@ module.exports = {
             var x = surface[is][0];
             var y = surface[is][1];
             var delay = surface[is][2];
-
+            if(isNaN(delay)){
+                process.exit();
+            }
             var content = {
                 'power': powerId,
                 'damage': damage,
@@ -262,6 +264,7 @@ module.exports = {
                 var arrer = JSON.parse(JSON.stringify(DelayAoE[monZ][x][y]));
                 arrer.push(content)
                 DelayAoE[monZ][x][y] = arrer;
+                console.log('delayed damage in '+x+','+y);
             }
         }
         if (!isMob) {

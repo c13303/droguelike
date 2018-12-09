@@ -3,7 +3,7 @@
     "y": 9,
     "z": 0,
     "mob": "giletjaune",
-    "batchtime": 5, 
-    "batchnumber": 3,
+    "batchtime": 20, 
+    "batchnumber": 1,
     "cooldown": null
 }]

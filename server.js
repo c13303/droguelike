@@ -570,23 +570,24 @@ function tick() {
 
 
         /* AoE DELAYED PREPARATION */
-        
+        var debug = false;
         for(AoZ = 0; AoZ < DelayAoE.length; AoZ++){
             for(AoX = 0; AoX < DelayAoE[AoZ].length; AoX++){
                 for(AoY = 0; AoY < DelayAoE[AoZ][AoX].length; AoY++){ 
                   //  var surfaceD = [];                                     
                     if(DelayAoE[AoZ][AoX][AoY].length){ // presence d'effects dans la table des delayed
-                        var newFXOnThisTile = mapAoE[AoZ][AoX][AoY].slice(0);
+                        var newFXOnThisTile = mapAoE[AoZ][AoX][AoY].slice(0); // JSON.parse(JSON.stringify(mapAoE[AoZ][AoX][AoY])); 
                         var fxtileD = DelayAoE[AoZ][AoX][AoY];                      
                        
                         for(fX = 0; fX < fxtileD.length; fX++){
                             var daFX = fxtileD[fX];
                             if(daFX.delay<=1){
-                               // console.log('FX ON '+AoX+','+AoY);
+                                if(debug)console.log(daFX.power + ' ON '+AoX+','+AoY);
                                 newFXOnThisTile.push(daFX);
                                 DelayAoE[AoZ][AoX][AoY].splice(fX,1);                                  
                                 rogue.updatePowerUse(daFX.owner, AoZ, daFX.power, [[AoX,AoY]]); 
                             } else{
+                                if(debug)console.log(daFX.power + ' hold in  '+AoX+','+AoY+ ' for ' + daFX.delay);
                                 DelayAoE[AoZ][AoX][AoY][fX].delay-=1;
                             }
                         }

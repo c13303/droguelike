@@ -346,7 +346,6 @@ function connect() {
                         mySoundHook('load');
                     }
                 }
-
             }
 
 
