@@ -82,6 +82,7 @@ module.exports = {
     getRandomInt: function (max) {
         return Math.floor(Math.random() * Math.floor(max));
     },
+   
     calculateSurface(x, y, z, aim, power, wallz) {
 
         var dist = power.surface.dist;
@@ -159,11 +160,11 @@ module.exports = {
         }
         if (style) {
             if (style === 'cross') {
-                p.push([sx, sy]);
-                p.push([sx + size, sy]);
-                p.push([sx - size, sy]);
-                p.push([sx, sy + size]);
-                p.push([sx, sy - size]);
+                p.push([sx, sy,1]);
+                p.push([sx + size, sy,1]);
+                p.push([sx - size, sy,1]);
+                p.push([sx, sy + size,1]);
+                p.push([sx, sy - size,1]);
             }
         }
         if (isshape) {
@@ -176,7 +177,7 @@ module.exports = {
                     if (col) {
                         var positionX = sx + (shapeIndexY - 5);
                         var positionY = sy + (shapeIndex - 5);
-                        p.push([positionX, positionY]);
+                        p.push([positionX, positionY,col]);
                     }
                 }
             }

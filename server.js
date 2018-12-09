@@ -10,7 +10,7 @@ var spawners = [];
 var wss;
 var WebSocketServer = require('./classes/wssx.js');
 var mapSize = rogue.mapSize;
-var tickrate = 300;
+var tickrate = 200;
 tools.setup();
 var port = params.port_prod;
 var regularStart = true;
@@ -220,8 +220,9 @@ function setup() {
 
 
 var mapAoE = [];
+var DelayAoE = [];
 mapAoE.push(tools.matrix(mapSize, mapSize, []));
-
+DelayAoE.push(tools.matrix(mapSize, mapSize, []));
 
 
 /* END OF SETUP */
@@ -298,21 +299,15 @@ function startServer() {
 
     rogue.bibles = bibles;
     rogue.tools = tools;
+    rogue.DelayAoE = DelayAoE;
     rogue.mapAoE = mapAoE;
-
-
 
 
 
     wss.on('connection', function myconnection(ws, request) {
 
         try {
-            /*
-            rogue.wss = wss;
-            rogue.bibles = bibles;
-            rogue.tools = tools;
-            rogue.mapAoE = mapAoE;
-            */
+
             if (!rogue.wallz.length) {
                 console.log('conare');
                 process.exit();
@@ -389,7 +384,7 @@ function startServer() {
             ws.data.currentCool = setTimeout(function () {
                 that.data.movecooling = false;
                 if (that.data.holdingPower) {
-                    rogue.powerUse(that, that.data.holdingPower.power, that.data.holdingPower.aim, mapAoE, true);
+                    rogue.powerUse(that, that.data.holdingPower.power, that.data.holdingPower.aim, DelayAoE,mapAoE, true);
                 }
             }, cool);
         };
@@ -481,7 +476,7 @@ function startServer() {
                             rogue.updateMyPosition(ws);
                             ws.setMoveCool(params.granu);
                         } else {
-                            if (obstacle != 'wall') rogue.powerUse(ws, 'auto', [x, y], mapAoE);
+                            if (obstacle != 'wall') rogue.powerUse(ws, 'auto', [x, y], DelayAoE,mapAoE);
                         }
                     } else {
                         //  console.log("2quick");
@@ -490,7 +485,7 @@ function startServer() {
 
                 /* power use by player with a key */
                 if (json.cd === 'key' && json.v && !ws.data.holdingPower) {
-                    rogue.powerUse(ws, json.v, json.aim, mapAoE);
+                    rogue.powerUse(ws, json.v, json.aim, DelayAoE,mapAoE);
                 }
 
                 /* pkmode toggle */
@@ -545,12 +540,14 @@ var mobIndex = 0;
 var lastTime = Date.now();
 var ticTime = null;
 var lastTictime = null;
+var deltaTime;
 
 function tick() {
 
     ticTime = Date.now();
     lastTictime = ticTime - lastTime;
     lastTime = ticTime;
+    deltaTime = 1 / lastTictime * 100; //0.3
     
     tic++;
     var timeos = Date.now();
@@ -572,6 +569,37 @@ function tick() {
     if (wss.clients.size) {
 
 
+        /* AoE DELAYED PREPARATION */
+        
+        for(AoZ = 0; AoZ < DelayAoE.length; AoZ++){
+            for(AoX = 0; AoX < DelayAoE[AoZ].length; AoX++){
+                for(AoY = 0; AoY < DelayAoE[AoZ][AoX].length; AoY++){ 
+                  //  var surfaceD = [];                                     
+                    if(DelayAoE[AoZ][AoX][AoY].length){ // presence d'effects dans la table des delayed
+                        var newFXOnThisTile = mapAoE[AoZ][AoX][AoY].slice(0);
+                        var fxtileD = DelayAoE[AoZ][AoX][AoY];                      
+                       
+                        for(fX = 0; fX < fxtileD.length; fX++){
+                            var daFX = fxtileD[fX];
+                            if(daFX.delay<=1){
+                               // console.log('FX ON '+AoX+','+AoY);
+                                newFXOnThisTile.push(daFX);
+                                DelayAoE[AoZ][AoX][AoY].splice(fX,1);                                  
+                                rogue.updatePowerUse(daFX.owner, AoZ, daFX.power, [[AoX,AoY]]); 
+                            } else{
+                                DelayAoE[AoZ][AoX][AoY][fX].delay-=1;
+                            }
+                        }
+                       
+                        mapAoE[AoZ][AoX][AoY] = newFXOnThisTile;
+                    }
+                }
+            }
+        }
+        
+      //  mapAoE = DelayAoE;
+     
+
 
         /* M O B S    O______________________________O  */
 
@@ -587,8 +615,11 @@ function tick() {
             var z = mob.z;
             if (mapAoE[z][x][y].length) {
                 var fxtile = mapAoE[z][x][y];
+                //console.log('Mob Damaged in '+z+','+x+','+y);
+               
                 for (ifff = 0; ifff < fxtile.length; ifff++) {
                     if (fxtile[ifff].owner != 'mob') {
+                        
                         var damage = fxtile[ifff].damage;
                         var defenses = rogue.getDefenses(mob);
                         var appliedDamage = rogue.getAppliedDamage(damage, defenses);
@@ -632,7 +663,7 @@ function tick() {
                     if (!mobPower) console.log('no mob power :(' + mob.attack);
                     if (dist <= mobPower.surface.dist) {
                         /* ATTACK */
-                        rogue.powerUse(mob, mobPower, [mob.target.data.x, mob.target.data.y], mapAoE, false, true);
+                        rogue.powerUse(mob, mobPower, [mob.target.data.x, mob.target.data.y], DelayAoE, mapAoE, false, true);
                     }
 
                 }
@@ -744,7 +775,6 @@ function tick() {
             } else {
 
                 // lastTictime == plus précis que ticktime car REEL
-                var deltaTime = 1 / lastTictime * 100; //0.3
                 spobj.cooldown-= deltaTime;
                // console.log("delta "+deltaTime+", new cool "+spobj.cooldown + '(tictime real : '+lastTictime+')');
                

@@ -4,6 +4,7 @@ module.exports = {
     wss: [],
     bibles: {},
     tools: null,
+    DelayAoE: [],
     mapAoE: [],
     wallz: [],
     mobs: [],
@@ -172,12 +173,12 @@ module.exports = {
 
 
     /* AREA OF EFFECT AoE */
-    powerUse(actor, powerkeyboard, aim, mapAoE, afterHold = false, isMob = false) {
+    powerUse(actor, powerkeyboard, aim, DelayAoE, mapAoE, afterHold = false, isMob = false) {
         var debug = false;
 
-        
+
         if (!isMob) {
-            
+
             var departX = actor.data.x;
             var departY = actor.data.y;
             var monZ = actor.data.z;
@@ -194,7 +195,7 @@ module.exports = {
             var powerId = power.id;
             if (!isMob && debug) console.log('--- afterHold ' + power.name.en);
         } else if (!isMob) {
-            
+
             /* power use from player only */
             var equiped = actor.data.powers_equiped[powerkeyboard];
             if (!equiped) return null;
@@ -232,7 +233,7 @@ module.exports = {
                 /* mob holding */
                 actor.movecool = power.delay;
                 setTimeout(function () {
-                    rogue.powerUse(actor, power, aime, mapAoE, true, true);
+                    rogue.powerUse(actor, power, aime, DelayAoE, mapAoE, true, true);
                 }, power.delay);
             }
 
@@ -247,23 +248,26 @@ module.exports = {
             var damage = this.getPowerOffensiveDamage(actor, power);
             var x = surface[is][0];
             var y = surface[is][1];
+            var delay = surface[is][2];
+
             var content = {
                 'power': powerId,
                 'damage': damage,
                 'owner': !isMob ? actor.id : 'mob',
                 'cooldown': power.duration,
-                'isMob': isMob
+                'isMob': isMob,
+                'delay': delay
             };
             if (x > 0 && y > 0 && x < this.mapSize && y < this.mapSize) {
-                var arrer = JSON.parse(JSON.stringify(mapAoE[monZ][x][y]));
+                var arrer = JSON.parse(JSON.stringify(DelayAoE[monZ][x][y]));
                 arrer.push(content)
-                mapAoE[monZ][x][y] = arrer;
+                DelayAoE[monZ][x][y] = arrer;
             }
         }
         if (!isMob) {
             actor.data.poweruse = powerId;
         }
-        this.updatePowerUse(actor.id, monZ, powerId, surface);
+        // this.updatePowerUse(actor.id, monZ, powerId, surface); /// add to refresh client pile
     },
     getDefenses(ws) {
         var defenses = {
@@ -308,30 +312,7 @@ module.exports = {
         var damage = physical_damage + humiliation_damage + sanity_damage + sex_damage + money_damage;
         return (damage);
     },
-    /*
-    applyDamage(entity, mapAoE) {
-        if (mapAoE.length) {
-            var fxs = mapAoE;
-            for (ifff = 0; ifff < fxs.length; ifff++) {
-                if (fxs[ifff].owner != entity.id) {
-                    var damage = fxs[ifff].damage;
-                    var defenses = this.getDefenses(entity);
-                    var appliedDamage = this.getAppliedDamage(damage, defenses);
-                    entity.life.now -= appliedDamage;
-                    entity.damaged = appliedDamage;
-                    if (entity.life.now <= 0) {
-                        var dareport = entity.name + ' killed by ' + fxs[ifff].power + ' from ' + fxs[ifff].owner;
-                        entity.life.now = 0;                        
-                        entity.isdead = true;           
-                        
-                    }
-                   
-                }
-            }
-        }
-        return(entity);
-    }
-    */
+
 
 
 }

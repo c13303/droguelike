@@ -122,6 +122,11 @@ function connect() {
 
         /* power use update */
         if (d.pwups && d.pwups.length) {
+           
+            console.log(d.pwups);
+            /* reunir les surfaces */
+
+
             for (puI = 0; puI < d.pwups.length; puI++) {
                 /* P1 cooldown */
                 if (d.pwups[puI].who === pd.id) {
@@ -131,11 +136,17 @@ function connect() {
                     }, powersbible[d.pwups[puI].pwup].powercool);
                 }
 
-
+                /*
                 tools.updateKeumById(d.pwups[puI].who, "poweruse", {
                     power: d.pwups[puI].pwup,
                     surface: d.pwups[puI].surf
                 });
+                */
+                var msg = {
+                    power: d.pwups[puI].pwup,
+                    surface: d.pwups[puI].surf
+                }
+                powerUseDrawing.push(msg);
                 tools.updateKeumById(d.pwups[puI].who, "release", true);
             }
         }

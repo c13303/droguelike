@@ -4,10 +4,13 @@ var music;
 var soundlib = {};
 var soundEnabled = true;
 
+var powerUseDrawing = [];
 
-function mySoundHook(soundKey){
-    if(soundEnabled)
-    soundlib[soundKey].play();
+
+
+function mySoundHook(soundKey) {
+    if (soundEnabled)
+        soundlib[soundKey].play();
 }
 
 function preload() {
@@ -36,29 +39,29 @@ function preload() {
         frameHeight: 64
     });
 
-    if(soundEnabled){
+    if (soundEnabled) {
         this.load.audio('music', [
             'sfx/droguelike1.ogg',
             'sfx/droguelike1.mp3'
         ]);
-    
+
         this.load.audio('load', [
             'sfx/load.ogg',
             'sfx/load.mp3'
         ]);
-    
+
         this.load.audio('slap', [
             'sfx/slap.ogg',
             'sfx/slap.mp3'
         ]);
-    
+
         this.load.audio('foutrage', [
             'sfx/foutrage.ogg',
             'sfx/foutrage.mp3'
         ]);
-    
+
     }
-    
+
 }
 
 
@@ -346,6 +349,7 @@ function update() {
 
 
                 /* power USE LOL */
+
                 if (keum.poweruse) {
                     var power = keum.poweruse.power;
                     var surface = keum.poweruse.surface;
@@ -471,6 +475,59 @@ function update() {
 
         }
     }
+
+
+    for (pin = 0; pin < powerUseDrawing.length; pin++) {
+
+        var power = powerUseDrawing[pin].power;
+        var surface = powerUseDrawing[pin].surface;
+
+        mySoundHook('foutrage');
+        var powersAnimeArray = [];
+
+        for (powerUseIndex = 0; powerUseIndex < surface.length; powerUseIndex++) {
+            var x = layer.tileToWorldX(surface[powerUseIndex][0]) + 16;
+            var y = layer.tileToWorldY(surface[powerUseIndex][1]) + 16;
+
+            var firstFrame = powersbible[power].sprite * 3;
+            var lastFrame = firstFrame + 2;
+            if (!animsLib[power]) {
+                console.log('generating anime' + firstFrame + ' to ' + lastFrame);
+                var config = {
+                    key: power + 'explode',
+                    frames: this.anims.generateFrameNumbers('powers', {
+                        start: firstFrame,
+                        end: lastFrame,
+                        first: firstFrame
+                    }),
+                    frameRate: 6
+                };
+                animsLib[power] = this.anims.create(config);
+            }
+
+
+
+            var sprite = this.add.sprite(x, y, 'powers');
+            sprite.anims.play(power + 'explode');
+
+
+
+            if (powersbible[power].depth === 1)
+                sprite.setDepth(99);
+            else
+                sprite.setDepth(0);
+            powersAnimeArray.push(sprite);
+        }
+        var Pduration = powersbible[power].duration * ticrate;
+        durationsLib.push({
+            'timeleft': Pduration, // duration en MS
+            'spriteArray': powersAnimeArray
+        });
+    }
+
+
+    powerUseDrawing = [];
+
 
     /* update cooldowns */
     $.each(pd.mypowertimer, function (key, value) {
