@@ -174,7 +174,7 @@ module.exports = {
 
     /* AREA OF EFFECT AoE */
     powerUse(actor, powerkeyboard, aim, DelayAoE, mapAoE, afterHold = false, isMob = false) {
-        var debug = false;
+        var debug = true;
 
 
         if (!isMob) {
@@ -249,10 +249,9 @@ module.exports = {
             var x = surface[is][0];
             var y = surface[is][1];
             var delay = surface[is][2];
-            if(isNaN(delay)){
-                process.exit();
-            }
+
             var content = {
+                'map': [monZ, x, y],
                 'power': powerId,
                 'damage': damage,
                 'owner': !isMob ? actor.id : 'mob',
@@ -261,10 +260,8 @@ module.exports = {
                 'delay': delay
             };
             if (x > 0 && y > 0 && x < this.mapSize && y < this.mapSize) {
-                var arrer = JSON.parse(JSON.stringify(DelayAoE[monZ][x][y]));
-                arrer.push(content)
-                DelayAoE[monZ][x][y] = arrer;
-                console.log('delayed damage in '+x+','+y);
+                if(debug) console.log('pushing tileFX on '+x+','+y);
+                DelayAoE.push(content);
             }
         }
         if (!isMob) {

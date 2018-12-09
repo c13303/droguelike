@@ -30,8 +30,7 @@ function preload() {
     });
     this.load.spritesheet("powers", "img/powers.png?v=" + v, {
         frameWidth: 32,
-        frameHeight: 32,
-        endFrame: 11
+        frameHeight: 32
     });
 
     this.load.spritesheet("mobs", "img/mobs.png?v=" + v, {
@@ -70,7 +69,7 @@ function create() {
         music = this.sound.add('music', {
             volume: 1,
         });
-        music.play();
+      //  music.play();
         music.setLoop(true);
 
         soundlib.load = this.sound.add('load', {
@@ -506,7 +505,7 @@ function update() {
             }
 
 
-
+            console.log(power);
             var sprite = this.add.sprite(x, y, 'powers');
             sprite.anims.play(power + 'explode');
 

@@ -219,11 +219,15 @@ function setup() {
 }
 
 
-var mapAoE = [];
 var DelayAoE = [];
-mapAoE.push(tools.matrix(mapSize, mapSize, []));
-DelayAoE.push(tools.matrix(mapSize, mapSize, []));
 
+for (livels = 0; livels < rogue.mapSize; livels++) {
+    var mapAoE = [];
+    var items = [];
+}
+
+mapAoE.push(tools.matrix(mapSize, mapSize, []));
+items.push(tools.matrix(mapSize, mapSize, []));
 
 /* END OF SETUP */
 
@@ -335,7 +339,7 @@ function startServer() {
                     'granu': params.granu,
                     'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
                     'mobs': rogue.getMobsInZ(ws.data.z, mobs),
-                    'ticrate' : tickrate
+                    'ticrate': tickrate
                     //  'bibles': bibles
                 }));
                 rogue.updateMyPosition(ws);
@@ -384,7 +388,7 @@ function startServer() {
             ws.data.currentCool = setTimeout(function () {
                 that.data.movecooling = false;
                 if (that.data.holdingPower) {
-                    rogue.powerUse(that, that.data.holdingPower.power, that.data.holdingPower.aim, DelayAoE,mapAoE, true);
+                    rogue.powerUse(that, that.data.holdingPower.power, that.data.holdingPower.aim, DelayAoE, mapAoE, true);
                 }
             }, cool);
         };
@@ -458,7 +462,7 @@ function startServer() {
                         var x = parseInt(json.move[0]);
                         var y = parseInt(json.move[1]);
                         if (x < 0 || y < 0 || x > mapSize || y > mapSize) {
-                            report('ILLEGAL MOVE : ' + x + ',' + y + '');                            
+                            report('ILLEGAL MOVE : ' + x + ',' + y + '');
                             return null;
                         }
                         var dist = Math.sqrt(Math.pow(ws.data.x - x, 2) + Math.pow(ws.data.y - y, 2));
@@ -476,7 +480,7 @@ function startServer() {
                             rogue.updateMyPosition(ws);
                             ws.setMoveCool(params.granu);
                         } else {
-                            if (obstacle != 'wall') rogue.powerUse(ws, 'auto', [x, y], DelayAoE,mapAoE);
+                            if (obstacle != 'wall') rogue.powerUse(ws, 'auto', [x, y], DelayAoE, mapAoE);
                         }
                     } else {
                         //  console.log("2quick");
@@ -485,7 +489,7 @@ function startServer() {
 
                 /* power use by player with a key */
                 if (json.cd === 'key' && json.v && !ws.data.holdingPower) {
-                    rogue.powerUse(ws, json.v, json.aim, DelayAoE,mapAoE);
+                    rogue.powerUse(ws, json.v, json.aim, DelayAoE, mapAoE);
                 }
 
                 /* pkmode toggle */
@@ -548,7 +552,7 @@ function tick() {
     lastTictime = ticTime - lastTime;
     lastTime = ticTime;
     deltaTime = 1 / lastTictime * 100; //0.3
-    
+
     tic++;
     var timeos = Date.now();
 
@@ -570,36 +574,36 @@ function tick() {
 
 
         /* AoE DELAYED PREPARATION */
-        var debug = false;
-        for(AoZ = 0; AoZ < DelayAoE.length; AoZ++){
-            for(AoX = 0; AoX < DelayAoE[AoZ].length; AoX++){
-                for(AoY = 0; AoY < DelayAoE[AoZ][AoX].length; AoY++){ 
-                  //  var surfaceD = [];                                     
-                    if(DelayAoE[AoZ][AoX][AoY].length){ // presence d'effects dans la table des delayed
-                        var newFXOnThisTile = mapAoE[AoZ][AoX][AoY].slice(0); // JSON.parse(JSON.stringify(mapAoE[AoZ][AoX][AoY])); 
-                        var fxtileD = DelayAoE[AoZ][AoX][AoY];                      
-                       
-                        for(fX = 0; fX < fxtileD.length; fX++){
-                            var daFX = fxtileD[fX];
-                            if(daFX.delay<=1){
-                                if(debug)console.log(daFX.power + ' ON '+AoX+','+AoY);
-                                newFXOnThisTile.push(daFX);
-                                DelayAoE[AoZ][AoX][AoY].splice(fX,1);                                  
-                                rogue.updatePowerUse(daFX.owner, AoZ, daFX.power, [[AoX,AoY]]); 
-                            } else{
-                                if(debug)console.log(daFX.power + ' hold in  '+AoX+','+AoY+ ' for ' + daFX.delay);
-                                DelayAoE[AoZ][AoX][AoY][fX].delay-=1;
-                            }
-                        }
-                       
-                        mapAoE[AoZ][AoX][AoY] = newFXOnThisTile;
-                    }
+        var debug = true;
+        var spliceDelayIndex = [];
+        for (AoZ = DelayAoE.length - 1; AoZ >= 0; AoZ--) {
+            var daFX = DelayAoE[AoZ];
+            var z = daFX.map[0];
+            var x = daFX.map[1];
+            var y = daFX.map[2];
+            var newFXOnThisTile = mapAoE[z][x][y].slice(0); // JSON.parse(JSON.stringify(mapAoE[AoZ][AoX][AoY])); 
+            if (daFX.delay <= 1) {
+                if (!daFX.disabled) {
+                    if (debug) console.log(tic + ' : ' + daFX.power + ' ON ' + x + ',' + y);
+                    newFXOnThisTile.push(daFX);
+                    DelayAoE[AoZ].disabled = true;
+                    DelayAoE.splice(AoZ,1);
+                    rogue.updatePowerUse(daFX.owner, z, daFX.power, [
+                        [x, y]
+                    ]);
                 }
+            } else {
+                if (debug) console.log(tic + ' : ' + daFX.power + ' hold in  ' + x + ',' + y + ' for ' + daFX.delay);
+                DelayAoE[AoZ].delay -= 1;
             }
+            mapAoE[z][x][y] = newFXOnThisTile;
         }
+
         
-      //  mapAoE = DelayAoE;
-     
+
+
+        //  mapAoE = DelayAoE;
+
 
 
         /* M O B S    O______________________________O  */
@@ -617,10 +621,10 @@ function tick() {
             if (mapAoE[z][x][y].length) {
                 var fxtile = mapAoE[z][x][y];
                 //console.log('Mob Damaged in '+z+','+x+','+y);
-               
+
                 for (ifff = 0; ifff < fxtile.length; ifff++) {
                     if (fxtile[ifff].owner != 'mob') {
-                        
+
                         var damage = fxtile[ifff].damage;
                         var defenses = rogue.getDefenses(mob);
                         var appliedDamage = rogue.getAppliedDamage(damage, defenses);
@@ -739,9 +743,9 @@ function tick() {
         /* SPAWWWWWWNERS */
         for (spp = 0; spp < spawners.length; spp++) { // foreach spawner
             var spobj = spawners[spp];
-            if (spobj.cooldown <= 0) {                
+            if (spobj.cooldown <= 0) {
                 spobj.cooldown = spobj.batchtime;
-               // console.log('new batchtime'+spobj.batchtime);
+                // console.log('new batchtime'+spobj.batchtime);
                 if (occupied[spobj.z][spobj.x][spobj.y]) obstacle = true;
                 if (rogue.wallz[spobj.z][spobj.x][spobj.y] > -1) obstacle = true;
                 if (!obstacle) obstacle = rogue.isPlayerHere(wss, spobj.x, spobj.y, spobj.z);
@@ -776,9 +780,9 @@ function tick() {
             } else {
 
                 // lastTictime == plus précis que ticktime car REEL
-                spobj.cooldown-= deltaTime;
-               // console.log("delta "+deltaTime+", new cool "+spobj.cooldown + '(tictime real : '+lastTictime+')');
-               
+                spobj.cooldown -= deltaTime;
+                // console.log("delta "+deltaTime+", new cool "+spobj.cooldown + '(tictime real : '+lastTictime+')');
+
             }
         }
 
