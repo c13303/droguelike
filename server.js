@@ -10,7 +10,7 @@ var spawners = [];
 var wss;
 var WebSocketServer = require('./classes/wssx.js');
 var mapSize = rogue.mapSize;
-var tickrate = 100;
+var tickrate = 300;
 tools.setup();
 var port = params.port_prod;
 var regularStart = true;
@@ -203,7 +203,7 @@ function setup() {
     tools.loadFile('spawners.json', "spawnersData");
     tools.loadFile('shapes.json', "shapesData");
     tools.loadFile('player_model.json', "data_example");
-
+    tools.loadFile('gear.json', "gearData");
     /*
         tools.loadFile('map.json', "mapData");
         tools.loadFile('wallz.json', "wallzData");
@@ -240,34 +240,15 @@ function startServer() {
     spawners = JSON.parse(data.spawnersData);
     data_example = JSON.parse(data.data_example);
     tools.shapes = JSON.parse(data.shapesData);
-
+    rogue.gear = JSON.parse(data.gearData);
 
 
     /* WALLZ BUILDUING */
-    /*
-    var JsonWallz = JSON.parse(data.wallzData);
-    rogue.wallz = tools.matrix(64, 64);
-    var lastLevel = null;
-    rogue.mobs = mobs;
-    for (wallLevel = 0; wallLevel < 64; wallLevel++) {
-        if (JsonWallz.layers[wallLevel]) {
-            var levelRawData = JsonWallz.layers[wallLevel].data;
-            var formatedData = tools.reformatJsonFromTiledSoftware(levelRawData);
-            lastLevel = wallLevel;
-            tools.saveFile('wallz/' + wallLevel + '.json', JSON.stringify(formatedData));
-        } else {
-            var formatedData = tools.matrix(64, 64, -1);
-        }
-        rogue.wallz[wallLevel] = formatedData;
-    }
-    console.log("Walled levels : " + lastLevel);
-    console.log("Wall test : " + rogue.wallz[0][37][7]);
-    console.log("Wall test : " + rogue.wallz[0][10][10]);
-*/
 
     var level0 = JSON.parse(data.level0);
 
     rogue.wallz = tools.matrix(64, 0);
+    rogue.tickrate = tickrate;
     rogue.mobs = mobs;
     level0.layers.forEach(function each(layer) {
         var levelRawData = layer.data;
@@ -275,15 +256,15 @@ function startServer() {
         if (!formatedData) {
             console.log('Layer Data Missing');
             process.exit();
-        }        
+        }
         if (layer.name == "floor") {
             tools.saveFile('formatedLevels/level0_floor.json', JSON.stringify(formatedData));
         }
         if (layer.name == "wall") {
             tools.saveFile('formatedLevels/level0_wallz.json', JSON.stringify(formatedData));
 
-            var newArray = formatedData[0].map(function(col, i){
-                return formatedData.map(function(row){
+            var newArray = formatedData[0].map(function (col, i) {
+                return formatedData.map(function (row) {
                     return row[i];
                 });
             });
@@ -358,7 +339,8 @@ function startServer() {
                     'mydata': ws.data,
                     'granu': params.granu,
                     'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
-                    'mobs': rogue.getMobsInZ(ws.data.z, mobs)
+                    'mobs': rogue.getMobsInZ(ws.data.z, mobs),
+                    'ticrate' : tickrate
                     //  'bibles': bibles
                 }));
                 rogue.updateMyPosition(ws);
@@ -474,13 +456,16 @@ function startServer() {
 
 
                 if (json.move) {
-                    /* is move illegal */
+
 
 
                     if (!ws.data.movecooling) {
-                        var x = json.move[0];
-                        var y = json.move[1];
-
+                        var x = parseInt(json.move[0]);
+                        var y = parseInt(json.move[1]);
+                        if (x < 0 || y < 0 || x > mapSize || y > mapSize) {
+                            report('ILLEGAL MOVE : ' + x + ',' + y + '');                            
+                            return null;
+                        }
                         var dist = Math.sqrt(Math.pow(ws.data.x - x, 2) + Math.pow(ws.data.y - y, 2));
                         if (dist > 1.42) {
                             /* RECADRAGE */
@@ -557,7 +542,16 @@ var save_clock = 0;
 var save_freq = 10000;
 var mobIndex = 0;
 
+var lastTime = Date.now();
+var ticTime = null;
+var lastTictime = null;
+
 function tick() {
+
+    ticTime = Date.now();
+    lastTictime = ticTime - lastTime;
+    lastTime = ticTime;
+    
     tic++;
     var timeos = Date.now();
 
@@ -659,6 +653,8 @@ function tick() {
                         mob.x = x;
                         mob.y = y;
                         occupied[mob.z][x][y] = true;
+                    } else {
+                        occupied[mob.z][mob.x][mob.y] = true;
                     }
                 }
 
@@ -679,6 +675,7 @@ function tick() {
                             if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
                             if (obstacle || obstacleMob) {
                                 mob.nextMoveIsRandom = true;
+                                occupied[mob.z][mob.x][mob.y] = true;
                             } else {
                                 /* move validated */
                                 mob.update = true;
@@ -710,8 +707,9 @@ function tick() {
         /* SPAWWWWWWNERS */
         for (spp = 0; spp < spawners.length; spp++) { // foreach spawner
             var spobj = spawners[spp];
-            if (spobj.cooldown <= 0) {
+            if (spobj.cooldown <= 0) {                
                 spobj.cooldown = spobj.batchtime;
+               // console.log('new batchtime'+spobj.batchtime);
                 if (occupied[spobj.z][spobj.x][spobj.y]) obstacle = true;
                 if (rogue.wallz[spobj.z][spobj.x][spobj.y] > -1) obstacle = true;
                 if (!obstacle) obstacle = rogue.isPlayerHere(wss, spobj.x, spobj.y, spobj.z);
@@ -744,7 +742,12 @@ function tick() {
                 }
 
             } else {
-                spobj.cooldown--;
+
+                // lastTictime == plus précis que ticktime car REEL
+                var deltaTime = 1 / lastTictime * 100; //0.3
+                spobj.cooldown-= deltaTime;
+               // console.log("delta "+deltaTime+", new cool "+spobj.cooldown + '(tictime real : '+lastTictime+')');
+               
             }
         }
 
@@ -877,10 +880,8 @@ function tick() {
             for (y = 0; y < mapAoE[z][x].length; y++) {
                 for (i = 0; i < mapAoE[z][x][y].length; i++) {
                     if (mapAoE[z][x][y][i]) {
-                        //    console.log('effect active on : ' + mapAoE[z][x][y][i].power + ' on ' + z + ',' + y + ',' + x);
                         mapAoE[z][x][y][i].cooldown--;
                         if (mapAoE[z][x][y][i].cooldown <= 0) {
-                            //console.log('Delete effect : ' + mapAoE[z][x][y][i].power + ' on ' + z + ',' + y + ',' + x);
                             mapAoE[z][x][y].splice(i, 1);
                         }
                     }

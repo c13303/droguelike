@@ -173,8 +173,11 @@ module.exports = {
 
     /* AREA OF EFFECT AoE */
     powerUse(actor, powerkeyboard, aim, mapAoE, afterHold = false, isMob = false) {
+        var debug = false;
 
+        
         if (!isMob) {
+            
             var departX = actor.data.x;
             var departY = actor.data.y;
             var monZ = actor.data.z;
@@ -189,14 +192,18 @@ module.exports = {
         if (afterHold) {
             var power = powerkeyboard;
             var powerId = power.id;
+            if (!isMob && debug) console.log('--- afterHold ' + power.name.en);
         } else if (!isMob) {
+            
             /* power use from player only */
             var equiped = actor.data.powers_equiped[powerkeyboard];
             if (!equiped) return null;
             var powerId = equiped.k;
             var power = this.bibles.powers[powerId];
+            if (!isMob && debug) console.log('Using It ' + power.name.en);
             if (actor.data.powers_cooldowns[powerId] > 0) {
                 /* skill not ready */
+                if (!isMob && debug) console.log('still cooling, abort ' + power.name.en);
                 return null;
             } else {
                 actor.data.powers_cooldowns[powerId] = null;
@@ -206,11 +213,12 @@ module.exports = {
             console.log('power not defined error');
             return null;
         }
-        if (!isMob) actor.data.powers_cooldowns[powerId] = power.powercool / 100;
+        if (!isMob) actor.data.powers_cooldowns[powerId] = power.powercool / this.tickrate; //powercool = nombre de cycles 
 
         if (power.delay && !afterHold) {
             /* HOLDING POWER IN CASE OF POWER DELAY */
-            var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power,this.wallz);
+            if (!isMob && debug) console.log('Holding it' + power.name.en);
+            var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power, this.wallz);
             if (!isMob) {
                 actor.data.movecooling = true;
                 actor.setMoveCool(power.delay, power);
@@ -232,14 +240,11 @@ module.exports = {
         if (afterHold && !isMob) {
             actor.data.holdingPower = false;
         }
-
+        if (!isMob && debug) console.log('RELEASE !' + power.name.en);
         /* calcul of AREA O_____O + duration of effect */
-
-        var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power,this.wallz);
+        var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power, this.wallz);
         for (is = 0; is < surface.length; is++) {
-
             var damage = this.getPowerOffensiveDamage(actor, power);
-
             var x = surface[is][0];
             var y = surface[is][1];
             var content = {

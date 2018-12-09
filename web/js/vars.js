@@ -29,7 +29,8 @@ var config = {
         preload: preload,
         create: create,
         update: update,
-    }
+    },
+    
 };
 var caseX;
 var caseY;
@@ -52,11 +53,13 @@ var powersbible = [];
 var mobsbible = [];
 var spawners = [];
 var mobs = {};
+var ticrate = null;
 
 $.get("data/powers.json?v=" + Date.now(), function (data) {
     powersbible = data;
 });
 $.get("data/mobs.json?v=" + Date.now(), function (data) {
+    console.log(data);
     mobsbible = data;
 });
 $.get("data/spawners.json?v=" + Date.now(), function (data) {

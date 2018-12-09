@@ -55,19 +55,15 @@ var tools = {
     createCharacter(that, name, skin, x, y, isMob = false) {
         var x = layer.tileToWorldX(x) + tilesize / 2;
         var y = layer.tileToWorldY(y);
-        // var char = that.add.sprite(x + tilesize / 2, y, skin);
-        if (!isMob) {
-            var char = that.add.sprite(x + tilesize / 2, y, 'skinssheet', skin);
-        } else {
-            var char = that.add.sprite(x + tilesize / 2, y + tilesize / 2, 'mobs', skin);
-        }
+        var char = that.add.sprite(x + tilesize / 2, y, 'skinssheet', skin);
 
         drawnPeopleIndex.push(name);
         drawnPeople[name] = {};
         drawnPeople[name].sprite = char;
         if (!isMob) {
             drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
-                font: '12px cioFont',
+                fontFamily: 'cioFont',
+                fontSize : "12px",
                 align: "center",
                 fill: '#dcf5ff'
             });
@@ -86,15 +82,15 @@ var tools = {
                 if (pud.name === pd.name) { // if player 1
                     pd.x = pud.x;
                     pd.y = pud.y;
-                    pd.holding = pud.isH ? true : false;                    
+                    pd.holding = pud.isH ? true : false;
                 }
 
-                if(pud.isH){ /*holding power and shake delay */
-                   // console.log(pud.isH);
+                if (pud.isH) { /*holding power and shake delay */
+                    // console.log(pud.isH);
                     peoplehere[PeopleUpdateIndex].release = null;
-                    peoplehere[PeopleUpdateIndex].holdDrawTrigger = true;                    
-                    peoplehere[PeopleUpdateIndex].cursorDelayTrigger = pud.isH.delay;    
-                    peoplehere[PeopleUpdateIndex].aim = pud.isH.aim;                    
+                    peoplehere[PeopleUpdateIndex].holdDrawTrigger = true;
+                    peoplehere[PeopleUpdateIndex].cursorDelayTrigger = pud.isH.delay;
+                    peoplehere[PeopleUpdateIndex].aim = pud.isH.aim;
                 }
 
                 $.each(pud, function (key, value) {
@@ -137,7 +133,7 @@ var tools = {
         wtf.scrollTop(height);
     },
     fluidmove(object, px, py) {
-        var dt = 4;
+        var dt = 2;
         if (px > object.x)
             object.x += dt;
         if (px < object.x)
@@ -162,6 +158,19 @@ var tools = {
             }
         }
         return arr;
+    },
+    killDurations(durationsLib) {
+        if (durationsLib) {
+            for (durIndex = 0; durIndex < durationsLib.length; durIndex++) {
+                durationsLib[durIndex].timeleft = durationsLib[durIndex].timeleft - updateRate;
+                if (durationsLib[durIndex].timeleft <= 0) {
+                    /* destroy all powers*/
+                    for (spriteArrayIndex = 0; spriteArrayIndex < durationsLib[durIndex].spriteArray.length; spriteArrayIndex++) {
+                        durationsLib[durIndex].spriteArray[spriteArrayIndex].destroy();
+                    }
+                }
+            }
+        }
     }
 
 

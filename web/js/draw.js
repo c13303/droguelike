@@ -1,36 +1,84 @@
+var durationsLib = [];
+var animsLib = {};
+var music;
+var soundlib = {};
+var soundEnabled = true;
+
+
+function mySoundHook(soundKey){
+    if(soundEnabled)
+    soundlib[soundKey].play();
+}
+
 function preload() {
     console.log('preload');
-    this.load.spritesheet("skinssheet", "img/skinssheet.png?v="+v, {
+    this.load.spritesheet("skinssheet", "img/skinssheet.png?v=" + v, {
         frameWidth: 64,
         frameHeight: 64
     });
     var v = Date.now();
-    this.load.image('selector', 'img/selector.png?v='+v);
-    
-    this.load.image("decors", "img/decors.png?v="+v);
+    this.load.image('selector', 'img/selector.png?v=' + v);
 
-    this.load.spritesheet("fxtiles", "img/FXtileset.png?v="+v, {
+    this.load.image("decors", "img/decors.png?v=" + v);
+
+    this.load.spritesheet("fxtiles", "img/FXtileset.png?v=" + v, {
         frameWidth: 32,
         frameHeight: 32
     });
-    this.load.spritesheet("powers", "img/powers.png?v="+v, {
+    this.load.spritesheet("powers", "img/powers.png?v=" + v, {
         frameWidth: 32,
-        frameHeight: 32
+        frameHeight: 32,
+        endFrame: 11
     });
-    this.load.spritesheet("explosheet", "img/explo-sheet.png?v="+v, {
-        frameWidth: 32,
-        frameHeight: 32
-    });
-    this.load.spritesheet("mobs", "img/mobs.png?v="+v, {
+
+    this.load.spritesheet("mobs", "img/mobs.png?v=" + v, {
         frameWidth: 64,
         frameHeight: 64
     });
+
+    if(soundEnabled){
+        this.load.audio('music', [
+            'sfx/droguelike1.ogg',
+            'sfx/droguelike1.mp3'
+        ]);
+    
+        this.load.audio('load', [
+            'sfx/load.ogg',
+            'sfx/load.mp3'
+        ]);
+    
+        this.load.audio('slap', [
+            'sfx/slap.ogg',
+            'sfx/slap.mp3'
+        ]);
+    
+        this.load.audio('foutrage', [
+            'sfx/foutrage.ogg',
+            'sfx/foutrage.mp3'
+        ]);
+    
+    }
+    
 }
 
 
-
 function create() {
-    console.log('Create');
+    if (soundEnabled) {
+        music = this.sound.add('music', {
+            volume: 1,
+        });
+        music.play();
+        music.setLoop(true);
+
+        soundlib.load = this.sound.add('load', {
+            volume: 0.3,
+        });
+        soundlib.foutrage = this.sound.add('foutrage', {
+            volume: 0.3,
+        });
+    }
+
+
     /* map */
     map = this.make.tilemap({
         data: level,
@@ -42,12 +90,12 @@ function create() {
     layer.setDepth(-50);
 
     var wallzTilemap = this.make.tilemap({
-        data : wallData,
+        data: wallData,
         tileWidth: 32,
         tileHeight: 32
     });
     var wallTiles = wallzTilemap.addTilesetImage("decors");
-    wallLayer = wallzTilemap.createDynamicLayer(0,wallTiles,0,0);
+    wallLayer = wallzTilemap.createDynamicLayer(0, wallTiles, 0, 0);
     wallLayer.setDepth(-49);
 
     /* cursor */
@@ -68,23 +116,28 @@ function create() {
     selector = this.add.sprite(-500, -500, 'selector');
 
     /* xplode anime creation */
-    var config = {
-        key: 'explode',
-        frames: this.anims.generateFrameNumbers('explosheet', {
-            start: 0,
-            end: 2,
-            first: 2
-        }),
-        frameRate: 2
-    };
-    this.anims.create(config);
+    var deathConfig = {
+        key: 'deathMob',
+        frames: this.anims.generateFrameNumbers('skinssheet', {
+            start: 3,
+            end: 5,
+            first: 3,
 
+        }),
+        frameRate: 6
+    };
+    this.anims.create(deathConfig);
 
 }
-
-
+var boomtest;
+var lastrefresh = Date.now();
+var updateRate = null;
 
 function update() {
+
+    var nowRefresh = Date.now();
+    updateRate = nowRefresh - lastrefresh;
+    lastrefresh = nowRefresh;
 
     /* mouse event */
 
@@ -131,20 +184,23 @@ function update() {
 
 
     if (this.input.manager.activePointer.isDown && !cooldowns.move) {
-        /* move order */
+        /* move order to new case */
         var tx = pd.x;
         var ty = pd.y;
+
+        var moveCase = 1;
+
         if (caseX > pd.x) {
-            tx = pd.x + 1;
+            tx = pd.x + moveCase;
         }
         if (caseX < pd.x) {
-            tx = pd.x - 1;
+            tx = pd.x - moveCase;
         }
         if (caseY > pd.y) {
-            ty = pd.y + 1;
+            ty = pd.y + moveCase;
         }
         if (caseY < pd.y) {
-            ty = pd.y - 1;
+            ty = pd.y - moveCase;
         }
         if (tx != pd.x || ty != pd.y) {
             tools.cooldown('move', cooldownbible.move);
@@ -158,7 +214,6 @@ function update() {
     /* UPDATE CHARACTERS */
 
 
-    var peopleToSplice = [];
     for (loopIndexPeople = 0; loopIndexPeople < peoplehere.length; loopIndexPeople++) {
         var keum = peoplehere[loopIndexPeople];
 
@@ -171,7 +226,6 @@ function update() {
 
         if ($.inArray(keum.name, drawnPeopleIndex) < 0) {
             /* create a character */
-
             if (!keum.mob) {
                 tools.createCharacter(this, keum.name, keum.skin, keum.x, keum.y);
                 tools.notice(keum.name + ' is back online');
@@ -179,19 +233,21 @@ function update() {
                 var mobname = mobsbible[keum.mob].name[lang];
                 tools.createCharacter(this, keum.name, keum.skin, keum.x, keum.y, mobname);
             }
-
-
         } else {
             /* update character */
-
             /* UPDATE DEAD OR ALIVE */
             if (pd.target && pd.target.id === keum.id) {
                 selector.x = drawnPeople[keum.name].sprite.x;
                 selector.y = drawnPeople[keum.name].sprite.y - 42;
             }
+
             drawnPeople[keum.name].sprite.setDepth(keum.y);
             for (killindex = 0; killindex < killingPile.length; killindex++) {
                 if (keum.name === killingPile[killindex]) {
+
+                    var boom = this.add.sprite(drawnPeople[keum.name].sprite.x, drawnPeople[keum.name].sprite.y, 'skinssheet');
+                    boom.anims.play('deathMob');
+                    boom.on('animationcomplete', animComplete, this);
                     drawnPeople[keum.name].sprite.destroy();
                     drawnPeople[keum.name].lifebar.destroy();
                     if (drawnPeople[keum.name].label) drawnPeople[keum.name].label.destroy();
@@ -207,27 +263,17 @@ function update() {
                 }
             }
 
-
-
-
             if (keum.isdead || keum.killMob) {
                 /* UPDATE IS DEAD */
                 if (keum.isdead && !drawnPeople[keum.name].sprite.frame.name !== 0) {
                     drawnPeople[keum.name].sprite.setFrame(0);
                     drawnPeople[keum.name].sprite.clearTint();
                 }
-
-
-
-
             } else {
                 /* UPDATE IF NOT DEAD */
-
                 tools.fluidmove(drawnPeople[keum.name].sprite, px, py);
                 tools.fluidmove(drawnPeople[keum.name].lifebar, lx, ly);
                 if (drawnPeople[keum.name].label) tools.fluidmove(drawnPeople[keum.name].label, tx, ty);
-
-
                 var percentLife = keum.life.now / keum.life.max;
                 drawnPeople[keum.name].lifebar.setScale(percentLife, 0.25);
 
@@ -248,14 +294,10 @@ function update() {
                     }
                 }
 
-
-
-
-
                 /* apply cursor for power delayed LOL */
                 if (keum.cursorDelayTrigger) {
-                   // console.log(keum.cursorDelayTrigger);
-                    if(keum.cursorPowerDelayedSprite) keum.cursorPowerDelayedSprite.destroy();
+                    // console.log(keum.cursorDelayTrigger);
+                    if (keum.cursorPowerDelayedSprite) keum.cursorPowerDelayedSprite.destroy();
                     keum.cursorPowerDelayed = keum.cursorDelayTrigger / 10;
                     keum.cursorDelayTrigger = null;
                     keum.cursorPowerDelayedSprite = this.add.sprite(layer.tileToWorldX(keum.aim[0]) + 16, layer.tileToWorldX(keum.aim[1]) + 16, 'fxtiles', 1);
@@ -274,7 +316,7 @@ function update() {
                 if (keum.holdDrawTrigger) {
                     keum.holdDrawTrigger = false;
                     var repeat = keum.cursorPowerDelayed / 50;
-                     /* animation shaking */
+                    /* animation shaking */
                     var config = {
                         targets: drawnPeople[keum.name].sprite,
                         x: {
@@ -303,25 +345,56 @@ function update() {
 
 
 
-
                 /* power USE LOL */
                 if (keum.poweruse) {
                     var power = keum.poweruse.power;
                     var surface = keum.poweruse.surface;
                     keum.poweruse = false;
-                    var powerspritekey = 'animepower_' + power;
-                    keum[powerspritekey] = [];
+                    mySoundHook('foutrage');
+                    var powersAnimeArray = [];
+
                     for (powerUseIndex = 0; powerUseIndex < surface.length; powerUseIndex++) {
                         var x = layer.tileToWorldX(surface[powerUseIndex][0]) + 16;
                         var y = layer.tileToWorldY(surface[powerUseIndex][1]) + 16;
-                        var sprite = this.add.sprite(x, y, 'powers', powersbible[power].sprite);
+
+                        var firstFrame = powersbible[power].sprite * 3;
+                        var lastFrame = firstFrame + 2;
+                        if (!animsLib[power]) {
+                            console.log('generating anime' + firstFrame + ' to ' + lastFrame);
+                            var config = {
+                                key: power + 'explode',
+                                frames: this.anims.generateFrameNumbers('powers', {
+                                    start: firstFrame,
+                                    end: lastFrame,
+                                    first: firstFrame
+                                }),
+                                frameRate: 6
+                            };
+                            animsLib[power] = this.anims.create(config);
+                        }
+
+
+
+                        var sprite = this.add.sprite(x, y, 'powers');
+                        sprite.anims.play(power + 'explode');
+
+
+
                         if (powersbible[power].depth === 1)
                             sprite.setDepth(99);
                         else
                             sprite.setDepth(0);
-                        keum[powerspritekey].push(sprite);
+                        powersAnimeArray.push(sprite);
                     }
+                    var Pduration = powersbible[power].duration * ticrate;
+                    durationsLib.push({
+                        'timeleft': Pduration, // duration en MS
+                        'spriteArray': powersAnimeArray
+                    });
+
+
                     /* animation power use */
+                    /*
                     this.tweens.add({
                         targets: keum[powerspritekey],
                         scaleX: 1.5,
@@ -337,7 +410,7 @@ function update() {
                                 targets[tweenPowerIndex].destroy();
                             }
                         }
-                    });
+                    });*/
 
                 }
 
@@ -347,16 +420,20 @@ function update() {
                     var damage = keum.damaged;
                     keum.damaged = null;
                     keum.damageLabel = this.add.text(drawnPeople[keum.name].sprite.x, drawnPeople[keum.name].sprite.y - 64, damage, {
-                        font: '15px cioFont',
+                        fontFamily: 'cioFont',
+                        fontSize: '12px',
                         align: "center",
-                        fill: '#d77355'
+                        fill: '#FF0000'
                     });
-                    keum.damageLabel.setDepth(100);
+                    keum.damageLabel.setDepth(200);
+                    keum.damageLabel.setStroke("black", 1);
+
+
                     var rangeDom = 50;
                     var randX = tools.getRandomInt(rangeDom) - rangeDom / 2;
                     var randY = tools.getRandomInt(rangeDom) - rangeDom / 2;
                     var duration = 500;
-                    /* animation damage text */
+                    /* animation damage label */
                     this.tweens.add({
                         targets: keum.damageLabel,
                         props: {
@@ -397,15 +474,14 @@ function update() {
 
     /* update cooldowns */
     $.each(pd.mypowertimer, function (key, value) {
-
         if (pd.mypowertimer[key]) {
             var timer = pd.mypowertimer[key];
             value = timer.getTimeLeft();
             if (value > 0) {
-                $('.power' + key).addClass('cooling');
+                $(".keypower").addClass('cooling');
                 $('.power' + key + ' .cooldown').html(value);
             } else {
-                $('.power' + key).removeClass('cooling');
+                $('.keypower').removeClass('cooling');
                 $('.power' + key + ' .cooldown').html("");
                 pd.mypowertimer[key] = null;
             }
@@ -414,5 +490,11 @@ function update() {
 
     });
 
+    tools.killDurations(durationsLib);
+
 
 } /* end of update */
+
+function animComplete(animation, frame, gameobject) {
+    gameobject.destroy();
+}

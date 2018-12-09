@@ -4,6 +4,15 @@
  * CONNEXION
  */
 
+function updatestats(pd) {
+    for (var p in pd) {
+        if (obj.hasOwnProperty(p)) {
+            var id = '.'+p;
+            $(id).val(pd[p]);
+        }
+    }
+}
+
 
 function connect() {
 
@@ -61,12 +70,14 @@ function connect() {
         if (consolage)
             console.log(d);
 
-        if (d.startgame && level) {
-            console.log('firestarter');
+        if (d.startgame && level && d.ticrate) {
+            ticrate = d.ticrate;
+            console.log('firestarter , ticrate : ' + ticrate);
             $('#connect').remove();
             $('#autoreconnect').remove();
             $('#game').removeClass("hidden");
-           
+
+
             pd = d.mydata;
             pd.mypowertimer = {};
 
@@ -78,10 +89,10 @@ function connect() {
 
 
             game = new Phaser.Game(config);
-          //  $('#logo').remove();
+            //  $('#logo').remove();
 
         }
-      
+
         /* full update powers */
         if (d.mydata && d.mydata.powers_equiped) {
             var pow = d.mydata.powers_equiped;
@@ -104,13 +115,13 @@ function connect() {
         /* any player updates */
 
         if (d.puds) {
-            for (pudI = 0; pudI < d.puds.length; pudI++) {               
+            for (pudI = 0; pudI < d.puds.length; pudI++) {
                 tools.updatePlayer(d.puds[pudI]); // tout se retrouve dans keum ^^ 
             }
         }
 
         /* power use update */
-        if (d.pwups && d.pwups.length) {           
+        if (d.pwups && d.pwups.length) {
             for (puI = 0; puI < d.pwups.length; puI++) {
                 /* P1 cooldown */
                 if (d.pwups[puI].who === pd.id) {
@@ -118,14 +129,14 @@ function connect() {
                     pd.mypowertimer[d.pwups[puI].pwup] = new timer(function () {
                         // utile pour afficher le timer live du boutton
                     }, powersbible[d.pwups[puI].pwup].powercool);
-                }             
-                    
+                }
+
 
                 tools.updateKeumById(d.pwups[puI].who, "poweruse", {
                     power: d.pwups[puI].pwup,
                     surface: d.pwups[puI].surf
                 });
-                tools.updateKeumById(d.pwups[puI].who,"release",true);
+                tools.updateKeumById(d.pwups[puI].who, "release", true);
             }
         }
 
@@ -145,7 +156,7 @@ function connect() {
 
 
         /* recadrage */
-        if( d.rcdr){
+        if (d.rcdr) {
             console.log('recadrage');
             tools.updatePlayer(d.rcdr);
         }
@@ -253,12 +264,16 @@ function connect() {
 
     /* use of keyboards */
     $('body').bind('keypress', 'canvas', function (e) {
+
         if (!$('#chat').is(":focus")) {
+
             var keyCode = tools.checkKey(e);
             // console.log(keyCode);
 
             if (keyCode === 13) {
                 $("#chat").focus();
+            } else {
+                e.preventDefault();
             }
 
             /* player killer mode */
@@ -305,17 +320,22 @@ function connect() {
 
             var powerUse = null;
 
-            function keyUse(myclass){
-               
-                $(myclass).addClass('cooling');
+            function keyUse(myclass) {
+                $(".keypower").addClass('cooling');
                 powerUse = $(myclass).data('power');
-                if($(myclass).data('key'))
-                ws.send(JSON.stringify({
-                    cd: 'key',
-                    v: $(myclass).data('key'),
-                    dir: pd.dir,
-                    aim : pd.aim
-                }));
+                if ($(myclass).data('key')) {
+                    ws.send(JSON.stringify({
+                        cd: 'key',
+                        v: $(myclass).data('key'),
+                        dir: pd.dir,
+                        aim: pd.aim
+                    }));
+                    if (powersbible[powerUse].delay) {
+                        pd.holding = true;
+                        mySoundHook('load');
+                    }
+                }
+
             }
 
 
@@ -334,7 +354,7 @@ function connect() {
                 if (!$('.keyd').hasClass('cooling') && keyCode === 39 || keyCode === 52) {
                     keyUse('.keyd');
                 }
-                
+
             }
 
 

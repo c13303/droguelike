@@ -51,7 +51,7 @@
             "en": "The palm of your hand on the ass of your opponent"
         },
         "damage": {
-            "physical": 0,
+            "physical": 1,
             "humiliation": 1,
             "sex": 0,
             "sanity": 0,
@@ -95,7 +95,7 @@
     "foutre": {
         "id" : "foutre",
         "type": "trig",
-        "duration": 10,
+        "duration": 5,
         "powercool": 0,
         "delay": 1000,
         "sprite": 2,
@@ -126,13 +126,13 @@
     "nazi": {
         "id" : "nazi",
         "type": "trig",
-        "duration": 10,
+        "duration": 5,
         "powercool": 3000,
         "delay": 2000,
         "sprite": 3,
         "name": {
-            "fr": "alt-right propaganda",
-            "en": "alt-right propaganda"
+            "fr": "alt-right",
+            "en": "alt-right"
         },
         "surface": {
             "dist": 5,

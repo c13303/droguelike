@@ -169,4 +169,12 @@ body .modal-content h2 {
   font-size: 24px;
   font-weight: bold;
 }
+
+body .playerficher {
+  z-index: 220;
+  height: 100px;
+  width: 100px;
+  background: black;
+  position: absolute;
+}
 /*# sourceMappingURL=style.css.map */

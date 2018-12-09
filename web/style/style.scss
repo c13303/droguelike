@@ -208,4 +208,11 @@ body {
             font-weight: bold;
         }
     }
+    .playerficher{
+        z-index: 220;
+        height: 100px;
+        width: 100px;
+        background: black;
+        position: absolute;
+    }
 }

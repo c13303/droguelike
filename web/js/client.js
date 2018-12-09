@@ -40,8 +40,21 @@ $(document).ready(function () {
 
         }
     }
+
+    function resetFocus(){
+        let scrollTop = document.body.scrollTop;
+        let body = document.body;
+    console.log('caca');
+        let tmp = document.createElement('input');
+        tmp.style.opacity = 0;
+        body.appendChild(tmp);
+        tmp.focus();
+        body.removeChild(tmp);
+        body.scrollTop = scrollTop;
+    }
+
     $('body').on('click', 'canvas', function (e) {
-        $('#chat').blur();
+        resetFocus();
     });
 
 
@@ -63,3 +76,4 @@ $(document).ready(function () {
     })
 
 }); /* end of domready */
+

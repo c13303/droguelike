@@ -1,0 +1,27 @@
+{
+    "gant": {
+        "name" : {
+            "fr" : "gant en latex",
+            "en" : "latex glove"
+        },
+        "sprite" : 4,
+        "position" : "RA",
+        "Power": "slap",
+        "def" : {
+            "physical": 0,
+            "humiliation": 0,
+            "sex": 0,
+            "sanity": 0,
+            "karma": 0,
+            "money": 0
+        },
+        "boost" : {
+            "physical": 0,
+            "humiliation": 0,
+            "sex": 0,
+            "sanity": 0,
+            "karma": 0,
+            "money": 0
+        }
+    }
+}
