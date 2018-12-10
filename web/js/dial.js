@@ -172,6 +172,9 @@ function connect() {
             tools.updatePlayer(d.rcdr);
         }
 
+        if(d.items){
+            tools.updateLevelItems(d.items);
+        }
 
 
 

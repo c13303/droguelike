@@ -203,7 +203,8 @@ function setup() {
     tools.loadFile('spawners.json', "spawnersData");
     tools.loadFile('shapes.json', "shapesData");
     tools.loadFile('player_model.json', "data_example");
-    tools.loadFile('gear.json', "gearData");
+    tools.loadFile('lootbible.json', "lootBible");
+    tools.loadFile('item_model.json', "item_example");
     /*
         tools.loadFile('map.json', "mapData");
         tools.loadFile('wallz.json', "wallzData");
@@ -218,16 +219,16 @@ function setup() {
 
 }
 
-
+var mapAoE = [];
+var mapAoEList = [];
 var DelayAoE = [];
+var items = [];
+
 
 for (livels = 0; livels < rogue.mapSize; livels++) {
-    var mapAoE = [];
-    var items = [];
+    mapAoE.push(tools.matrix(mapSize, mapSize, []));
 }
 
-mapAoE.push(tools.matrix(mapSize, mapSize, []));
-items.push(tools.matrix(mapSize, mapSize, []));
 
 /* END OF SETUP */
 
@@ -245,7 +246,8 @@ function startServer() {
     spawners = JSON.parse(data.spawnersData);
     data_example = JSON.parse(data.data_example);
     tools.shapes = JSON.parse(data.shapesData);
-    rogue.gear = JSON.parse(data.gearData);
+    bibles.loot = JSON.parse(data.lootBible);
+    rogue.item_example = JSON.parse(data.item_example);
 
 
     /* WALLZ BUILDUING */
@@ -255,6 +257,8 @@ function startServer() {
     rogue.wallz = tools.matrix(64, 0);
     rogue.tickrate = tickrate;
     rogue.mobs = mobs;
+
+
     level0.layers.forEach(function each(layer) {
         var levelRawData = layer.data;
         var formatedData = tools.reformatJsonFromTiledSoftware(levelRawData);
@@ -278,6 +282,23 @@ function startServer() {
             rogue.wallz[0] = newArray;
         }
     });
+
+
+    /* ITEMS TRYOUT */
+    items.push(rogue.createItem('gant', [0, 10, 10]));
+    console.log(items);
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     console.log(spawners.length + ' spawners in the map, ' + rogue.wallz.length + ' wall levels');
@@ -339,6 +360,7 @@ function startServer() {
                     'granu': params.granu,
                     'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
                     'mobs': rogue.getMobsInZ(ws.data.z, mobs),
+                    'items': rogue.getItemsInZ(ws.data.z, items),
                     'ticrate': tickrate
                     //  'bibles': bibles
                 }));
@@ -574,8 +596,9 @@ function tick() {
 
 
         /* AoE DELAYED PREPARATION */
-        var debug = true;
-        var spliceDelayIndex = [];
+        var debug = false;
+
+
         for (AoZ = DelayAoE.length - 1; AoZ >= 0; AoZ--) {
             var daFX = DelayAoE[AoZ];
             var z = daFX.map[0];
@@ -587,7 +610,7 @@ function tick() {
                     if (debug) console.log(tic + ' : ' + daFX.power + ' ON ' + x + ',' + y);
                     newFXOnThisTile.push(daFX);
                     DelayAoE[AoZ].disabled = true;
-                    DelayAoE.splice(AoZ,1);
+                    DelayAoE.splice(AoZ, 1);
                     rogue.updatePowerUse(daFX.owner, z, daFX.power, [
                         [x, y]
                     ]);
@@ -597,9 +620,13 @@ function tick() {
                 DelayAoE[AoZ].delay -= 1;
             }
             mapAoE[z][x][y] = newFXOnThisTile;
+            mapAoEList.push({
+                map: [z, x, y],
+                fxlist: newFXOnThisTile
+            });
         }
 
-        
+
 
 
         //  mapAoE = DelayAoE;
@@ -660,6 +687,7 @@ function tick() {
                     }
                 } else {
                     /* HAS TARGET AND VERIF DISTANCE TO DROP OR ATTACK */
+                    /* MOB ATTACK */
                     var dist = tools.getDist(mob.x, mob.target.data.x, mob.y, mob.target.data.y);
                     if (dist > 24) {
                         mob.target = null;
@@ -910,20 +938,24 @@ function tick() {
 
 
     /* AeO cools */
-    for (z = 0; z < mapAoE.length; z++) {
-        for (x = 0; x < mapAoE[z].length; x++) {
-            for (y = 0; y < mapAoE[z][x].length; y++) {
-                for (i = 0; i < mapAoE[z][x][y].length; i++) {
-                    if (mapAoE[z][x][y][i]) {
-                        mapAoE[z][x][y][i].cooldown--;
-                        if (mapAoE[z][x][y][i].cooldown <= 0) {
-                            mapAoE[z][x][y].splice(i, 1);
-                        }
-                    }
-                }
+
+   
+    for (b = 0; b < mapAoEList.length; b++) {
+        var fxPile = mapAoEList[b].fxlist;
+        for (i = 0; i < fxPile.length; i++) {
+            var fx = fxPile[i];
+            var x = fx.map[1];
+            var y = fx.map[2];
+            var z = fx.map[0];
+            mapAoE[z][x][y][i].cooldown--;
+            if (mapAoE[z][x][y][i].cooldown <= 0) {
+                mapAoE[z][x][y].splice(i, 1);
+                mapAoEList[b].fxlist.splice(i, 1);
             }
         }
     }
+
+
     var timeos2 = Date.now();
     ticdiff = timeos2 - timeos;
     if (ticdiff > 25) {

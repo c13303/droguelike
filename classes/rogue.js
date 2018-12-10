@@ -77,6 +77,9 @@ module.exports = {
         }
         return here;
     },
+    getItemsInZ(z,item){
+        return null;
+    },
     getNextMove(x, y, tx, ty) {
         var update = false;
         if (tx > x) {
@@ -168,17 +171,24 @@ module.exports = {
         };
         this.wss.addToWaiting('waitingPowers', z, msg);
     },
+    updateItem(z,x,y,index,what = 'add'){
+        var msg = {
+            'map' : [x,y],
+            'idx' : index,
+            'add' : what ? 1 : 0
+        };
+        this.wss.addToWaiting('waitingItems', z, msg);
+    },
 
 
 
 
     /* AREA OF EFFECT AoE */
     powerUse(actor, powerkeyboard, aim, DelayAoE, mapAoE, afterHold = false, isMob = false) {
-        var debug = true;
+        var debug = false;
 
 
         if (!isMob) {
-
             var departX = actor.data.x;
             var departY = actor.data.y;
             var monZ = actor.data.z;
@@ -267,7 +277,7 @@ module.exports = {
         if (!isMob) {
             actor.data.poweruse = powerId;
         }
-        // this.updatePowerUse(actor.id, monZ, powerId, surface); /// add to refresh client pile
+        /// add to refresh client pile
     },
     getDefenses(ws) {
         var defenses = {
@@ -312,7 +322,17 @@ module.exports = {
         var damage = physical_damage + humiliation_damage + sanity_damage + sex_damage + money_damage;
         return (damage);
     },
-
+    createItem(id,map = [null,null,null],playerSlot = [null,null]){
+        var clone = JSON.parse(JSON.stringify(this.item_example));
+        clone.id = id;
+        if(map){
+            clone.map = map;
+        }
+        if(playerSlot){
+            clone.player = playerSlot;
+        }
+        return clone;
+    }
 
 
 }

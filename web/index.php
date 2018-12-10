@@ -110,47 +110,17 @@ if ($isdev) {
     <div class="powerinventory">
     </div>
     <div class="playerfiche">
-        <div class="stat name">
-
-            <div class="stat life">
-            </div>
-            <div class="stats">
-                <div class="attack">
-                    <div class="stat physical">
-                    </div>
-                    <div class="stat humiliation">
-                    </div>
-                    <div class="stat sex">
-                    </div>
-                    <div class="stat sanity">
-                    </div>
-                    <div class="stat karma">
-                    </div>
-                    <div class="stat money">
-                    </div>
-                </div>
-                <div class="defense">
-                    <div class="stat physical">
-                    </div>
-                    <div class="stat humiliation">
-                    </div>
-                    <div class="stat sex">
-                    </div>
-                    <div class="stat sanity">
-                    </div>
-                    <div class="stat karma">
-                    </div>
-                    <div class="stat money">
-                    </div>
-                </div>
-            </div>
-
-            <div>
-
-            </div>
-
+        <div class="container">
+            <div class="slot slot1"></div>
+            <div class="slot slot2"></div>
+            <div class="slot slot3"></div>
+            <div class="slot slot4"></div>
+            <div class="slot slot5"></div>
+            <div class="slot slot6"></div> 
+            <div class="slot slot7"></div> 
+            <div class="slot slot8"></div>
         </div>
-
+    </div>
 
 
 </body>

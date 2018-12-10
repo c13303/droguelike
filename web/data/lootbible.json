@@ -1,0 +1,20 @@
+{
+    "gant": {
+        "id": "gant",
+        "name": {
+            "fr": "gant en latex",
+            "en": "latex glove"
+        },
+        "sprite": 4,
+        "slot": [6, 8],
+        "powers": ["slap"],
+        "base": {
+            "attack": {
+                "physical": 10
+            },
+           "rez" :{
+                
+           }
+        }
+    }
+}

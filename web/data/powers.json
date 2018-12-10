@@ -64,7 +64,7 @@
     "microtarte": {
         "id" : "microtarte",
         "type": "trig",
-        "duration": 3,
+        "duration": 1,
         "powercool": 500,
         "delay": 0,
         "sprite": 1,
@@ -159,7 +159,7 @@
         "type": "trig",
         "duration": 5,
         "powercool": 3000,
-        "delay": 2000,
+        "delay": 500,
         "sprite": 3,
         "name": {
             "fr": "alt-right",
@@ -167,8 +167,8 @@
         },
         "surface": {
             "dist": 5,
-            "style": "cross",
-            "shape": "nazi",
+            "style": 0,
+            "shape": "nova",
             "size": 1
         },
         "desc": {

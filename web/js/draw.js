@@ -218,7 +218,6 @@ function update() {
 
     for (loopIndexPeople = 0; loopIndexPeople < peoplehere.length; loopIndexPeople++) {
         var keum = peoplehere[loopIndexPeople];
-
         var px = layer.tileToWorldX(keum.x) + tilesize / 2;
         var py = layer.tileToWorldY(keum.y);
         var tx = layer.tileToWorldX(keum.x);

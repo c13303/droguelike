@@ -53,15 +53,16 @@ var tools = {
         }
     },
     createCharacter(that, name, skin, x, y, isMob = false) {
-        var x = layer.tileToWorldX(x) + tilesize / 2;
+        var oriX = layer.tileToWorldX(x);
+        var x = oriX + tilesize / 2;
         var y = layer.tileToWorldY(y);
-        var char = that.add.sprite(x + tilesize / 2, y, 'skinssheet', skin);
+        var char = that.add.sprite(x, y, 'skinssheet', skin);
 
         drawnPeopleIndex.push(name);
         drawnPeople[name] = {};
         drawnPeople[name].sprite = char;
         if (!isMob) {
-            drawnPeople[name].label = that.add.text(x, y + labelOffset, name, {
+            drawnPeople[name].label = that.add.text(oriX, y + labelOffset, name, {
                 fontFamily: 'cioFont',
                 fontSize : "12px",
                 align: "center",
@@ -70,7 +71,7 @@ var tools = {
             drawnPeople[name].label.setAlign('center');
             drawnPeople[name].label.setDepth(100);
         }
-        drawnPeople[name].lifebar = that.add.sprite(x + lifebarOffsetX, y + lifebarOffsetY, 'fxtiles', 0);
+        drawnPeople[name].lifebar = that.add.sprite(oriX + lifebarOffsetX, y + lifebarOffsetY, 'fxtiles', 0);
         drawnPeople[name].lifebar.setScale(1, 0.25);
         drawnPeople[name].lifebar.setDepth(-0.1);
         return (char);
@@ -171,6 +172,9 @@ var tools = {
                 }
             }
         }
+    },
+    updateLevelItems(items){
+
     }
 
 

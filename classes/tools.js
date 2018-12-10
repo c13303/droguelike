@@ -85,6 +85,7 @@ module.exports = {
    
     calculateSurface(x, y, z, aim, power, wallz) {
 
+        console.log('surface from '+x+','+y);
         var dist = power.surface.dist;
         var style = power.surface.style;
         var size = power.surface.size;
@@ -152,13 +153,12 @@ module.exports = {
         if (!sx) sx = dirsx;
         if (!sy) sy = dirsy
 
-
         if (size < 1) {
             return ([
                 [sx, sy,1]
             ]);
         }
-        if (style) {
+        if (style && !isshape) {
             if (style === 'cross') {
                 p.push([sx, sy,1]);
                 p.push([sx + size, sy,1]);
@@ -168,8 +168,8 @@ module.exports = {
             }
         }
         if (isshape) {
+            p.push([sx, sy,1]); // starting point
             var shape = this.shapes[isshape];
-            var center = shape[5][5];
             for (shapeIndex = 0; shapeIndex < shape.length; shapeIndex++) {
                 var line = shape[shapeIndex];
                 for (shapeIndexY = 0; shapeIndexY < line.length; shapeIndexY++) {
@@ -251,5 +251,6 @@ module.exports = {
             index++;
         }
         return reformat;
-    }
+    },
+   
 }

@@ -170,11 +170,66 @@ body .modal-content h2 {
   font-weight: bold;
 }
 
-body .playerficher {
+body .playerfiche {
   z-index: 220;
-  height: 100px;
-  width: 100px;
-  background: black;
+  height: 256px;
+  width: 512px;
+  background-color: black;
   position: absolute;
+  background-image: url(../img/persona.png);
+  background-repeat: no-repeat;
+  background-position: left;
+  margin-left: calc(50% - 256px);
+  margin-top: 20px;
+}
+
+body .playerfiche .container {
+  position: relative;
+}
+
+body .playerfiche .container .slot {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  border: 1px solid #508cd7;
+}
+
+body .playerfiche .container .slot1 {
+  left: 64px;
+}
+
+body .playerfiche .container .slot2 {
+  left: 64px;
+  top: 64px;
+}
+
+body .playerfiche .container .slot3 {
+  left: 64px;
+  top: 128px;
+}
+
+body .playerfiche .container .slot4 {
+  left: 64px;
+  top: 192px;
+}
+
+body .playerfiche .container .slot5 {
+  left: 0;
+  top: 64px;
+}
+
+body .playerfiche .container .slot6 {
+  left: 0;
+  top: 128px;
+}
+
+body .playerfiche .container .slot7 {
+  left: 128px;
+  top: 64px;
+}
+
+body .playerfiche .container .slot8 {
+  left: 128px;
+  top: 128px;
 }
 /*# sourceMappingURL=style.css.map */
