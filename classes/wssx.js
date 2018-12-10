@@ -117,14 +117,15 @@ class wssx extends server {
             }
         });
     };
+
     getClientFromId(id) {
         var that = null;
-        this.clients.forEach(function each(client) {
-            if (client.id === id) {
-                that = client;
-                return that;
+        for (let daCli of this.clients) {           
+            if (daCli.id === id) {
+                that = daCli;
             }
-        });
+        }
+        if(!that)console.log(id + ' didnt found in ' + this.clients.size + ' clients ');
         return that;
     }
     nearestPlayerFromPoint(x, y, z) {
@@ -145,7 +146,7 @@ class wssx extends server {
     clearMobTarget(mobs, id) {
         for (i = 0; i < mobs.length; i++) {
             if (mobs[i].target && mobs[i].target.id === id) {
-               // console.log('cleared target of mob ' + i);
+                // console.log('cleared target of mob ' + i);
                 mobs[i].target = null;
             }
         }

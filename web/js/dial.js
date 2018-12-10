@@ -172,8 +172,8 @@ function connect() {
             tools.updatePlayer(d.rcdr);
         }
 
-        if(d.items){
-            tools.updateLevelItems(d.items);
+        if(d.myItems){
+            tools.updateMyItems(d.myItems);
         }
 
 

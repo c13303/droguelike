@@ -85,7 +85,7 @@ module.exports = {
    
     calculateSurface(x, y, z, aim, power, wallz) {
 
-        console.log('surface from '+x+','+y);
+      //  console.log('surface from '+x+','+y);
         var dist = power.surface.dist;
         var style = power.surface.style;
         var size = power.surface.size;
@@ -251,6 +251,6 @@ module.exports = {
             index++;
         }
         return reformat;
-    },
+    }
    
 }

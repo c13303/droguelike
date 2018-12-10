@@ -23,6 +23,9 @@ var bibles = {};
 var myglobals = {};
 var shapesData;
 var debug;
+
+
+
 /* mysql */
 
 var mysql = require('mysql');
@@ -223,10 +226,11 @@ var mapAoE = [];
 var mapAoEList = [];
 var DelayAoE = [];
 var items = [];
-
+rogue.itemsInWorld = [];
 
 for (livels = 0; livels < rogue.mapSize; livels++) {
     mapAoE.push(tools.matrix(mapSize, mapSize, []));
+    rogue.itemsInWorld.push([]);
 }
 
 
@@ -248,7 +252,7 @@ function startServer() {
     tools.shapes = JSON.parse(data.shapesData);
     bibles.loot = JSON.parse(data.lootBible);
     rogue.item_example = JSON.parse(data.item_example);
-
+    rogue.bibles = bibles;
 
     /* WALLZ BUILDUING */
 
@@ -283,10 +287,6 @@ function startServer() {
         }
     });
 
-
-    /* ITEMS TRYOUT */
-    items.push(rogue.createItem('gant', [0, 10, 10]));
-    console.log(items);
 
 
 
@@ -343,28 +343,51 @@ function startServer() {
             var name = userinfo.name.replace(/\W/g, '');
             var token = userinfo.password.replace(/\W/g, '');
             var id = userinfo.id;
-            report(name + ' connected with id ' + id);
+
+
+
+
+
+
+
+
+
             connection.query('SELECT id,name,data FROM players WHERE name=? AND password=?', [name, token], function (err, rows, fields) {
                 if (err)
                     report(err);
                 var data = JSON.parse(rows[0].data);
-
                 ws.name = name;
                 ws.id = rows[0].id;
                 ws.data = data;
                 ws.data.name = name;
                 ws.data.id = rows[0].id;
+
+                report(name + ' connected with id ' + ws.id);
+
+                var thatId = ws.id;
+
+
+                /* free items */
+                items.push(rogue.createItem('gant', [0, 10, 10]));
+                items.push(rogue.createItem('gant', null, [thatId, null]));
+
+
                 ws.send(JSON.stringify({
                     'startgame': 1,
                     'mydata': ws.data,
                     'granu': params.granu,
                     'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
                     'mobs': rogue.getMobsInZ(ws.data.z, mobs),
-                    'items': rogue.getItemsInZ(ws.data.z, items),
+                    'itemsInWorld': rogue.itemsInWorld[ws.data.z],
+                    'myItems': ws.data.inv,
                     'ticrate': tickrate
                     //  'bibles': bibles
                 }));
                 rogue.updateMyPosition(ws);
+
+
+
+
             });
         } catch (e) {
             report(e);
@@ -443,6 +466,9 @@ function startServer() {
                         ws.data.life.now = ws.data.life.max;
                         rogue.updateMyPosition(ws);
                     }
+
+
+
                     if (json.v.indexOf("/") === 0) {
                         var com = json.v.split(" ");
                         if (com[0] === '/skin' && com[1]) {
@@ -597,7 +623,7 @@ function tick() {
 
         /* AoE DELAYED PREPARATION */
         var debug = false;
-
+        var fxUpdatePile = {};
 
         for (AoZ = DelayAoE.length - 1; AoZ >= 0; AoZ--) {
             var daFX = DelayAoE[AoZ];
@@ -611,9 +637,18 @@ function tick() {
                     newFXOnThisTile.push(daFX);
                     DelayAoE[AoZ].disabled = true;
                     DelayAoE.splice(AoZ, 1);
+                    /*
                     rogue.updatePowerUse(daFX.owner, z, daFX.power, [
                         [x, y]
                     ]);
+                    */
+
+                    if (!fxUpdatePile[daFX.uid]) fxUpdatePile[daFX.uid] = {
+                        'daFX': daFX,
+                        'z' : z,
+                        'surface': []
+                    };
+                    fxUpdatePile[daFX.uid].surface.push([x, y]);
                 }
             } else {
                 if (debug) console.log(tic + ' : ' + daFX.power + ' hold in  ' + x + ',' + y + ' for ' + daFX.delay);
@@ -625,6 +660,11 @@ function tick() {
                 fxlist: newFXOnThisTile
             });
         }
+
+        Object.keys(fxUpdatePile).forEach(function (fxkey) {
+            var val = fxUpdatePile[fxkey];
+            rogue.updatePowerUse(val.daFX.owner, val.z, val.daFX.power, val.surface);
+        });
 
 
 
@@ -833,6 +873,7 @@ function tick() {
 
     /* PLAYERS TIC */
 
+    /* ENVOI DES PILES */
 
     /* asked moves & damage PUD */
     if (wss.waitingPuds.length) {
@@ -931,15 +972,11 @@ function tick() {
     }
 
 
-    if (!wss.clients.size) {
-
-    }
-
 
 
     /* AeO cools */
 
-   
+
     for (b = 0; b < mapAoEList.length; b++) {
         var fxPile = mapAoEList[b].fxlist;
         for (i = 0; i < fxPile.length; i++) {
@@ -947,10 +984,12 @@ function tick() {
             var x = fx.map[1];
             var y = fx.map[2];
             var z = fx.map[0];
-            mapAoE[z][x][y][i].cooldown--;
-            if (mapAoE[z][x][y][i].cooldown <= 0) {
-                mapAoE[z][x][y].splice(i, 1);
-                mapAoEList[b].fxlist.splice(i, 1);
+            if (mapAoE[z][x][y][i]) {
+                mapAoE[z][x][y][i].cooldown--;
+                if (mapAoE[z][x][y][i].cooldown <= 0) {
+                    mapAoE[z][x][y].splice(i, 1);
+                    mapAoEList[b].fxlist.splice(i, 1);
+                }
             }
         }
     }

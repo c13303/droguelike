@@ -173,7 +173,8 @@ var tools = {
             }
         }
     },
-    updateLevelItems(items){
+    updateMyItems(items){
+        console.log(items);
 
     }
 

@@ -10,16 +10,6 @@ module.exports = {
     mobs: [],
     mapSize: 64,
     maxLevels: 64,
-    getClientFromId(wss, id) {
-        var that = null;
-        this.wss.clients.forEach(function each(client) {
-            if (client.id === id) {
-                that = client;
-                return that;
-            }
-        });
-        return that;
-    },
     formatPeople(ws) {
         return ({
             id: ws.id,
@@ -77,7 +67,7 @@ module.exports = {
         }
         return here;
     },
-    getItemsInZ(z,item){
+    getItemsInZ(z, item) {
         return null;
     },
     getNextMove(x, y, tx, ty) {
@@ -164,6 +154,7 @@ module.exports = {
 
     },
     updatePowerUse(id, z, poweruse, surface) {
+        console.log('update Power use '+surface.length);
         var msg = {
             'who': id,
             'pwup': poweruse,
@@ -171,11 +162,11 @@ module.exports = {
         };
         this.wss.addToWaiting('waitingPowers', z, msg);
     },
-    updateItem(z,x,y,index,what = 'add'){
+    updateItem(z, x, y, index, what = 'add') {
         var msg = {
-            'map' : [x,y],
-            'idx' : index,
-            'add' : what ? 1 : 0
+            'map': [x, y],
+            'idx': index,
+            'add': what ? 1 : 0
         };
         this.wss.addToWaiting('waitingItems', z, msg);
     },
@@ -254,6 +245,7 @@ module.exports = {
         if (!isMob && debug) console.log('RELEASE !' + power.name.en);
         /* calcul of AREA O_____O + duration of effect */
         var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power, this.wallz);
+
         for (is = 0; is < surface.length; is++) {
             var damage = this.getPowerOffensiveDamage(actor, power);
             var x = surface[is][0];
@@ -269,8 +261,11 @@ module.exports = {
                 'isMob': isMob,
                 'delay': delay
             };
+            content.uid = monZ + '_' + powerId + '_' + content.owner + '_' + delay;
+
+
             if (x > 0 && y > 0 && x < this.mapSize && y < this.mapSize) {
-                if(debug) console.log('pushing tileFX on '+x+','+y);
+                if (debug) console.log('pushing tileFX on ' + x + ',' + y);
                 DelayAoE.push(content);
             }
         }
@@ -322,14 +317,28 @@ module.exports = {
         var damage = physical_damage + humiliation_damage + sanity_damage + sex_damage + money_damage;
         return (damage);
     },
-    createItem(id,map = [null,null,null],playerSlot = [null,null]){
+    createItem(id, map = [null, null, null], playerSlot = [null, null]) {
+        var debug = true;
         var clone = JSON.parse(JSON.stringify(this.item_example));
         clone.id = id;
-        if(map){
+        var itemRef = this.bibles.loot[id];
+        if (map) {
             clone.map = map;
+            var z = map[0];
+            this.itemsInWorld[z].push(clone);
+            if (debug) console.log(itemRef.name.fr + ' dropped into ' + map[1] + ',' + map[2] + ',' + map[0]);
         }
-        if(playerSlot){
+        if (playerSlot[0]) {
+
             clone.player = playerSlot;
+            var idPlayer = playerSlot[0];
+            var player = this.wss.getClientFromId(idPlayer);
+            if (!player || !player.data) {
+                console.log('ERROR : pickup from unknown player ' + playerSlot[0]);
+                process.exit();
+            }
+            player.data.inv.push(clone);
+            if (debug) console.log(player.data.name + ' gets ' + itemRef.name.fr);
         }
         return clone;
     }
