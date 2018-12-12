@@ -29,8 +29,12 @@ if ($isdev) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="<?=strip_tags($title);?>" />
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+
     <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
         crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
     <link rel="icon" type="image/png" href="favicon.png" />
     <script src="//cdn.jsdelivr.net/npm/phaser@3.15.1/dist/phaser.min.js"></script>
@@ -39,6 +43,7 @@ if ($isdev) {
     <script src="js/dial.js?v=<?=$v;?>"></script>
     <script src="js/vars.js?v=<?=$v;?>"></script>
     <script src="js/client.js?v=<?=$v;?>"></script>
+    <script src="js/inventoryUI.js?v=<?=$v;?>"></script>
     <link rel="stylesheet" type="text/css" href="style/reset.css">
     <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css"><!-- couillestrap looool -->
     <script src="lib/bootstrap/bootstrap.min.js"></script>
@@ -111,14 +116,15 @@ if ($isdev) {
     </div>
     <div class="playerfiche">
         <div class="container">
-            <div class="slot slot1"></div>
-            <div class="slot slot2"></div>
-            <div class="slot slot3"></div>
-            <div class="slot slot4"></div>
-            <div class="slot slot5"></div>
-            <div class="slot slot6"></div> 
-            <div class="slot slot7"></div> 
-            <div class="slot slot8"></div>
+            <?php for ($p = 1; $p < 9; $p++): ?>
+            <div class="slot slot<?=$p;?>" data-pos="<?=$p;?>" id="the_slot_type_<?=$p;?>"></div>
+            <?php endfor;?>
+            <div class="inv">
+            <?php for ($p = 1; $p < 32; $p++): ?>
+            <div class="invslot" data-pos="<?=$p;?>" id="invslot<?=$p;?>"></div>
+            <?php endfor;?>
+            </div>
+            <div class="itemDetails"></div>
         </div>
     </div>
 

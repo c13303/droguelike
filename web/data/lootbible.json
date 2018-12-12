@@ -5,9 +5,57 @@
             "fr": "gant en latex",
             "en": "latex glove"
         },
+        "desc":{
+            "fr": "gant en latex de qualité juive",
+            "en": "latex glove"
+        },
         "sprite": 4,
         "slot": [6, 8],
         "powers": ["slap"],
+        "base": {
+            "attack": {
+                "physical": 10
+            },
+           "rez" :{
+                
+           }
+        }
+    },
+    "bob_ricard": {
+        "id": "bob_ricard",
+        "name": {
+            "fr": "Bob Ricard",
+            "en": "latex glove"
+        },
+        "desc":{
+            "fr": "un Bob Styler",
+            "en": "latex glove"
+        },
+        "sprite": 2,
+        "slot": [1],
+        "powers": ["nazi"],
+        "base": {
+            "attack": {
+                "physical": 10
+            },
+           "rez" :{
+                
+           }
+        }
+    },
+    "slip_de_tete": {
+        "id": "slip_de_tete",
+        "name": {
+            "fr": "Slip de Tête",
+            "en": "latex glove"
+        },
+        "desc":{
+            "fr": "un Bob Styler",
+            "en": "latex glove"
+        },
+        "sprite": 3,
+        "slot": [1,3],
+        "powers": ["nazi"],
         "base": {
             "attack": {
                 "physical": 10

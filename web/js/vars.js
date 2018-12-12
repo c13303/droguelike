@@ -54,7 +54,7 @@ var mobsbible = [];
 var spawners = [];
 var mobs = {};
 var ticrate = null;
-
+var lootbible = [];
 $.get("data/powers.json?v=" + Date.now(), function (data) {
     powersbible = data;
 });
@@ -66,6 +66,9 @@ $.get("data/spawners.json?v=" + Date.now(), function (data) {
     spawners = data;
 });
 
+$.get("data/lootbible.json?v=" + Date.now(), function (data) {
+    lootbible = data;
+});
 
 
 

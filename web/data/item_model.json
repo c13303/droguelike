@@ -2,5 +2,6 @@
     "id" : null,
     "lvl" : 0,
     "player" : [null,null],
-    "map" : [null,null,null]
+    "map" : [null,null,null],
+    "isEquiped" : null
 }

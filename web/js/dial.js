@@ -7,7 +7,7 @@
 function updatestats(pd) {
     for (var p in pd) {
         if (obj.hasOwnProperty(p)) {
-            var id = '.'+p;
+            var id = '.' + p;
             $(id).val(pd[p]);
         }
     }
@@ -122,10 +122,8 @@ function connect() {
 
         /* power use update */
         if (d.pwups && d.pwups.length) {
-           
-            console.log(d.pwups);
-            /* reunir les surfaces */
 
+            /* reunir les surfaces */
 
             for (puI = 0; puI < d.pwups.length; puI++) {
                 /* P1 cooldown */
@@ -172,8 +170,17 @@ function connect() {
             tools.updatePlayer(d.rcdr);
         }
 
-        if(d.myItems){
-            tools.updateMyItems(d.myItems);
+        if (d.myItems) {
+            console.log(d.myItems);
+            myItems = {};
+            for (iTx = 0; iTx < d.myItems.length; iTx++) {
+                var key = 'item' + d.myItems[iTx].uid;
+                myItems[key] = d.myItems[iTx];
+            }
+
+
+            tools.inventoryReorder();
+
         }
 
 
@@ -282,7 +289,7 @@ function connect() {
         if (!$('#chat').is(":focus")) {
 
             var keyCode = tools.checkKey(e);
-            // console.log(keyCode);
+            console.log(keyCode);
 
             if (keyCode === 13) {
                 $("#chat").focus();
@@ -298,6 +305,9 @@ function connect() {
                 }));
             }
 
+            if (keyCode === 105) {
+                $('.playerfiche').toggle();
+            }
 
 
             /* target selection */
@@ -374,6 +384,7 @@ function connect() {
 
         }
     });
+
 
 
 } /* end of connect */

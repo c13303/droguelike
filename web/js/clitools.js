@@ -48,7 +48,6 @@ var tools = {
         for (bi = 0; bi < peoplehere.length; bi++) {
             if (peoplehere[bi].id === id) {
                 peoplehere[bi][key] = value;
-                // return (peoplehere[i]); // fait planter quand trop rapproché 4 some reason o_O
             }
         }
     },
@@ -62,13 +61,15 @@ var tools = {
         drawnPeople[name] = {};
         drawnPeople[name].sprite = char;
         if (!isMob) {
-            drawnPeople[name].label = that.add.text(oriX, y + labelOffset, name, {
-                fontFamily: 'cioFont',
-                fontSize : "12px",
-                align: "center",
-                fill: '#dcf5ff'
-            });
-            drawnPeople[name].label.setAlign('center');
+            /* drawnPeople[name].label = that.add.text(oriX, y + labelOffset, name, {
+                 fontFamily: 'cioFont',
+                 fontSize : "12px",
+                 align: "center",
+                 fill: '#dcf5ff'
+             });
+             */
+
+            drawnPeople[name].label = that.add.bitmapText(oriX, y + labelOffset, 'pixelfont', name);
             drawnPeople[name].label.setDepth(100);
         }
         drawnPeople[name].lifebar = that.add.sprite(oriX + lifebarOffsetX, y + lifebarOffsetY, 'fxtiles', 0);
@@ -173,10 +174,103 @@ var tools = {
             }
         }
     },
-    updateMyItems(items){
-        console.log(items);
+    inventoryReorder() {
+        console.log(myItems);
+        $('.invslot').html('<div class="unequip"></div>');
+        $('.invslot').removeClass("occupied");
+        var pos = 1;
+        var that = this;
+        $.each(myItems, function (invkey) {
+            var item = myItems[invkey];
+            var loot = lootbible[item.id];
+            var slots = '';
+            var slotvalidated = false;
+            if (!item.isEquiped) {
+                for (u = 0; u < loot.slot.length; u++) {
+                    slots += ' slottype_' + loot.slot[u];
+                    if ((loot.slot[u] === selectedSlotType || !selectedSlotType)) { // correspond a ce slot OR no slot selected
+                        slotvalidated = true;
+                    }
+                }
+            }
 
+
+            if (slotvalidated) {
+                pos++;
+                var frame = loot.sprite * -64;
+                var style = "background-position: " + frame + "px 0px";
+                /* TODO split cols spritesheet */
+                var icon = '<div class="looticon" style="' + style + '"></div>';
+                var htmlItem = '<div class="item item' + item.uid + ' ' + slots + '" data-uid="' + item.uid + '" data-id="' + item.id + '" data-position="' + pos + '">' + icon + '</div>';
+                var inventorySlot = $('#invslot' + pos);
+                that.inventoryPutInSlot(inventorySlot, htmlItem);
+            }
+
+        });
+    },
+    inventoryPutInSlot(inventorySlot, htmlItem) {
+        inventorySlot.html(htmlItem).addClass('occupied');
+    },
+    displayItemInfo() {
+        var itemElement = $('.item' + selectedItemUid);
+        var key = itemElement.attr('data-id');
+        console.log(key);
+        var loot = lootbible[key];
+        var div = $('.itemDetails');
+        //console.log(loot);
+        div.html("<h2>" + loot.name.fr + '<h2>');
+        div.append('<p>' + loot.desc.fr + '</p>');
+        /*
+        div.append('<h3>Equipable : </h3>');
+        for (s = 0; s < loot.slot.length; s++) {
+            var sk = loot.slot[s] - 1;
+            div.append('<p>' + slotsTypes[sk].fr + '</p>');
+        }
+        */
+        div.append('<h3>Powers : </h3>');
+        for (s = 0; s < loot.powers.length; s++) {
+            var sk = loot.powers[s];
+            var power = powersbible[sk];
+            div.append('<p> ' + power.name.fr + '</p>');
+        }
+        div.append('<h2>ACTIONS</h2>');
+        if (selectedSlotType)
+            div.append('<a href="#" class="equip">Equip</a>');
+            else
+            div.append('Select SLOT to equip');
+
+    },
+    itemEquip() {
+        var uid = selectedItemUid;
+        var itemElement = $('.item' + uid);
+        itemElement.removeClass('selectedItem');
+        /* equipage dun item */
+        if (!itemElement.hasClass('equiped')) {
+            var slotTypeElement = $('#the_slot_type_' + selectedSlotType);
+
+            var olDuid = slotTypeElement.attr('data-uid');
+            if (olDuid) {
+                console.log('unequipe' + olDuid);
+                myItems['item' + olDuid].isEquiped = false;
+            }
+
+            console.log('item ' + uid + ' selected to slotType ' + selectedSlotType);
+            itemElement.addClass('equiped');
+            var invslot = itemElement.parents('.invslot');
+            invslot.removeClass('occupied');
+            $('#the_slot_type_' + selectedSlotType).html(itemElement);
+            $('#the_slot_type_' + selectedSlotType).attr('data-uid', uid);
+            myItems['item' + uid].isEquiped = selectedSlotType;
+            tools.inventoryReorder();
+
+            ws.send(JSON.stringify({
+                'equip': uid,
+                'slot': selectedSlotType
+            }));
+
+        }
     }
+
 
 
 };

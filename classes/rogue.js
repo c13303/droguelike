@@ -10,6 +10,7 @@ module.exports = {
     mobs: [],
     mapSize: 64,
     maxLevels: 64,
+    itemsUid : 0,
     formatPeople(ws) {
         return ({
             id: ws.id,
@@ -154,7 +155,7 @@ module.exports = {
 
     },
     updatePowerUse(id, z, poweruse, surface) {
-        console.log('update Power use '+surface.length);
+       // console.log('update Power use '+surface.length);
         var msg = {
             'who': id,
             'pwup': poweruse,
@@ -321,6 +322,7 @@ module.exports = {
         var debug = true;
         var clone = JSON.parse(JSON.stringify(this.item_example));
         clone.id = id;
+        clone.uid = this.itemsUid++;
         var itemRef = this.bibles.loot[id];
         if (map) {
             clone.map = map;

@@ -370,6 +370,8 @@ function startServer() {
                 /* free items */
                 items.push(rogue.createItem('gant', [0, 10, 10]));
                 items.push(rogue.createItem('gant', null, [thatId, null]));
+                items.push(rogue.createItem('bob_ricard', null, [thatId, null]));
+                items.push(rogue.createItem('slip_de_tete', null, [thatId, null]));
 
 
                 ws.send(JSON.stringify({
@@ -503,9 +505,6 @@ function startServer() {
 
 
                 if (json.move) {
-
-
-
                     if (!ws.data.movecooling) {
                         var x = parseInt(json.move[0]);
                         var y = parseInt(json.move[1]);
@@ -549,6 +548,26 @@ function startServer() {
                     }
                     rogue.updateMyPosition(ws);
                 }
+
+
+
+
+                /* equip */
+                if(json.equip){
+                    /* on verifie qu'il possede l'item */
+                    ws.data.inv.forEach(function(item){                       
+                        if(item.uid === json.equip){
+                            console.log('found ITEM');
+                        }
+                    });
+
+                }
+
+
+
+
+
+
             } catch (e) {
                 report(e);
             }

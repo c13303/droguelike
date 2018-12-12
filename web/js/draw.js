@@ -14,7 +14,11 @@ function mySoundHook(soundKey) {
 }
 
 function preload() {
-    console.log('preload');
+    //console.log('preload');
+
+    this.load.bitmapFont('pixelfont', '../style/fonts/pixel.png', '../style/fonts/pixel.xml');
+
+
     this.load.spritesheet("skinssheet", "img/skinssheet.png?v=" + v, {
         frameWidth: 64,
         frameHeight: 64
@@ -283,16 +287,7 @@ function update() {
                 }
 
                 if (drawnPeople[keum.name].label && keum.pk != drawnPeople[keum.name].pk) {
-                    drawnPeople[keum.name].pk = keum.pk;
-                    if (keum.pk) {
-                        drawnPeople[keum.name].label.setStyle({
-                            fill: '#ff0000'
-                        });
-                    } else {
-                        drawnPeople[keum.name].label.setStyle({
-                            fill: '#ffffff'
-                        });
-                    }
+                    drawnPeople[keum.name].pk = keum.pk;                    
                 }
 
                 /* apply cursor for power delayed LOL */
@@ -318,6 +313,7 @@ function update() {
                     keum.holdDrawTrigger = false;
                     var repeat = keum.cursorPowerDelayed / 50;
                     /* animation shaking */
+                    /*
                     var config = {
                         targets: drawnPeople[keum.name].sprite,
                         x: {
@@ -338,6 +334,7 @@ function update() {
                         }
                     }
                     keum.shakingtween = this.tweens.add(config);
+                    */
                 }
 
 
@@ -362,7 +359,7 @@ function update() {
                         var firstFrame = powersbible[power].sprite * 3;
                         var lastFrame = firstFrame + 2;
                         if (!animsLib[power]) {
-                            console.log('generating anime' + firstFrame + ' to ' + lastFrame);
+                          //  console.log('generating anime' + firstFrame + ' to ' + lastFrame);
                             var config = {
                                 key: power + 'explode',
                                 frames: this.anims.generateFrameNumbers('powers', {
@@ -421,14 +418,9 @@ function update() {
                 if (keum.damaged) {
                     var damage = keum.damaged;
                     keum.damaged = null;
-                    keum.damageLabel = this.add.text(drawnPeople[keum.name].sprite.x, drawnPeople[keum.name].sprite.y - 64, damage, {
-                        fontFamily: 'cioFont',
-                        fontSize: '12px',
-                        align: "center",
-                        fill: '#FF0000'
-                    });
+                    keum.damageLabel = this.add.bitmapText(drawnPeople[keum.name].sprite.x, drawnPeople[keum.name].sprite.y - 64, 'pixelfont',damage);
+                    keum.damageLabel.setTint(0xff0000);
                     keum.damageLabel.setDepth(200);
-                    keum.damageLabel.setStroke("black", 1);
 
 
                     var rangeDom = 50;
@@ -490,7 +482,7 @@ function update() {
             var firstFrame = powersbible[power].sprite * 3;
             var lastFrame = firstFrame + 2;
             if (!animsLib[power]) {
-                console.log('generating anime' + firstFrame + ' to ' + lastFrame);
+             //   console.log('generating anime' + firstFrame + ' to ' + lastFrame);
                 var config = {
                     key: power + 'explode',
                     frames: this.anims.generateFrameNumbers('powers', {
@@ -504,7 +496,7 @@ function update() {
             }
 
 
-            console.log(power);
+           // console.log(power);
             var sprite = this.add.sprite(x, y, 'powers');
             sprite.anims.play(power + 'explode');
 
