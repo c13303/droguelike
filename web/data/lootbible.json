@@ -55,7 +55,7 @@
         },
         "sprite": 3,
         "slot": [1,3],
-        "powers": ["nazi"],
+        "powers": ["foutre"],
         "base": {
             "attack": {
                 "physical": 10

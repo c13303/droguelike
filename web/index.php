@@ -116,6 +116,7 @@ if ($isdev) {
     </div>
     <div class="playerfiche">
         <div class="container">
+            <div id="disableFilter"></div>
             <?php for ($p = 1; $p < 9; $p++): ?>
             <div class="slot slot<?=$p;?>" data-pos="<?=$p;?>" id="the_slot_type_<?=$p;?>"></div>
             <?php endfor;?>

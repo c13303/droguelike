@@ -40,7 +40,6 @@ $(document).ready(function () {
     function resetFocus(){
         let scrollTop = document.body.scrollTop;
         let body = document.body;
-    console.log('caca');
         let tmp = document.createElement('input');
         tmp.style.opacity = 0;
         body.appendChild(tmp);

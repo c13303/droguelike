@@ -10,7 +10,7 @@ module.exports = {
     mobs: [],
     mapSize: 64,
     maxLevels: 64,
-    itemsUid : 0,
+    itemsUid: 0,
     formatPeople(ws) {
         return ({
             id: ws.id,
@@ -155,7 +155,7 @@ module.exports = {
 
     },
     updatePowerUse(id, z, poweruse, surface) {
-       // console.log('update Power use '+surface.length);
+        // console.log('update Power use '+surface.length);
         var msg = {
             'who': id,
             'pwup': poweruse,
@@ -339,10 +339,54 @@ module.exports = {
                 console.log('ERROR : pickup from unknown player ' + playerSlot[0]);
                 process.exit();
             }
-            player.data.inv.push(clone);
+            var key = 'item' + clone.uid;
+            player.data.inv[key] = clone;
             if (debug) console.log(player.data.name + ' gets ' + itemRef.name.fr);
         }
         return clone;
+    },
+    updatePowersEquiped(ws) {
+        ws.data.powers_equiped.auto.k = null;
+        ws.data.powers_equiped.a.k = null;
+        ws.data.powers_equiped.b.k = null;
+        ws.data.powers_equiped.c.k = null;
+        ws.data.powers_equiped.d.k = null;
+        
+        for (eqi = 0; eqi < ws.data.equip.length; eqi++) {
+            var equItem = ws.data.equip[eqi];
+
+
+            if (equItem) {
+                var lootref = this.bibles.loot[equItem.id];
+
+                if (lootref.powers.length) {
+                    for (pi = 0; pi < lootref.powers.length; pi++) {
+
+                        console.log('Equiping type : ' + eqi);
+                        //  console.log(lootref);
+
+                        if (eqi === 6) { // main droite
+                            ws.data.powers_equiped.auto.k = lootref.powers[pi];
+                            ws.data.powers_equiped.a.k = lootref.powers[pi];
+                        }
+                        if (eqi === 8) { // main gauche
+                            ws.data.powers_equiped.b.k = lootref.powers[pi];
+                        }
+                        if (eqi === 1) { // tete
+                            ws.data.powers_equiped.c.k = lootref.powers[pi];
+                        }
+                        if (eqi === 3) { // slip
+                            ws.data.powers_equiped.d.k = lootref.powers[pi];
+                        }
+                    }
+                }
+            }
+
+        }
+        console.log(ws.data.powers_equiped);
+        ws.send(JSON.stringify({
+            'myPowers': ws.data.powers_equiped,
+        }));
     }
 
 

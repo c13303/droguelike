@@ -210,6 +210,16 @@ body .playerfiche .container {
   position: relative;
 }
 
+body .playerfiche .container #disableFilter {
+  position: absolute;
+  width: 64px;
+  height: 65px;
+}
+
+body .playerfiche .container #disableFilter:hover {
+  background: white;
+}
+
 body .playerfiche .container .inv {
   right: 0;
   position: absolute;
@@ -253,7 +263,7 @@ body .playerfiche .container .slot {
 }
 
 body .playerfiche .container .slot.selected {
-  border: 1px solid #d77355;
+  background: 1px solid #d77355;
 }
 
 body .playerfiche .container .slot1 {

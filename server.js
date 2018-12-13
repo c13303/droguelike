@@ -368,10 +368,14 @@ function startServer() {
 
 
                 /* free items */
-                items.push(rogue.createItem('gant', [0, 10, 10]));
-                items.push(rogue.createItem('gant', null, [thatId, null]));
-                items.push(rogue.createItem('bob_ricard', null, [thatId, null]));
-                items.push(rogue.createItem('slip_de_tete', null, [thatId, null]));
+                if(ws.data.new){
+                    items.push(rogue.createItem('gant', [0, 10, 10]));
+                    items.push(rogue.createItem('gant', null, [thatId, null]));
+                    items.push(rogue.createItem('bob_ricard', null, [thatId, null]));
+                    items.push(rogue.createItem('slip_de_tete', null, [thatId, null]));
+                    ws.data.new = false;
+                }
+                
 
 
                 ws.send(JSON.stringify({
@@ -382,6 +386,7 @@ function startServer() {
                     'mobs': rogue.getMobsInZ(ws.data.z, mobs),
                     'itemsInWorld': rogue.itemsInWorld[ws.data.z],
                     'myItems': ws.data.inv,
+                    'myPowers' : ws.data.powers_equiped,
                     'ticrate': tickrate
                     //  'bibles': bibles
                 }));
@@ -552,14 +557,56 @@ function startServer() {
 
 
 
+                if(json.dequip && json.slot){
+                    var oldItem = ws.data.equip[json.slot];
+                    if (oldItem) {
+                        oldItem.isEquiped = 0;
+                        ws.data.equip[json.slot] = 0;
+                        console.log('DEchaussing ' + oldItem.id + ' in slot ' + json.slot);
+                       rogue.updatePowersEquiped(ws);
+                    }
+                }
+
                 /* equip */
-                if(json.equip){
-                    /* on verifie qu'il possede l'item */
-                    ws.data.inv.forEach(function(item){                       
-                        if(item.uid === json.equip){
-                            console.log('found ITEM');
+                if (json.equip && json.slot) {
+                    if (json.slot < 1 || json.slot > 9) {
+                        return null;
+                    }
+
+                    var slot = json.slot;
+                    /* on trouve litem dans linventory */
+                    Object.keys(ws.data.inv).forEach(function (itemkey) {
+
+                        var item = ws.data.inv[itemkey];
+                        if (item.uid === json.equip) {
+                            console.log('chaussing ' + item.id + ' in slot ' + slot);
+
+
+                            /* was equiped ? */
+                            if(item.isEquiped){
+                                ws.data.equip[item.isEquiped] = 0;
+                            }
+
+
+                            /* remove old item in new slot*/
+                            var oldItem = ws.data.equip[slot];
+                            if (oldItem) {
+                                oldItem.isEquiped = 0;
+                                //  console.log(oldItem.uid + ' uneuqiped');
+                            }
+
+                            var ky = 'item' + item.uid;
+                            ws.data.equip[slot] = item;
+                            ws.data.inv[ky].isEquiped = slot;
+
+                            /* UPDATE DES POUVOIRS */
+                            
+                            
+                            
+                            return null;
                         }
                     });
+                    rogue.updatePowersEquiped(ws);
 
                 }
 
@@ -664,7 +711,7 @@ function tick() {
 
                     if (!fxUpdatePile[daFX.uid]) fxUpdatePile[daFX.uid] = {
                         'daFX': daFX,
-                        'z' : z,
+                        'z': z,
                         'surface': []
                     };
                     fxUpdatePile[daFX.uid].surface.push([x, y]);

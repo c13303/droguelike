@@ -42,17 +42,22 @@ $(document).ready(function () {
 
     $('.slot').click(function () {
         /* selection slot dans le bonhomme */
-        $('.slot').removeClass('selected');
-        selectedSlotType = $(this).data('pos');
-        tools.inventoryReorder();
-        $(this).addClass('selected');
-        $('.item:not(.equiped)').hide();
-        $('.itemDetails').html('');
-        $('.slottype_' + selectedSlotType).show();
+        if ($(this).html() == "") {
+            $('.slot').removeClass('selected');
+            selectedSlotType = $(this).data('pos');
+            tools.inventoryReorder();
+            $(this).addClass('selected');
+            $('.item:not(.equiped)').hide();
+            $('.itemDetails').html('');
+            $('.slottype_' + selectedSlotType).show();
+        }
     });
 
     $(document).on('click', '.equip', function () {
-        tools.itemEquip();
+        var slot = $(this).attr('data-slottype');
+        selectedSlotType = 0;
+        $('.itemDetails').html('');
+        tools.itemEquip(null, slot);
     });
 
     $(document).on('click', '.item', function () {
@@ -62,8 +67,22 @@ $(document).ready(function () {
         tools.displayItemInfo();
     });
 
+    $('#disableFilter').click(function () {
+        selectedSlotType = 0;
+        tools.inventoryReorder();
+    });
+    $(document).on('click', '.desequip', function () {
+        var uid = $(this).attr('data-uid');
+        myItems['item' + uid].isEquiped = 0;
+        
+        ws.send(JSON.stringify({
+            'dequip': uid,
+            'slot': $(this).attr('data-slottype')
+        }));
 
-
+        selectedSlotType = 0;
+        tools.inventoryReorder();
+    });
 
     $(document).on('mouseenter', '.item', function () {
 

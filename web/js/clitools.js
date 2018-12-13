@@ -175,27 +175,34 @@ var tools = {
         }
     },
     inventoryReorder() {
-        console.log(myItems);
-        $('.invslot').html('<div class="unequip"></div>');
+        $('.invslot').html("");
+        $('.slot').html("");
+        $('#invslot0').html('<div class="unequip"></div>');
         $('.invslot').removeClass("occupied");
+
         var pos = 1;
         var that = this;
+
         $.each(myItems, function (invkey) {
+
             var item = myItems[invkey];
             var loot = lootbible[item.id];
             var slots = '';
-            var slotvalidated = false;
-            if (!item.isEquiped) {
-                for (u = 0; u < loot.slot.length; u++) {
-                    slots += ' slottype_' + loot.slot[u];
-                    if ((loot.slot[u] === selectedSlotType || !selectedSlotType)) { // correspond a ce slot OR no slot selected
-                        slotvalidated = true;
-                    }
+
+
+
+            var showme = false;
+
+            for (u = 0; u < loot.slot.length; u++) {
+                slots += ' slottype_' + loot.slot[u];
+                if (!selectedSlotType || selectedSlotType == loot.slot[u] || item.isEquiped) {
+                    showme = true;
                 }
             }
 
 
-            if (slotvalidated) {
+            //console.log(item.id + ' : '+item.isEquiped);
+            if (showme) {
                 pos++;
                 var frame = loot.sprite * -64;
                 var style = "background-position: " + frame + "px 0px";
@@ -203,8 +210,18 @@ var tools = {
                 var icon = '<div class="looticon" style="' + style + '"></div>';
                 var htmlItem = '<div class="item item' + item.uid + ' ' + slots + '" data-uid="' + item.uid + '" data-id="' + item.id + '" data-position="' + pos + '">' + icon + '</div>';
                 var inventorySlot = $('#invslot' + pos);
-                that.inventoryPutInSlot(inventorySlot, htmlItem);
+                if (!item.isEquiped) {
+                    //console.log('show in inv ' + pos + ' ' + item.id);
+                    that.inventoryPutInSlot(inventorySlot, htmlItem);
+                } else {
+                    //console.log('show in equip ' + item.id);
+                    $("#the_slot_type_" + item.isEquiped).html(htmlItem);
+                    tools.itemEquip(item);
+                }
             }
+
+
+
 
         });
     },
@@ -214,59 +231,89 @@ var tools = {
     displayItemInfo() {
         var itemElement = $('.item' + selectedItemUid);
         var key = itemElement.attr('data-id');
-        console.log(key);
         var loot = lootbible[key];
         var div = $('.itemDetails');
         //console.log(loot);
         div.html("<h2>" + loot.name.fr + '<h2>');
         div.append('<p>' + loot.desc.fr + '</p>');
-        /*
-        div.append('<h3>Equipable : </h3>');
-        for (s = 0; s < loot.slot.length; s++) {
-            var sk = loot.slot[s] - 1;
-            div.append('<p>' + slotsTypes[sk].fr + '</p>');
-        }
-        */
+
         div.append('<h3>Powers : </h3>');
         for (s = 0; s < loot.powers.length; s++) {
             var sk = loot.powers[s];
             var power = powersbible[sk];
             div.append('<p> ' + power.name.fr + '</p>');
         }
+        /*
         div.append('<h2>ACTIONS</h2>');
         if (selectedSlotType)
             div.append('<a href="#" class="equip">Equip</a>');
-            else
+        else
             div.append('Select SLOT to equip');
+*/
+
+        div.append('<h3>EQUIP :  </h3>');
+        for (s = 0; s < loot.slot.length; s++) {
+            var sk = loot.slot[s] - 1;
+            div.append('<p><a href="#" class="equip" data-slottype="' + loot.slot[s] + '">' + slotsTypes[sk].fr + '</a></p>');
+        }
+
+        var item = myItems['item' + selectedItemUid];
+        if (item.isEquiped) {
+            div.append('<p><a href="#" class="desequip" data-uid="' + selectedItemUid + '" data-slottype="' + item.isEquiped + '">Unequip</a></p>');
+        }
+
+
 
     },
-    itemEquip() {
+    itemEquip(autoEquip = null, slot = null) {
         var uid = selectedItemUid;
+        if (autoEquip) {
+            uid = autoEquip.uid;
+            console.log('AutoEquip ' + autoEquip.id);
+        } else {
+            console.log('Manual Equip ' + uid);
+        }
         var itemElement = $('.item' + uid);
+
         itemElement.removeClass('selectedItem');
         /* equipage dun item */
-        if (!itemElement.hasClass('equiped')) {
-            var slotTypeElement = $('#the_slot_type_' + selectedSlotType);
+        if (1) {
 
-            var olDuid = slotTypeElement.attr('data-uid');
-            if (olDuid) {
-                console.log('unequipe' + olDuid);
-                myItems['item' + olDuid].isEquiped = false;
+            if (selectedSlotType) slotType = selectedSlotType;
+            if (autoEquip) slotType = autoEquip.isEquiped;
+            if (slot) slotType = slot;
+
+            console.log('into slot' + slotType);
+
+            var slotTypeElement = $('#the_slot_type_' + slotType);
+
+            if (!autoEquip) {
+                var olDuid = slotTypeElement.attr('data-uid');
+                if (olDuid) {
+                    // console.log('unequipe' + olDuid);
+                    myItems['item' + olDuid].isEquiped = 0;
+                }
+                $('#the_slot_type_' + slotType).html(itemElement);
             }
 
-            console.log('item ' + uid + ' selected to slotType ' + selectedSlotType);
+
+            // console.log('item ' + uid + ' selected to slotType ' + slotType);
             itemElement.addClass('equiped');
             var invslot = itemElement.parents('.invslot');
             invslot.removeClass('occupied');
-            $('#the_slot_type_' + selectedSlotType).html(itemElement);
-            $('#the_slot_type_' + selectedSlotType).attr('data-uid', uid);
-            myItems['item' + uid].isEquiped = selectedSlotType;
-            tools.inventoryReorder();
 
-            ws.send(JSON.stringify({
-                'equip': uid,
-                'slot': selectedSlotType
-            }));
+            $('#the_slot_type_' + slotType).attr('data-uid', uid);
+            myItems['item' + uid].isEquiped = slotType;
+
+            if (!autoEquip) {
+
+                ws.send(JSON.stringify({
+                    'equip': uid,
+                    'slot': slotType
+                }));
+                tools.inventoryReorder();
+            }
+
 
         }
     }
