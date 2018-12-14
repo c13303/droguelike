@@ -269,9 +269,9 @@ var tools = {
         var uid = selectedItemUid;
         if (autoEquip) {
             uid = autoEquip.uid;
-            console.log('AutoEquip ' + autoEquip.id);
+         //   console.log('AutoEquip ' + autoEquip.id);
         } else {
-            console.log('Manual Equip ' + uid);
+         //   console.log('Manual Equip ' + uid);
         }
         var itemElement = $('.item' + uid);
 
@@ -283,7 +283,7 @@ var tools = {
             if (autoEquip) slotType = autoEquip.isEquiped;
             if (slot) slotType = slot;
 
-            console.log('into slot' + slotType);
+         //   console.log('into slot' + slotType);
 
             var slotTypeElement = $('#the_slot_type_' + slotType);
 

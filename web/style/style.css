@@ -30,9 +30,9 @@ input {
   }
 }
 
-@media (max-height: 600px) {
+@media screen and (max-height: 768px) {
   #logo {
-    display: none;
+    display: none !important;
   }
 }
 

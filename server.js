@@ -578,6 +578,7 @@ function startServer() {
                     Object.keys(ws.data.inv).forEach(function (itemkey) {
 
                         var item = ws.data.inv[itemkey];
+                       
                         if (item.uid === json.equip) {
                             console.log('chaussing ' + item.id + ' in slot ' + slot);
 

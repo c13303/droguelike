@@ -93,7 +93,7 @@ function connect() {
 
         }
 
-        
+
 
 
 
@@ -157,14 +157,14 @@ function connect() {
         }
 
         if (d.myItems) {
-            myItems = d.myItems;         
+            myItems = d.myItems;
 
             tools.inventoryReorder();
 
         }
 
-        if(d.myPowers){
-           console.log(d.myPowers);
+        if (d.myPowers) {
+            console.log(d.myPowers);
             pd.powers_equiped = d.myPowers;
             var pow = d.myPowers;
             $('#powers').html('');
@@ -286,7 +286,7 @@ function connect() {
         if (!$('#chat').is(":focus")) {
 
             var keyCode = tools.checkKey(e);
-            if(consolage)console.log(keyCode);
+            if (consolage) console.log(keyCode);
 
             if (keyCode === 13) {
                 $("#chat").focus();
@@ -342,9 +342,11 @@ function connect() {
             var powerUse = null;
 
             function keyUse(myclass) {
-                $(".keypower").addClass('cooling');
+             //   console.log('Key Use : ' + myclass);
+                
                 powerUse = $(myclass).data('power');
-                if ($(myclass).data('key')) {
+                if ($(myclass).data('key') && powerUse) {
+                   // $(this).addClass('cooling');
                     ws.send(JSON.stringify({
                         cd: 'key',
                         v: $(myclass).data('key'),

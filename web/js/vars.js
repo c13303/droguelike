@@ -7,7 +7,14 @@ var game;
 var dev;
 var consolage = null;
 var canvas = document.getElementById("gamecanvas");
+
 var ZOOM = 2;
+var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+console.log('screen size : ' + w + ',' + h);
+if (h < 800) ZOOM = 1;
+
+
 var config = {
     type: Phaser.AUTO,
     width: 1368 / 2,
@@ -30,7 +37,7 @@ var config = {
         create: create,
         update: update,
     },
-    
+
 };
 var caseX;
 var caseY;

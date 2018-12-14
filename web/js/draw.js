@@ -73,7 +73,7 @@ function create() {
         music = this.sound.add('music', {
             volume: 1,
         });
-      //  music.play();
+        //  music.play();
         music.setLoop(true);
 
         soundlib.load = this.sound.add('load', {
@@ -287,7 +287,7 @@ function update() {
                 }
 
                 if (drawnPeople[keum.name].label && keum.pk != drawnPeople[keum.name].pk) {
-                    drawnPeople[keum.name].pk = keum.pk;                    
+                    drawnPeople[keum.name].pk = keum.pk;
                 }
 
                 /* apply cursor for power delayed LOL */
@@ -359,7 +359,7 @@ function update() {
                         var firstFrame = powersbible[power].sprite * 3;
                         var lastFrame = firstFrame + 2;
                         if (!animsLib[power]) {
-                          //  console.log('generating anime' + firstFrame + ' to ' + lastFrame);
+                            //  console.log('generating anime' + firstFrame + ' to ' + lastFrame);
                             var config = {
                                 key: power + 'explode',
                                 frames: this.anims.generateFrameNumbers('powers', {
@@ -418,7 +418,7 @@ function update() {
                 if (keum.damaged) {
                     var damage = keum.damaged;
                     keum.damaged = null;
-                    keum.damageLabel = this.add.bitmapText(drawnPeople[keum.name].sprite.x, drawnPeople[keum.name].sprite.y - 64, 'pixelfont',damage);
+                    keum.damageLabel = this.add.bitmapText(drawnPeople[keum.name].sprite.x, drawnPeople[keum.name].sprite.y - 64, 'pixelfont', damage);
                     keum.damageLabel.setTint(0xff0000);
                     keum.damageLabel.setDepth(200);
 
@@ -482,7 +482,7 @@ function update() {
             var firstFrame = powersbible[power].sprite * 3;
             var lastFrame = firstFrame + 2;
             if (!animsLib[power]) {
-             //   console.log('generating anime' + firstFrame + ' to ' + lastFrame);
+                //   console.log('generating anime' + firstFrame + ' to ' + lastFrame);
                 var config = {
                     key: power + 'explode',
                     frames: this.anims.generateFrameNumbers('powers', {
@@ -496,7 +496,7 @@ function update() {
             }
 
 
-           // console.log(power);
+            // console.log(power);
             var sprite = this.add.sprite(x, y, 'powers');
             sprite.anims.play(power + 'explode');
 
@@ -524,11 +524,14 @@ function update() {
         if (pd.mypowertimer[key]) {
             var timer = pd.mypowertimer[key];
             value = timer.getTimeLeft();
+
+            var keyElem = $('.power' + key);
+            console.log(key);
             if (value > 0) {
-                $(".keypower").addClass('cooling');
+                keyElem.addClass('cooling');
                 $('.power' + key + ' .cooldown').html(value);
             } else {
-                $('.keypower').removeClass('cooling');
+                keyElem.removeClass('cooling');
                 $('.power' + key + ' .cooldown').html("");
                 pd.mypowertimer[key] = null;
             }
