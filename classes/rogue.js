@@ -98,6 +98,10 @@ module.exports = {
     getRandomMove(x, y) {
         var rx = x + 1 - this.tools.getRandomInt(3);
         var ry = y + 1 - this.tools.getRandomInt(3);
+        if (rx < 0) rx = 0;
+        if (ry < 0) ry = 0;
+        if (rx > 63) rx = 63;
+        if (ry > 63) ry = 63;
         return ([rx, ry]);
     },
     isPlayerHere(wss, x, y, z, idPlayer = null) {

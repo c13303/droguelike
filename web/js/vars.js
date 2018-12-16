@@ -23,7 +23,6 @@ var config = {
     type: Phaser.AUTO,
     width: Math.round(canvasW / 2),
     height: Math.round(canvasH / 2),
-    canvas: canvas,
     pixelArt: true,
     callbacks: {
         postBoot: function (game) {
@@ -54,15 +53,16 @@ var pd = {}; //playerData lol
 var laginput = 50; //ms to stay sync with server
 
 var lang = 'fr';
+
 var drawnPeopleIndex = [];
 var peoplehere = [];
 var killingPile = [];
-
 var drawnPeople = {};
 var drawnItems = {};
-
-
 var tweenplayer;
+
+
+
 var powersbible = [];
 var mobsbible = [];
 var spawners = [];
@@ -91,19 +91,15 @@ var labelOffset = 32;
 var lifebarOffsetX = 16;
 var lifebarOffsetY = 53;
 var traiting = false;
-
 cooldowntimers = {};
 cooldowns = {};
 cooldownbible = {};
-
-
 var cursor;
 var lastUpdate = Date.now();
 var damageLabels = {};
 var cursorPowerDelayed = null;
 var cursorPowerDelayedSprite;
 var cursorDelayTrigger;
-
 var wallLayer = wallData = null;
 
 

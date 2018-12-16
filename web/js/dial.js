@@ -152,7 +152,7 @@ function connect() {
 
         /* recadrage */
         if (d.rcdr) {
-           // console.log('recadrage');
+            // console.log('recadrage');
             tools.updatePlayer(d.rcdr);
         }
 
@@ -182,22 +182,22 @@ function connect() {
 
 
         if (d.itemsInWorld) {
-           // console.log('-------------------allitems');
+            // console.log('-------------------allitems');
             //console.log(d.itemsInWorld);
             pd.itemsInWorld = d.itemsInWorld;
         }
 
         if (d.itup && d.itup.length) {
-           //console.log('-------------------itup from tic ' + d.tic);
-           // console.log(d.itup);
+            //console.log('-------------------itup from tic ' + d.tic);
+            // console.log(d.itup);
             for (dritupX = 0; dritupX < d.itup.length; dritupX++) {
                 var itemTP = d.itup[dritupX];
                 if (itemTP.way == 'rem') {
-                   // console.log('removing '+itemTP.item.uid);
+                    // console.log('removing '+itemTP.item.uid);
                     delete pd.itemsInWorld['item' + itemTP.item.uid];
                 }
                 if (itemTP.way == 'add') {
-                   // console.log('adding');
+                    // console.log('adding');
                     pd.itemsInWorld['item' + itemTP.item.uid] = itemTP.item;
                 }
             }
@@ -233,6 +233,21 @@ function connect() {
         }
         if (d.dead) {
             tools.notice('<span class="notice">You are dead. Type /rez to resurrect</span>');
+        }
+
+        if (d.reset) {
+            game.destroy(true);
+            drawnPeopleIndex = [];
+            peoplehere = [];
+            killingPile = [];
+            drawnPeople = {};
+            drawnItems = {};
+            tweenplayer;
+            pd = null;
+            ws.send(JSON.stringify({
+                startlevel: 1,
+              
+            }));
         }
 
 
@@ -299,11 +314,11 @@ function connect() {
         $('#chat').val('');
     });
 
-    $('#bar .inventory').click(function(){
+    $('#bar .inventory').click(function () {
         $('.playerfiche').toggle();
     });
 
-    function pickup(){
+    function pickup() {
         if (pd.itemsHere.length) {
             console.log('picking up ' + pd.itemsHere.length + ' objects');
             tools.notice('You are picking up ' + pd.itemsHere.length + ' objects');
@@ -313,10 +328,10 @@ function connect() {
         }
     }
 
-    $('#bar .takeloot').click(function(){
+    $('#bar .takeloot').click(function () {
         pickup();
     });
-    
+
     /* use of keyboards */
     $('body').bind('keypress', 'canvas', function (e) {
 
@@ -382,7 +397,7 @@ function connect() {
 
             var powerUse = null;
 
-           
+
 
 
             if (!pd.holding) {
@@ -428,11 +443,11 @@ function connect() {
         }
     }
 
-    $('#powers').on('click','.keypower',function(){
-        if(!$(this).hasClass('cooling')){
+    $('#powers').on('click', '.keypower', function () {
+        if (!$(this).hasClass('cooling')) {
             var dak = $(this).data('key');
-            console.log('power '+dak);
-            keyUse('.key'+dak);
+            console.log('power ' + dak);
+            keyUse('.key' + dak);
         }
     });
 

@@ -464,6 +464,21 @@ function startServer() {
                 if (!json.move && !json.cd) console.log(ws.name + ' : ' + message);
 
 
+                if(json.startlevel){
+                    ws.send(JSON.stringify({
+                        'startgame': 1,
+                        'mydata': ws.data,
+                        'granu': params.granu,
+                        'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
+                        'mobs': rogue.getMobsInZ(ws.data.z, mobs),
+                        'itemsInWorld': rogue.itemsInWorld[ws.data.z],
+                        'myItems': ws.data.inv,
+                        'myPowers': ws.data.powers_equiped,
+                        'ticrate': tickrate
+                        //  'bibles': bibles
+                    }));
+                }
+
                 /* Commande From Clients */
                 if (json.cd === "say") {
                     if (json.v === '/rez') {
@@ -471,7 +486,26 @@ function startServer() {
                         ws.data.skin = 1;
                         ws.data.isdead = null;
                         ws.data.life.now = ws.data.life.max;
-                        rogue.updateMyPosition(ws);
+                        ws.data.x = 2;
+                        ws.data.y = 2;
+                        ws.data.z = 0;
+                        ws.send(JSON.stringify({
+                            'reset' : 1,                            
+                        }));
+                        /*
+                        ws.send(JSON.stringify({
+                            'startgame': 1,
+                            'mydata': ws.data,
+                            'granu': params.granu,
+                            'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
+                            'mobs': rogue.getMobsInZ(ws.data.z, mobs),
+                            'itemsInWorld': rogue.itemsInWorld[ws.data.z],
+                            'myItems': ws.data.inv,
+                            'myPowers': ws.data.powers_equiped,
+                            'ticrate': tickrate
+                            //  'bibles': bibles
+                        }));
+                        */
                     }
 
 
@@ -818,13 +852,17 @@ function tick() {
                 if (!mob.target) {
                     /* target selection */
                     nearest = wss.nearestPlayerFromPoint(mob.x, mob.y, mob.z);
+
                     if (nearest) {
-                        mob.target = nearest;
+                        var dist = tools.getDist(mob.x, nearest.data.x, mob.y, nearest.data.y);
+                        if (dist <= 24) mob.target = nearest;
+
                     }
                 } else {
                     /* HAS TARGET AND VERIF DISTANCE TO DROP OR ATTACK */
                     /* MOB ATTACK */
                     var dist = tools.getDist(mob.x, mob.target.data.x, mob.y, mob.target.data.y);
+                   
                     if (dist > 24) {
                         mob.target = null;
                     }
@@ -839,6 +877,7 @@ function tick() {
 
                 /* movecool */
                 if (mob.nextMoveIsRandom && mob.target) {
+                   // console.log('Rmoving');
                     var newMove = rogue.getRandomMove(mob.x, mob.y);
                     var x = newMove[0];
                     var y = newMove[1];
@@ -859,6 +898,7 @@ function tick() {
                 }
 
                 if (mob.target && mob.target.data && !mob.nextMoveIsRandom) {
+                   // console.log('Tmoving');
                     if (!mob.movecool) {
                         var mobdef = bibles.mobs[mob.mob];
                         mob.movecool = mobdef.movecool;
@@ -905,6 +945,7 @@ function tick() {
         }
 
         /* SPAWWWWWWNERS */
+       // console.log('mobs +' + mobs.length);
         for (spp = 0; spp < spawners.length; spp++) { // foreach spawner
             var spobj = spawners[spp];
             if (spobj.cooldown <= 0) {
@@ -1078,7 +1119,7 @@ function tick() {
                 'mobs': preparedUpdate[z].mobs,
                 'dm': preparedUpdate[z].deadmobs,
                 'itup': preparedUpdate[z].items,
-                'tic':tic
+                'tic': tic
             }), z);
         }
     }
