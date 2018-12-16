@@ -251,15 +251,15 @@ var tools = {
             div.append('Select SLOT to equip');
 */
 
-        div.append('<h3>EQUIP :  </h3>');
+        div.append('<h2>ACTION :  </h2>');
         for (s = 0; s < loot.slot.length; s++) {
             var sk = loot.slot[s] - 1;
-            div.append('<p><a href="#" class="equip" data-slottype="' + loot.slot[s] + '">' + slotsTypes[sk].fr + '</a></p>');
+            div.append('<p><a href="#" class="equip button" data-slottype="' + loot.slot[s] + '">> Equip on : ' + slotsTypes[sk].fr + '</a></p>');
         }
 
         var item = myItems['item' + selectedItemUid];
         if (item.isEquiped) {
-            div.append('<p><a href="#" class="desequip" data-uid="' + selectedItemUid + '" data-slottype="' + item.isEquiped + '">Unequip</a></p>');
+            div.append('<p><a href="#" class="desequip button" data-uid="' + selectedItemUid + '" data-slottype="' + item.isEquiped + '">Unequip</a></p>');
         }
 
 

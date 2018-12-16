@@ -163,12 +163,13 @@ module.exports = {
         };
         this.wss.addToWaiting('waitingPowers', z, msg);
     },
-    updateItem(z, x, y, index, what = 'add') {
+    updateItems(z, addOrRem, item, who = 0) {
+        console.log('add to update items ' + addOrRem + ' : ' + item.id);
         var msg = {
-            'map': [x, y],
-            'idx': index,
-            'add': what ? 1 : 0
+            'way': addOrRem,
+            'item': item
         };
+        if (who) msg.who = who;
         this.wss.addToWaiting('waitingItems', z, msg);
     },
 
@@ -212,8 +213,8 @@ module.exports = {
                 actor.data.powers_cooldowns[powerId] = null;
             }
         }
-        if (!power.type) {
-            console.log('power not defined error');
+        if (!power || !power.type) {
+            console.log('power not defined error . Afterhold : ' + afterHold);
             return null;
         }
         if (!isMob) actor.data.powers_cooldowns[powerId] = power.powercool / this.tickrate; //powercool = nombre de cycles 
@@ -318,20 +319,31 @@ module.exports = {
         var damage = physical_damage + humiliation_damage + sanity_damage + sex_damage + money_damage;
         return (damage);
     },
-    createItem(id, map = [null, null, null], playerSlot = [null, null]) {
+    createItem(id = null, map = [null, null, null], playerSlot = [null, null], itemUpdate = null) {
         var debug = true;
-        var clone = JSON.parse(JSON.stringify(this.item_example));
-        clone.id = id;
-        clone.uid = this.itemsUid++;
-        var itemRef = this.bibles.loot[id];
+        if (!itemUpdate) {
+            var clone = JSON.parse(JSON.stringify(this.item_example));
+            clone.id = id;
+            this.itemsUid++;
+            clone.uid = this.itemsUid;
+        } else {
+            clone = itemUpdate;
+            if (!clone.uid) {
+                console.log('ERREUR UID LOST');
+                process.exit();
+            }
+        }
+
+        var itemRef = this.bibles.loot[clone.id];
         if (map) {
             clone.map = map;
             var z = map[0];
-            this.itemsInWorld[z].push(clone);
-            if (debug) console.log(itemRef.name.fr + ' dropped into ' + map[1] + ',' + map[2] + ',' + map[0]);
+            var ref = 'item' + clone.uid;
+            this.itemsInWorld[z][ref] = clone;
+            //if (debug) console.log(itemRef.name.fr + ' dropped into ' + map[1] + ',' + map[2] + ',' + map[0]);
+            this.updateItems(z, "add", clone);
         }
         if (playerSlot[0]) {
-
             clone.player = playerSlot;
             var idPlayer = playerSlot[0];
             var player = this.wss.getClientFromId(idPlayer);
@@ -341,7 +353,14 @@ module.exports = {
             }
             var key = 'item' + clone.uid;
             player.data.inv[key] = clone;
-            if (debug) console.log(player.data.name + ' gets ' + itemRef.name.fr);
+            //if (debug) console.log(player.data.name + ' gets ' + itemRef.name.fr);
+
+            /* TODO ? was the item in the world, does it needs to be removed ? */
+
+            this.updateItems(player.data.z, "rem", clone, player.id);
+            player.send(JSON.stringify({
+                'myItems': player.data.inv,
+            }));
         }
         return clone;
     },
@@ -351,7 +370,7 @@ module.exports = {
         ws.data.powers_equiped.b.k = null;
         ws.data.powers_equiped.c.k = null;
         ws.data.powers_equiped.d.k = null;
-        
+
         for (eqi = 0; eqi < ws.data.equip.length; eqi++) {
             var equItem = ws.data.equip[eqi];
 
@@ -383,7 +402,7 @@ module.exports = {
             }
 
         }
-        console.log(ws.data.powers_equiped);
+        //  console.log(ws.data.powers_equiped);
         ws.send(JSON.stringify({
             'myPowers': ws.data.powers_equiped,
         }));

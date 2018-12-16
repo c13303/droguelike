@@ -42,6 +42,11 @@ function preload() {
         frameHeight: 64
     });
 
+    this.load.spritesheet("loot", "img/loot.png?v=" + v, {
+        frameWidth: 64,
+        frameHeight: 64
+    });
+
     if (soundEnabled) {
         this.load.audio('music', [
             'sfx/droguelike1.ogg',
@@ -526,7 +531,7 @@ function update() {
             value = timer.getTimeLeft();
 
             var keyElem = $('.power' + key);
-            console.log(key);
+            //console.log(key);
             if (value > 0) {
                 keyElem.addClass('cooling');
                 $('.power' + key + ' .cooldown').html(value);
@@ -541,6 +546,56 @@ function update() {
     });
 
     tools.killDurations(durationsLib);
+
+
+
+
+
+
+    /* UPDATE ITEMS IN WORLD */
+    if (pd.itemsInWorld) {
+        var that = this;
+        pd.itemsHere = [];
+        $.each(pd.itemsInWorld, function (key, value) {
+            var ditem = value;
+
+            // var ditem = pd.itemsInWorld[itemIndex];
+            if (ditem && !ditem.drawn) {
+                var iX = layer.tileToWorldX(ditem.map[1]) + 16;
+                var iY = layer.tileToWorldY(ditem.map[2]) + 16;
+                drawnItems[key] = {
+                    'sprite': that.add.sprite(iX, iY, 'loot', 0),
+                    'uid': ditem.uid
+                }
+                drawnItems[key].sprite.setScale(0.5);
+                ditem.drawn = true;
+                console.log('drawin item ' + ditem.uid +', total : '+ Object.keys(drawnItems).length);
+
+            }
+
+
+            if (pd.x == ditem.map[1] && pd.y == ditem.map[2]) {
+                var loot = lootbible[ditem.id].name.fr;
+                pd.itemsHere.push(ditem.uid);
+            }
+        });
+    }
+
+    /* item removal */
+    $.each(drawnItems, function (key, dritem) {
+        if (!pd.itemsInWorld['item' + dritem.uid]) {
+            dritem.sprite.destroy();
+            console.log('removing ' + dritem.uid + ' object from world');
+            delete drawnItems[key];
+        }
+    });
+
+
+
+
+
+
+
 
 
 } /* end of update */

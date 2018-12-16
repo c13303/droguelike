@@ -230,7 +230,7 @@ rogue.itemsInWorld = [];
 
 for (livels = 0; livels < rogue.mapSize; livels++) {
     mapAoE.push(tools.matrix(mapSize, mapSize, []));
-    rogue.itemsInWorld.push([]);
+    rogue.itemsInWorld.push({});
 }
 
 
@@ -368,14 +368,14 @@ function startServer() {
 
 
                 /* free items */
-                if(ws.data.new){
+                if (ws.data.new) {
                     items.push(rogue.createItem('gant', [0, 10, 10]));
                     items.push(rogue.createItem('gant', null, [thatId, null]));
                     items.push(rogue.createItem('bob_ricard', null, [thatId, null]));
                     items.push(rogue.createItem('slip_de_tete', null, [thatId, null]));
                     ws.data.new = false;
                 }
-                
+
 
 
                 ws.send(JSON.stringify({
@@ -386,7 +386,7 @@ function startServer() {
                     'mobs': rogue.getMobsInZ(ws.data.z, mobs),
                     'itemsInWorld': rogue.itemsInWorld[ws.data.z],
                     'myItems': ws.data.inv,
-                    'myPowers' : ws.data.powers_equiped,
+                    'myPowers': ws.data.powers_equiped,
                     'ticrate': tickrate
                     //  'bibles': bibles
                 }));
@@ -557,13 +557,13 @@ function startServer() {
 
 
 
-                if(json.dequip && json.slot){
+                if (json.dequip && json.slot) {
                     var oldItem = ws.data.equip[json.slot];
                     if (oldItem) {
                         oldItem.isEquiped = 0;
                         ws.data.equip[json.slot] = 0;
-                        console.log('DEchaussing ' + oldItem.id + ' in slot ' + json.slot);
-                       rogue.updatePowersEquiped(ws);
+                        //  console.log('DEchaussing ' + oldItem.id + ' in slot ' + json.slot);
+                        rogue.updatePowersEquiped(ws);
                     }
                 }
 
@@ -578,13 +578,13 @@ function startServer() {
                     Object.keys(ws.data.inv).forEach(function (itemkey) {
 
                         var item = ws.data.inv[itemkey];
-                       
+
                         if (item.uid === json.equip) {
-                            console.log('chaussing ' + item.id + ' in slot ' + slot);
+                            //   console.log('chaussing ' + item.id + ' in slot ' + slot);
 
 
                             /* was equiped ? */
-                            if(item.isEquiped){
+                            if (item.isEquiped) {
                                 ws.data.equip[item.isEquiped] = 0;
                             }
 
@@ -601,16 +601,44 @@ function startServer() {
                             ws.data.inv[ky].isEquiped = slot;
 
                             /* UPDATE DES POUVOIRS */
-                            
-                            
-                            
+
+
+
                             return null;
                         }
                     });
                     rogue.updatePowersEquiped(ws);
-
                 }
 
+
+                if (json.pic) {
+                    var itemHere = json.pic;
+                    //    console.log(itemHere.length + 'picked up');
+                    var update = false;
+                    for (ih = 0; ih < itemHere.length; ih++) {
+                        var ditem = rogue.itemsInWorld[ws.data.z]['item' + itemHere[ih]];
+                        if (!ditem) {
+                            console.log('error item not found');
+                        } else {
+                            //  console.log(ditem);
+                            // console.log(ditem.id + '('+ditem.uid+') here and picked up');
+
+                            rogue.createItem(null, null, [ws.id, null], ditem);
+                            delete rogue.itemsInWorld[ws.data.z]['item' + itemHere[ih]];
+                            update = true;
+                        }
+
+                    }
+                    /*
+                    if (update) {
+                        ws.send(JSON.stringify({
+                            'itemsInWorld': rogue.itemsInWorld[ws.data.z],
+                            'myItems': ws.data.inv
+                        }));
+                    }
+*/
+
+                }
 
 
 
@@ -674,12 +702,13 @@ function tick() {
     /* SERVER TICK PREPARE */
     var preparedUpdate = [];
     var occupied = occupiedOriginal.slice(0);
-    for (i = 0; i < rogue.maxLevels; i++) {
-        preparedUpdate[i] = {
+    for (iWw = 0; iWw < rogue.maxLevels; iWw++) {
+        preparedUpdate[iWw] = {
             moves: [],
             powers: [],
             mobs: [],
-            deadmobs: []
+            deadmobs: [],
+            items: []
         };
     }
 
@@ -964,6 +993,20 @@ function tick() {
         wss.waitingPowers = []; // clear the pile
     }
 
+    /* do you refresh items */
+    if (wss.waitingItems.length) {
+        //  console.log('TIC updating items');
+        for (i = 0; i < wss.waitingItems.length; i++) {
+            for (j = 0; j < wss.waitingItems[i].length; j++) {
+                var waitingPud = wss.waitingItems[i][j];
+                preparedUpdate[i].items.push(waitingPud);
+            }
+        }
+        wss.waitingItems = []; // clear the pile
+    }
+
+
+
     wss.clients.forEach(function each(client) {
         if (client.data) {
             try {
@@ -1028,12 +1071,14 @@ function tick() {
     */
     /* on envoie l'update groupée en 1 json par personne /  tick optimisé du cul */
     for (z = 0; z < preparedUpdate.length; z++) {
-        if (preparedUpdate[z].moves.length || preparedUpdate[z].powers.length || preparedUpdate[z].mobs.length || preparedUpdate[z].deadmobs.length) {
+        if (preparedUpdate[z].moves.length || preparedUpdate[z].items.length || preparedUpdate[z].powers.length || preparedUpdate[z].mobs.length || preparedUpdate[z].deadmobs.length) {
             wss.broadcastToLevel(JSON.stringify({
                 'puds': preparedUpdate[z].moves,
                 'pwups': preparedUpdate[z].powers,
                 'mobs': preparedUpdate[z].mobs,
                 'dm': preparedUpdate[z].deadmobs,
+                'itup': preparedUpdate[z].items,
+                'tic':tic
             }), z);
         }
     }

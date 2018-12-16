@@ -5,12 +5,19 @@ class wssx extends server {
         this.waitingPuds = [];
         this.waitingPowers = [];
         this.waitingCools = [];
+        this.waitingItems = [];
     }
     addToWaiting(pile, z, msg) {
+        if(isNaN(z)){
+            console.log('error Z in pile');
+            process.exit();
+        }
         if (!this[pile][z]) {
             this[pile][z] = [];
         }
         this[pile][z].push(msg);
+
+       // console.log(pile+ ' updated on '+ z + ' for a total : '+this[pile][z].length);
     }
     verify(info, callback, connection, userRequestMap, data_example) {
         var Filter = require('bad-words');
@@ -120,12 +127,12 @@ class wssx extends server {
 
     getClientFromId(id) {
         var that = null;
-        for (let daCli of this.clients) {           
+        for (let daCli of this.clients) {
             if (daCli.id === id) {
                 that = daCli;
             }
         }
-        if(!that)console.log(id + ' didnt found in ' + this.clients.size + ' clients ');
+        if (!that) console.log(id + ' didnt found in ' + this.clients.size + ' clients ');
         return that;
     }
     nearestPlayerFromPoint(x, y, z) {

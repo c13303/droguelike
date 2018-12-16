@@ -40,8 +40,10 @@ var selectedItemUid;
 
 $(document).ready(function () {
 
+    /* selection slot dans le bonhomme */
     $('.slot').click(function () {
-        /* selection slot dans le bonhomme */
+        /*
+        $('#disableFilter').show();
         if ($(this).html() == "") {
             $('.slot').removeClass('selected');
             selectedSlotType = $(this).data('pos');
@@ -51,11 +53,13 @@ $(document).ready(function () {
             $('.itemDetails').html('');
             $('.slottype_' + selectedSlotType).show();
         }
+        */
     });
 
     $(document).on('click', '.equip', function () {
         var slot = $(this).attr('data-slottype');
         selectedSlotType = 0;
+        $('#disableFilter').hide();
         $('.itemDetails').html('');
         tools.itemEquip(null, slot);
     });
@@ -66,11 +70,15 @@ $(document).ready(function () {
         selectedItemUid = $(this).data('uid');
         tools.displayItemInfo();
     });
-
+    $('#disableFilter').hide();
     $('#disableFilter').click(function () {
+        $('#disableFilter').hide();
+        $('.selected').removeClass('selected');
         selectedSlotType = 0;
         tools.inventoryReorder();
     });
+
+
     $(document).on('click', '.desequip', function () {
         var uid = $(this).attr('data-uid');
         myItems['item' + uid].isEquiped = 0;
@@ -81,6 +89,7 @@ $(document).ready(function () {
         }));
 
         selectedSlotType = 0;
+        $('#disableFilter').hide();
         tools.inventoryReorder();
     });
 

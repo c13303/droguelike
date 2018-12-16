@@ -4,6 +4,7 @@
     Author     : roger
 */
 
+
 @mixin transition($value) {
     //opacity 1s ease-in-out
     -webkit-transition: $value;
@@ -27,6 +28,7 @@ $rouge : #d77355;
 $bleu : #508cd7;
 $blanc: #dcf5ff;
 $bp : 780px;
+
 
 
 @font-face {
@@ -208,11 +210,147 @@ body {
             font-weight: bold;
         }
     }
-    .playerficher{
+
+    .playerfiche {
+        display: none;
         z-index: 220;
-        height: 100px;
-        width: 100px;
-        background: black;
+        height: 256px;
+        width: 512px;
+        background-color: black;
         position: absolute;
+        background-image: url(../img/persona.png);
+        background-repeat: no-repeat;
+        background-position: left;
+        margin-left: calc(50% - 256px);
+        margin-top: 20px;
+
+        .item,
+        body .playerfiche .unequip {
+            z-index: 255;
+            pointer-events: all;
+            width: 64px;
+            height: 64px;
+            display: inline-block;
+        }
+
+        .item:hover,
+        body .playerfiche .unequip:hover {
+            background-color: #d77355;
+            color: #d77355;
+        }
+
+        .item.selectedItem,
+        body .playerfiche .unequip.selectedItem {
+            background-color: #e6c86e !important;
+        }
+
+        .looticon {
+            width: 64px;
+            height: 64px;
+            background-image: url(../img/loot.png);
+            pointer-events: none;
+        }
+
+        .container {
+            position: relative;
+
+            #disableFilter {
+                position: absolute;
+                width: 64px;
+                height: 65px;
+            }
+
+            #disableFilter:hover {
+                background: white;
+            }
+
+            .inv {
+                right: 0;
+                position: absolute;
+                width: 312px;
+                height: auto;
+            }
+
+            .inv .invslot {
+                width: 64px;
+                height: 64px;
+                float: left;
+                background-image: url(../img/invbg.png);
+                background-repeat: no-repeat;
+                margin: 0;
+                padding: 0;
+            }
+
+            .itemDetails {
+                position: absolute;
+                /* top: 270px; */
+                left: 460px;
+                background: black;
+                padding: 30px;
+                width: 290px;
+            }
+
+            .itemDetails h2 {
+                color: #e6c86e;
+                text-transform: uppercase;
+            }
+
+            .itemDetails h3 {
+                color: #508cd7;
+            }
+
+            .slot {
+                position: absolute;
+                width: 64px;
+                height: 64px;
+                border: 1px solid #508cd7;
+            }
+
+            .slot.selected {
+                background: 1px solid #d77355;
+            }
+
+            .slot1 {
+                left: 64px;
+            }
+
+            .slot2 {
+                left: 64px;
+                top: 64px;
+            }
+
+            .slot3 {
+                left: 64px;
+                top: 128px;
+            }
+
+            .slot4 {
+                left: 64px;
+                top: 192px;
+            }
+
+            .slot5 {
+                left: 0;
+                top: 64px;
+            }
+
+            .slot6 {
+                left: 0;
+                top: 128px;
+            }
+
+            .slot7 {
+                left: 128px;
+                top: 64px;
+            }
+
+            .slot8 {
+                left: 128px;
+                top: 128px;
+            }
+        }
     }
+
 }
+
+/*# sourceMappingURL=style.css.map */

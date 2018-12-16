@@ -12,13 +12,17 @@ var ZOOM = 2;
 var w = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
 var h = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
 console.log('screen size : ' + w + ',' + h);
-if (h < 800) ZOOM = 1;
+
+//if (h < 800) ZOOM = 1;
+
+var canvasW = w - 128;
+var canvasH = h - 64
 
 
 var config = {
     type: Phaser.AUTO,
-    width: 1368 / 2,
-    height: 768 / 2,
+    width: Math.round(canvasW / 2),
+    height: Math.round(canvasH / 2),
     canvas: canvas,
     pixelArt: true,
     callbacks: {
@@ -55,6 +59,9 @@ var peoplehere = [];
 var killingPile = [];
 
 var drawnPeople = {};
+var drawnItems = {};
+
+
 var tweenplayer;
 var powersbible = [];
 var mobsbible = [];
@@ -66,7 +73,6 @@ $.get("data/powers.json?v=" + Date.now(), function (data) {
     powersbible = data;
 });
 $.get("data/mobs.json?v=" + Date.now(), function (data) {
-    console.log(data);
     mobsbible = data;
 });
 $.get("data/spawners.json?v=" + Date.now(), function (data) {
@@ -103,10 +109,10 @@ var wallLayer = wallData = null;
 
 $.get("data/formatedLevels/level0_floor.json?v=" + Date.now(), function (data) {
     level = data;
-    console.log(level.length);
+    // console.log(level.length);
 });
 
 $.get("data/formatedLevels/level0_wallz.json?v=" + Date.now(), function (data) {
     wallData = data;
-    console.log(wallData.length);
+    //  console.log(wallData.length);
 });

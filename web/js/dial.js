@@ -72,7 +72,7 @@ function connect() {
 
         if (d.startgame && level && d.ticrate) {
             ticrate = d.ticrate;
-            console.log('firestarter , ticrate : ' + ticrate);
+            //   console.log('firestarter , ticrate : ' + ticrate);
             $('#connect').remove();
             $('#autoreconnect').remove();
             $('#game').removeClass("hidden");
@@ -152,7 +152,7 @@ function connect() {
 
         /* recadrage */
         if (d.rcdr) {
-            console.log('recadrage');
+           // console.log('recadrage');
             tools.updatePlayer(d.rcdr);
         }
 
@@ -164,7 +164,7 @@ function connect() {
         }
 
         if (d.myPowers) {
-            console.log(d.myPowers);
+            //     console.log(d.myPowers);
             pd.powers_equiped = d.myPowers;
             var pow = d.myPowers;
             $('#powers').html('');
@@ -181,7 +181,27 @@ function connect() {
         }
 
 
+        if (d.itemsInWorld) {
+           // console.log('-------------------allitems');
+            //console.log(d.itemsInWorld);
+            pd.itemsInWorld = d.itemsInWorld;
+        }
 
+        if (d.itup && d.itup.length) {
+           //console.log('-------------------itup from tic ' + d.tic);
+           // console.log(d.itup);
+            for (dritupX = 0; dritupX < d.itup.length; dritupX++) {
+                var itemTP = d.itup[dritupX];
+                if (itemTP.way == 'rem') {
+                   // console.log('removing '+itemTP.item.uid);
+                    delete pd.itemsInWorld['item' + itemTP.item.uid];
+                }
+                if (itemTP.way == 'add') {
+                   // console.log('adding');
+                    pd.itemsInWorld['item' + itemTP.item.uid] = itemTP.item;
+                }
+            }
+        }
 
 
 
@@ -306,6 +326,16 @@ function connect() {
                 $('.playerfiche').toggle();
             }
 
+            if (keyCode === 112) {
+                if (pd.itemsHere.length) {
+                    console.log('picking up ' + pd.itemsHere.length + ' objects');
+                    ws.send(JSON.stringify({
+                        pic: pd.itemsHere,
+                    }));
+                }
+
+            }
+
 
             /* target selection */
             if (keyCode === 116) { // 
@@ -342,11 +372,11 @@ function connect() {
             var powerUse = null;
 
             function keyUse(myclass) {
-             //   console.log('Key Use : ' + myclass);
-                
+                //   console.log('Key Use : ' + myclass);
+
                 powerUse = $(myclass).data('power');
                 if ($(myclass).data('key') && powerUse) {
-                   // $(this).addClass('cooling');
+                    // $(this).addClass('cooling');
                     ws.send(JSON.stringify({
                         cd: 'key',
                         v: $(myclass).data('key'),

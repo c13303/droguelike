@@ -4,9 +4,11 @@
     Author     : roger
 */
 @font-face {
-  font-family: 'cioFont';
-  src: url("fonts/PixelOperator.eot");
-  src: url("fonts/PixelOperator.eot?#iefix") format("embedded-opentype"), url("fonts/PixelOperator.woff2") format("woff2"), url("fonts/PixelOperator.woff") format("woff"), url("fonts/PixelOperator.ttf") format("truetype"), url("fonts/PixelOperator.svg#PixelOperator") format("svg");
+  font-family: "cioFont";
+  src: url("./fonts/Pixellari.eot");
+  /* IE9 Compat Modes */
+  src: url("./fonts/Pixellari.eot?#iefix") format("embedded-opentype"), url("./fonts/Pixellari.otf") format("opentype"), url("./fonts/Pixellari.svg") format("svg"), url("./fonts/Pixellari.ttf") format("truetype"), url("./fonts/Pixellari.woff") format("woff"), url("./fonts/Pixellari.woff2") format("woff2");
+  /* Modern Browsers */
   font-weight: normal;
   font-style: normal;
 }
@@ -30,9 +32,9 @@ input {
   }
 }
 
-@media screen and (max-height: 768px) {
+@media (max-height: 600px) {
   #logo {
-    display: none !important;
+    display: none;
   }
 }
 
@@ -182,7 +184,8 @@ body .playerfiche {
   margin-top: 20px;
 }
 
-body .playerfiche .item, body .playerfiche .unequip {
+body .playerfiche .item,
+body .playerfiche body .playerfiche .unequip {
   z-index: 255;
   pointer-events: all;
   width: 64px;
@@ -190,12 +193,14 @@ body .playerfiche .item, body .playerfiche .unequip {
   display: inline-block;
 }
 
-body .playerfiche .item:hover, body .playerfiche .unequip:hover {
+body .playerfiche .item:hover,
+body .playerfiche body .playerfiche .unequip:hover {
   background-color: #d77355;
   color: #d77355;
 }
 
-body .playerfiche .item.selectedItem, body .playerfiche .unequip.selectedItem {
+body .playerfiche .item.selectedItem,
+body .playerfiche body .playerfiche .unequip.selectedItem {
   background-color: #e6c86e !important;
 }
 
