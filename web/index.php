@@ -73,19 +73,7 @@ if ($isdev) {
             <input type="submit" class="hidden" />
         </form>
         <div id="console"></div>
-        <div id="sidepanel">
-            <div class="notice">
-                <div class="keynum">T</div> target selection
-                <br />
-                <div class="keynum">K</div> toggle player killer mode
-            </div>
-            <div id="target"></div>
-            <img src="img/question.png" class="helper" data-info="infopowers" />
-            <div id="powers">
-            </div>
-            <div class="coords"></div>
-        </div>
-
+        
 
     </div>
     <input type="hidden" id="isdev" value="<?=dev;?>" />
@@ -112,8 +100,7 @@ if ($isdev) {
         <p>AUTO : The power used as auto-attack melee (when you bump into ennemy)</p>
         <p>Slots 1-4 : the powers will trig with keys 1,2,3 or 4 </p>
     </div>
-    <div class="powerinventory">
-    </div>
+    
     <div class="playerfiche">
         <div class="container">
             <div id="disableFilter"></div>
@@ -121,14 +108,40 @@ if ($isdev) {
             <div class="slot slot<?=$p;?>" data-pos="<?=$p;?>" id="the_slot_type_<?=$p;?>"></div>
             <?php endfor;?>
             <div class="inv">
-            <?php for ($p = 1; $p < 32; $p++): ?>
-            <div class="invslot" data-pos="<?=$p;?>" id="invslot<?=$p;?>"></div>
-            <?php endfor;?>
+                <?php for ($p = 1; $p < 33; $p++): ?>
+                <div class="invslot" data-pos="<?=$p;?>" id="invslot<?=$p;?>"></div>
+                <?php endfor;?>
             </div>
             <div class="itemDetails"></div>
         </div>
     </div>
+    <div id="bar">
+        <div class="button button64 inventory"></div>
+        <div class="button button64 takeloot"></div>
 
+        <div id="powers">
+            </div>
+
+        <div class="arrowscontainer">
+            <div class="arrows">
+                <div class="row">
+                    <div class="arrow a1"></div>
+                    <div class="arrow a2"></div>
+                    <div class="arrow a3"></div>
+                </div>
+                <div class="row">
+                    <div class="arrow b1"></div>
+                    <div class="arrow b2"></div>
+                    <div class="arrow b3"></div>
+                </div>
+                <div class="row">
+                    <div class="arrow c1"></div>
+                    <div class="arrow c2"></div>
+                    <div class="arrow c3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
 
 </body>
 

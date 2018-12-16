@@ -168,7 +168,7 @@ function connect() {
             pd.powers_equiped = d.myPowers;
             var pow = d.myPowers;
             $('#powers').html('');
-            var empty = '<div class="keypower">_</div>';
+            var empty = '<div class="keypower empty">_</div>';
             var keys = [];
             keys.push(pow.auto.k ? '<div class="keypower keyauto power' + pow.auto.k + '" data-key="auto" data-power="' + pow.auto.k + '"><div class="keynum autokey">.</div> <span class="n">' + powersbible[pow.auto.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
             keys.push(pow.a.k ? '<div class="keypower keya power' + pow.a.k + '" data-key="a" data-power="' + pow.a.k + '"><div class="keynum dakey">1</div> <span class="n">' + powersbible[pow.a.k].name[lang] + '</span><span class="cooldown"></span></div>' : empty);
@@ -299,7 +299,24 @@ function connect() {
         $('#chat').val('');
     });
 
+    $('#bar .inventory').click(function(){
+        $('.playerfiche').toggle();
+    });
 
+    function pickup(){
+        if (pd.itemsHere.length) {
+            console.log('picking up ' + pd.itemsHere.length + ' objects');
+            tools.notice('You are picking up ' + pd.itemsHere.length + ' objects');
+            ws.send(JSON.stringify({
+                pic: pd.itemsHere,
+            }));
+        }
+    }
+
+    $('#bar .takeloot').click(function(){
+        pickup();
+    });
+    
     /* use of keyboards */
     $('body').bind('keypress', 'canvas', function (e) {
 
@@ -327,13 +344,7 @@ function connect() {
             }
 
             if (keyCode === 112) {
-                if (pd.itemsHere.length) {
-                    console.log('picking up ' + pd.itemsHere.length + ' objects');
-                    ws.send(JSON.stringify({
-                        pic: pd.itemsHere,
-                    }));
-                }
-
+                pickup();
             }
 
 
@@ -371,24 +382,7 @@ function connect() {
 
             var powerUse = null;
 
-            function keyUse(myclass) {
-                //   console.log('Key Use : ' + myclass);
-
-                powerUse = $(myclass).data('power');
-                if ($(myclass).data('key') && powerUse) {
-                    // $(this).addClass('cooling');
-                    ws.send(JSON.stringify({
-                        cd: 'key',
-                        v: $(myclass).data('key'),
-                        dir: pd.dir,
-                        aim: pd.aim
-                    }));
-                    if (powersbible[powerUse].delay) {
-                        pd.holding = true;
-                        mySoundHook('load');
-                    }
-                }
-            }
+           
 
 
             if (!pd.holding) {
@@ -415,5 +409,31 @@ function connect() {
     });
 
 
+    function keyUse(myclass) {
+        //   console.log('Key Use : ' + myclass);
+
+        powerUse = $(myclass).data('power');
+        if ($(myclass).data('key') && powerUse) {
+            // $(this).addClass('cooling');
+            ws.send(JSON.stringify({
+                cd: 'key',
+                v: $(myclass).data('key'),
+                dir: pd.dir,
+                aim: pd.aim
+            }));
+            if (powersbible[powerUse].delay) {
+                pd.holding = true;
+                mySoundHook('load');
+            }
+        }
+    }
+
+    $('#powers').on('click','.keypower',function(){
+        if(!$(this).hasClass('cooling')){
+            var dak = $(this).data('key');
+            console.log('power '+dak);
+            keyUse('.key'+dak);
+        }
+    });
 
 } /* end of connect */

@@ -569,7 +569,7 @@ function update() {
                 }
                 drawnItems[key].sprite.setScale(0.5);
                 ditem.drawn = true;
-                console.log('drawin item ' + ditem.uid +', total : '+ Object.keys(drawnItems).length);
+                console.log('drawin item ' + ditem.uid + ', total : ' + Object.keys(drawnItems).length);
 
             }
 
@@ -579,6 +579,11 @@ function update() {
                 pd.itemsHere.push(ditem.uid);
             }
         });
+    }
+    if (pd.itemsHere.length) {
+        $('.takeloot').css('opacity',1);
+    } else {
+        $('.takeloot').css('opacity',0);
     }
 
     /* item removal */

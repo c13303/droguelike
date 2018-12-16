@@ -44,9 +44,24 @@ input {
 
 body {
   background: url(../img/bg.png);
-  color: white;
+  color: #dcf5ff;
   font-family: "cioFont";
   font-size: 20px;
+}
+
+body a {
+  padding: 5px;
+  margin-top: 10px;
+  border: 1px solid #508cd7;
+  color: #508cd7;
+  width: 100%;
+  display: block;
+}
+
+body a:hover {
+  text-decoration: none;
+  background: #508cd7;
+  color: #dcf5ff;
 }
 
 body .centered {
@@ -65,7 +80,7 @@ body #game #chat {
   background: 0;
   height: 40px;
   border: none;
-  color: white;
+  color: #dcf5ff;
 }
 
 body #game #console {
@@ -74,7 +89,7 @@ body #game #console {
   position: fixed;
   bottom: 100px;
   width: 100%;
-  color: white;
+  color: #dcf5ff;
   pointer-events: none;
 }
 
@@ -82,65 +97,8 @@ body #game #console .notice {
   color: #e6c86e;
 }
 
-body #game #sidepanel {
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-}
-
-body #game #sidepanel #powers {
-  background: black;
-  position: fixed;
-  bottom: 0;
-  width: 100%;
-}
-
-body #game #sidepanel #target {
-  color: #d77355;
-  height: 100px;
-  display: none;
-}
-
-body #game #sidepanel .notice {
-  display: none;
-}
-
-body #game #sidepanel .helper {
-  display: none;
-}
-
-body #game #sidepanel .keynum {
-  background: url(../img/key.png);
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  color: black;
-  text-align: center;
-  padding-top: 5px;
-}
-
-body #game #sidepanel .keynum.autokey {
-  background: url(../img/autokey.png);
-}
-
-body #game #sidepanel .keypower {
-  display: inline-block;
-  width: 19%;
-  color: #dcf5ff;
-  height: 32px;
-}
-
-body #game #sidepanel .cooling {
-  color: #d77355;
-}
-
-body #game #sidepanel .cooldown {
-  margin-left: 20px;
-}
-
 body canvas {
   display: block;
-  margin: auto;
 }
 
 body canvas,
@@ -174,18 +132,18 @@ body .playerfiche {
   display: none;
   z-index: 220;
   height: 256px;
-  width: 512px;
+  width: 1024px;
   background-color: black;
-  position: absolute;
+  position: fixed;
   background-image: url(../img/persona.png);
   background-repeat: no-repeat;
   background-position: left;
-  margin-left: calc(50% - 256px);
-  margin-top: 20px;
+  right: 192px;
+  margin-top: 64px;
 }
 
 body .playerfiche .item,
-body .playerfiche body .playerfiche .unequip {
+body .playerfiche .unequip {
   z-index: 255;
   pointer-events: all;
   width: 64px;
@@ -194,13 +152,13 @@ body .playerfiche body .playerfiche .unequip {
 }
 
 body .playerfiche .item:hover,
-body .playerfiche body .playerfiche .unequip:hover {
+body .playerfiche .unequip:hover {
   background-color: #d77355;
   color: #d77355;
 }
 
 body .playerfiche .item.selectedItem,
-body .playerfiche body .playerfiche .unequip.selectedItem {
+body .playerfiche .unequip.selectedItem {
   background-color: #e6c86e !important;
 }
 
@@ -222,14 +180,14 @@ body .playerfiche .container #disableFilter {
 }
 
 body .playerfiche .container #disableFilter:hover {
-  background: white;
+  background: #dcf5ff;
 }
 
 body .playerfiche .container .inv {
-  right: 0;
+  left: 192px;
   position: absolute;
-  width: 312px;
-  height: auto;
+  width: 512px;
+  height: 384px;
 }
 
 body .playerfiche .container .inv .invslot {
@@ -245,10 +203,11 @@ body .playerfiche .container .inv .invslot {
 body .playerfiche .container .itemDetails {
   position: absolute;
   /* top: 270px; */
-  left: 460px;
+  right: 0;
   background: black;
   padding: 30px;
-  width: 290px;
+  width: 320px;
+  height: 384px;
 }
 
 body .playerfiche .container .itemDetails h2 {
@@ -267,7 +226,7 @@ body .playerfiche .container .slot {
   border: 1px solid #508cd7;
 }
 
-body .playerfiche .container .slot.selected {
+body .playerfiche .container .slot .selected {
   background: 1px solid #d77355;
 }
 
@@ -308,5 +267,163 @@ body .playerfiche .container .slot7 {
 body .playerfiche .container .slot8 {
   left: 128px;
   top: 128px;
+}
+
+body #bar {
+  position: absolute;
+  right: 0;
+  top: 64px;
+  width: 128px;
+  height: 500px;
+}
+
+body #bar .keynum {
+  background: url(../img/key.png);
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  color: black;
+  text-align: center;
+  padding-top: 5px;
+  pointer-events: none;
+}
+
+body #bar .keynum.autokey {
+  background: url(../img/autokey.png);
+}
+
+body #bar .keynum div, body #bar .keynum span {
+  pointer-events: none;
+}
+
+body #bar .keypower {
+  display: block;
+  position: relative;
+  width: 64px;
+  height: 64px;
+  background-image: url(../img/buttons.png);
+  color: #dcf5ff;
+  padding: 10px;
+  text-align: center;
+  cursor: pointer;
+}
+
+body #bar .keypower.empty {
+  opacity: 0;
+}
+
+body #bar .cooling {
+  color: #d77355;
+}
+
+body #bar .cooldown {
+  margin-left: 20px;
+}
+
+body #bar .button64 {
+  background-image: url(../img/buttons.png);
+  width: 64px;
+  height: 64px;
+  position: relative;
+  cursor: pointer;
+}
+
+body #bar .button64.inventory:before {
+  content: "";
+  background-image: url(../img/buttons.png);
+  width: 64px;
+  height: 64px;
+  position: absolute;
+  background-position: -128px 0;
+}
+
+body #bar .button64.takeloot:before {
+  content: "";
+  background-image: url(../img/buttons.png);
+  width: 64px;
+  height: 64px;
+  position: absolute;
+  background-position: -64px 0;
+}
+
+body #bar .arrowscontainer {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  width: 192px;
+  height: 192px;
+}
+
+body #bar .arrowscontainer .arrows {
+  width: 192px;
+  height: 192px;
+  display: inline-block;
+  position: relative;
+}
+
+body #bar .arrowscontainer .arrows .row {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  margin: 0;
+  cursor: pointer;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow:before {
+  content: "";
+  background-image: url(../img/buttons.png);
+  width: 64px;
+  height: 64px;
+  position: absolute;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow:after {
+  content: "";
+  background-image: url(../img/arrows.png);
+  width: 64px;
+  height: 64px;
+  position: absolute;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow.a1:after {
+  background-position: 0 0;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow.a2:after {
+  background-position: -64px 0;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow.a3:after {
+  background-position: -128px 0;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow.b1:after {
+  background-position: 0 -64px;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow.b2:after {
+  background-position: -64px -64px;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow.b3:after {
+  background-position: -128px -64px;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow.c1:after {
+  background-position: 0 -128px;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow.c2:after {
+  background-position: -64px -128px;
+}
+
+body #bar .arrowscontainer .arrows .row .arrow.c3:after {
+  background-position: -128px -128px;
 }
 /*# sourceMappingURL=style.css.map */

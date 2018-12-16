@@ -79,13 +79,27 @@ input {
 
 body {
     background: url(../img/bg.png);
-    color: white;
+    color: $blanc;
     font-family: "cioFont";
     font-size: 20px;
 
+    a {
+        &:hover {
+            text-decoration: none;
+            background: $bleu;
+            color: $blanc;
+        }
+
+        padding:5px;
+        margin-top:10px;
+        border:1px solid $bleu;
+        color: $bleu;
+        width:100%;
+        display:block;
+    }
+
     .centered {
         text-align: center;
-
     }
 
     #game {
@@ -99,7 +113,7 @@ body {
             background: 0;
             height: 40px;
             border: none;
-            color: white;
+            color: $blanc;
 
         }
 
@@ -111,7 +125,7 @@ body {
             width: 100%;
 
 
-            color: white;
+            color: $blanc;
             pointer-events: none;
 
             .notice {
@@ -119,67 +133,11 @@ body {
             }
         }
 
-        #sidepanel {
-            position: fixed;
-            bottom: 0;
-            width: 100%;
 
-            #powers {
-                background: black;
-                position: fixed;
-                bottom: 0;
-                width: 100%;
-            }
-
-            #target {
-                color: $rouge;
-                height: 100px;
-                display: none;
-            }
-
-            .notice {
-                display: none;
-            }
-
-            .helper {
-                display: none;
-            }
-
-            .keynum {
-                background: url(../img/key.png);
-                display: inline-block;
-                width: 32px;
-                height: 32px;
-                color: black;
-                text-align: center;
-                padding-top: 5px;
-
-                &.autokey {
-                    background: url(../img/autokey.png);
-                }
-
-            }
-
-            .keypower {
-                display: inline-block;
-                width: 19%;
-                color: $blanc;
-                height: 32px;
-            }
-
-            .cooling {
-                color: $rouge;
-            }
-
-            .cooldown {
-                margin-left: 20px;
-            }
-        }
     }
 
     canvas {
         display: block;
-        margin: auto;
     }
 
     canvas,
@@ -197,7 +155,6 @@ body {
 
     .info {
         display: none;
-
     }
 
     .modal-content {
@@ -214,17 +171,17 @@ body {
         display: none;
         z-index: 220;
         height: 256px;
-        width: 512px;
+        width: 1024px;
         background-color: black;
-        position: absolute;
+        position: fixed;
         background-image: url(../img/persona.png);
         background-repeat: no-repeat;
         background-position: left;
-        margin-left: calc(50% - 256px);
-        margin-top: 20px;
+        right: 192px;
+        margin-top: 64px;
 
         .item,
-        body .playerfiche .unequip {
+        .unequip {
             z-index: 255;
             pointer-events: all;
             width: 64px;
@@ -233,13 +190,13 @@ body {
         }
 
         .item:hover,
-        body .playerfiche .unequip:hover {
+        .unequip:hover {
             background-color: $rouge;
             color: $rouge;
         }
 
         .item.selectedItem,
-        body .playerfiche .unequip.selectedItem {
+        .unequip.selectedItem {
             background-color: $jaune !important;
         }
 
@@ -260,54 +217,58 @@ body {
             }
 
             #disableFilter:hover {
-                background: white;
+                background: $blanc;
             }
 
             .inv {
-                right: 0;
+                left: 192px;
                 position: absolute;
-                width: 312px;
-                height: auto;
-            }
+                width: 512px;
+                height: 384px;
 
-            .inv .invslot {
-                width: 64px;
-                height: 64px;
-                float: left;
-                background-image: url(../img/invbg.png);
-                background-repeat: no-repeat;
-                margin: 0;
-                padding: 0;
+                .invslot {
+                    width: 64px;
+                    height: 64px;
+                    float: left;
+                    background-image: url(../img/invbg.png);
+                    background-repeat: no-repeat;
+                    margin: 0;
+                    padding: 0;
+                }
+
             }
 
             .itemDetails {
                 position: absolute;
                 /* top: 270px; */
-                left: 460px;
+                right: 0;
                 background: black;
                 padding: 30px;
-                width: 290px;
+                width: 320px;
+                height: 384px;
+
+                h2 {
+                    color: $jaune;
+                    text-transform: uppercase;
+                }
+
+                h3 {
+                    color: $bleu;
+                }
             }
 
-            .itemDetails h2 {
-                color: $jaune;
-                text-transform: uppercase;
-            }
-
-            .itemDetails h3 {
-                color: $bleu;
-            }
 
             .slot {
                 position: absolute;
                 width: 64px;
                 height: 64px;
                 border: 1px solid $bleu;
+
+                .selected {
+                    background: 1px solid $rouge;
+                }
             }
 
-            .slot.selected {
-                background: 1px solid $rouge;
-            }
 
             .slot1 {
                 left: 64px;
@@ -349,6 +310,193 @@ body {
             }
         }
     }
+
+    #bar {
+        position: absolute;
+        right: 0;
+        top: 64px;
+        width: 128px;
+        height: 500px;
+
+        .keynum {
+            background: url(../img/key.png);
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            color: black;
+            text-align: center;
+            padding-top: 5px;
+            pointer-events: none;
+            &.autokey {
+                background: url(../img/autokey.png);
+            }
+            div, span{
+                pointer-events: none;
+            }
+
+        }
+
+        .keypower {
+            display: block;
+            position: relative;
+            width: 64px;
+            height: 64px;
+            background-image: url(../img/buttons.png);
+            color: $blanc;
+            padding: 10px;
+            text-align: center;
+            cursor:pointer;
+            &.empty {
+                opacity: 0;
+            }
+        }
+
+        .cooling {
+            color: $rouge;
+        }
+
+        .cooldown {
+            margin-left: 20px;
+        }
+
+
+        .button64 {
+            background-image: url(../img/buttons.png);
+            width: 64px;
+            height: 64px;
+            position: relative;
+            cursor: pointer;
+
+            &.inventory {
+                &:before {
+                    content: "";
+                    background-image: url(../img/buttons.png);
+                    width: 64px;
+                    height: 64px;
+                    position: absolute;
+                    background-position: -128px 0;
+                }
+            }
+
+            &.takeloot {
+                &:before {
+                    content: "";
+                    background-image: url(../img/buttons.png);
+                    width: 64px;
+                    height: 64px;
+                    position: absolute;
+                    background-position: -64px 0;
+                }
+
+            }
+        }
+
+        .arrowscontainer {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            width: 192px;
+            height: 192px;
+
+            .arrows {
+
+                width: 192px;
+                height: 192px;
+                display: inline-block;
+                position: relative;
+
+                .row {
+                    @include flexbox();
+
+                    .arrow {
+                        position: relative;
+                        width: 64px;
+                        height: 64px;
+                        margin: 0;
+                        cursor: pointer;
+
+                        &:before {
+                            content: "";
+                            background-image: url(../img/buttons.png);
+                            width: 64px;
+                            height: 64px;
+                            position: absolute;
+                        }
+
+                        &:after {
+                            content: "";
+                            background-image: url(../img/arrows.png);
+                            width: 64px;
+                            height: 64px;
+                            position: absolute;
+
+                        }
+
+                        &.a1 {
+                            &:after {
+                                background-position: 0 0;
+                            }
+                        }
+
+                        &.a2 {
+                            &:after {
+                                background-position: -64px 0;
+                            }
+                        }
+
+                        &.a3 {
+                            &:after {
+                                background-position: -128px 0;
+                            }
+                        }
+
+                        &.b1 {
+                            &:after {
+                                background-position: 0 -64px;
+                            }
+                        }
+
+                        &.b2 {
+                            &:after {
+                                background-position: -64px -64px;
+                            }
+                        }
+
+                        &.b3 {
+                            &:after {
+                                background-position: -128px -64px;
+                            }
+                        }
+
+                        &.c1 {
+                            &:after {
+                                background-position: 0 -128px;
+                            }
+                        }
+
+                        &.c2 {
+                            &:after {
+                                background-position: -64px -128px;
+                            }
+                        }
+
+                        &.c3 {
+                            &:after {
+                                background-position: -128px -128px;
+                            }
+                        }
+
+                    }
+                }
+
+            }
+        }
+
+
+
+    }
+
+
 
 }
 
