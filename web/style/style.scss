@@ -23,7 +23,6 @@
 }
 
 $jaune : #e6c86e;
-$jauneb : #e6c86e;
 $rouge : #d77355;
 $bleu : #508cd7;
 $blanc: #dcf5ff;
@@ -235,13 +234,13 @@ body {
 
         .item:hover,
         body .playerfiche .unequip:hover {
-            background-color: #d77355;
-            color: #d77355;
+            background-color: $rouge;
+            color: $rouge;
         }
 
         .item.selectedItem,
         body .playerfiche .unequip.selectedItem {
-            background-color: #e6c86e !important;
+            background-color: $jaune !important;
         }
 
         .looticon {
@@ -291,23 +290,23 @@ body {
             }
 
             .itemDetails h2 {
-                color: #e6c86e;
+                color: $jaune;
                 text-transform: uppercase;
             }
 
             .itemDetails h3 {
-                color: #508cd7;
+                color: $bleu;
             }
 
             .slot {
                 position: absolute;
                 width: 64px;
                 height: 64px;
-                border: 1px solid #508cd7;
+                border: 1px solid $bleu;
             }
 
             .slot.selected {
-                background: 1px solid #d77355;
+                background: 1px solid $rouge;
             }
 
             .slot1 {
