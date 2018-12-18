@@ -13,6 +13,14 @@ function mySoundHook(soundKey) {
         soundlib[soundKey].play();
 }
 
+function soundloadfile(something, key) {
+    something.load.audio(key, [
+        'sfx/' + key + '.ogg',
+        'sfx/' + key + '.mp3'
+    ]);
+}
+
+
 function preload() {
     //console.log('preload');
 
@@ -48,26 +56,10 @@ function preload() {
     });
 
     if (soundEnabled) {
-        this.load.audio('music', [
-            'sfx/droguelike1.ogg',
-            'sfx/droguelike1.mp3'
-        ]);
 
-        this.load.audio('load', [
-            'sfx/load.ogg',
-            'sfx/load.mp3'
-        ]);
-
-        this.load.audio('slap', [
-            'sfx/slap.ogg',
-            'sfx/slap.mp3'
-        ]);
-
-        this.load.audio('foutrage', [
-            'sfx/foutrage.ogg',
-            'sfx/foutrage.mp3'
-        ]);
-
+        soundloadfile(this, 'load');
+        soundloadfile(this, 'foutrage');
+        soundloadfile(this, 'ouch');
     }
 
 }
@@ -76,11 +68,13 @@ var keysmove = {};
 
 function create() {
     if (soundEnabled) {
+        /*
         music = this.sound.add('music', {
             volume: 1,
         });
-        //  music.play();
+        music.play();
         music.setLoop(true);
+        */
 
         soundlib.load = this.sound.add('load', {
             volume: 0.3,
@@ -178,14 +172,14 @@ function update() {
 
     /*const worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);*/
 
-    
+
     caseX = pd.angle[0];
     caseY = pd.angle[1];
     $('.coords').html(caseX + ',' + caseY);
     /* cursor */
     cursor.x = layer.tileToWorldX(caseX) + 16;
     cursor.y = layer.tileToWorldY(caseY) + 16;
-   // tools.fluidmove(cursor,layer.tileToWorldX(caseX) + 16,layer.tileToWorldY(caseY) + 16,64);
+    // tools.fluidmove(cursor,layer.tileToWorldX(caseX) + 16,layer.tileToWorldY(caseY) + 16,64);
 
 
     /* direction selection */

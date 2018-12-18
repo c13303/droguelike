@@ -79,6 +79,9 @@ function connect() {
 
 
             pd = d.mydata;
+            
+            
+
             pd.mypowertimer = {};
 
 
@@ -89,6 +92,7 @@ function connect() {
 
 
             game = new Phaser.Game(config);
+            stats_refresh();
             //  $('#logo').remove();
 
         }
@@ -127,7 +131,7 @@ function connect() {
             }
         }
 
-        
+
 
         /* mobs update */
         if (d.mobs && d.mobs.length) {
@@ -236,16 +240,17 @@ function connect() {
             killingPile = [];
             drawnPeople = {};
             drawnItems = {};
+            animsLib = {};
             tweenplayer;
             pd = null;
             ws.send(JSON.stringify({
                 startlevel: 1,
-              
+
             }));
         }
 
 
-        if(d.inter){
+        if (d.inter) {
             console.log(d.inter);
         }
 
@@ -319,7 +324,7 @@ function connect() {
 
     function pickup() {
         if (pd.itemsHere.length) {
-            console.log('picking up ' + pd.itemsHere.length + ' objects');
+            //console.log('picking up ' + pd.itemsHere.length + ' objects');
             tools.notice('You are picking up ' + pd.itemsHere.length + ' objects');
             ws.send(JSON.stringify({
                 pic: pd.itemsHere,
@@ -353,16 +358,16 @@ function connect() {
                 }));
             }
 
-            if (keyCode === 105) {
+            if (keyCode === 105 || keyCode === 48 || keyCode === 32) {
                 $('.playerfiche').toggle();
             }
 
-            if (keyCode === 112) {
+            if (keyCode === 112 || keyCode === 53) {
                 pickup();
             }
 
-            
-            
+
+
 
 
             /* target selection */

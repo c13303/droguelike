@@ -73,7 +73,7 @@ if ($isdev) {
             <input type="submit" class="hidden" />
         </form>
         <div id="console"></div>
-        
+
 
     </div>
     <input type="hidden" id="isdev" value="<?=dev;?>" />
@@ -100,7 +100,7 @@ if ($isdev) {
         <p>AUTO : The power used as auto-attack melee (when you bump into ennemy)</p>
         <p>Slots 1-4 : the powers will trig with keys 1,2,3 or 4 </p>
     </div>
-    
+
     <div class="playerfiche">
         <div class="container">
             <div id="disableFilter"></div>
@@ -109,18 +109,41 @@ if ($isdev) {
             <?php endfor;?>
             <div class="inv">
                 <?php for ($p = 1; $p < 33; $p++): ?>
-                <div class="invslot" data-pos="<?=$p;?>" id="invslot<?=$p;?>"></div>
+                <div class="invslot" data-pos="<?=$p;?> <?=$p == 1 ? 'occupied' : '';?>" id="invslot<?=$p;?>"></div>
                 <?php endfor;?>
             </div>
             <div class="itemDetails"></div>
         </div>
+        <div class="container">
+            <div id="stats" class="text">
+                <h2>Player</h2>
+                <div>LIFE : <span class="stat" data-stat="lifenow"></span> / <span class="stat" data-stat="lifemax"></span></div>
+                <div>BANK : <span class="stat" data-stat="bank"></span></div>
+
+            </div>
+            <div class="damage text">
+                <h3>DAMAGES </h3>
+                <div> SOCIAL : <span class="stat" data-stat="damage_social"></span> + <span class="stat" data-stat="damage_social_mod"></span> %</div>
+                <div> SEX : <span class="stat" data-stat="damage_sex"></span> + <span class="stat" data-stat="damage_sex_mod"></span>  %</div>
+                <div> MONEY : <span class="stat" data-stat="damage_money"></span>  + <span class="stat" data-stat="damage_money_mod"></span>  %</div>
+
+            </div>
+            <div class="defense text">
+                <h3>DEFENSES </h3>
+                <div> SOCIAL : <span class="stat" data-stat="defense_social"></span> + <span class="stat" data-stat="defense_social_mod"></span>  % </div>
+                <div> SEX : <span class="stat" data-stat="defense_sex"></span> + <span class="stat" data-stat="defense_sex_mod"></span>  %</div>
+                <div> MONEY : <span class="stat" data-stat="defense_money"></span>  + <span class="stat" data-stat="defense_money_mod"></span>  %</div>
+            </div>
+        </div>
+
+    </div>
+    <div id="powers">
     </div>
     <div id="bar">
         <div class="button button64 inventory"></div>
         <div class="button button64 takeloot"></div>
 
-        <div id="powers">
-            </div>
+
 
         <div class="arrowscontainer">
             <div class="arrows">

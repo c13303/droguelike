@@ -18,8 +18,8 @@ module.exports = {
             x: ws.data.x,
             y: ws.data.y,
             z: ws.data.z,
-            angle : ws.data.angle,
-            or : ws.data.orientation,
+            angle: ws.data.angle,
+            or: ws.data.orientation,
             skin: ws.data.skin,
             pk: ws.data.pk,
             life: ws.data.life,
@@ -43,6 +43,8 @@ module.exports = {
                 now: mob.life.now,
                 max: mob.life.max
             },
+            "damage": mob.damage,
+            "defense": mob.defense,
             attack: false,
             damaged: mob.damaged
         };
@@ -170,7 +172,7 @@ module.exports = {
         this.wss.addToWaiting('waitingPowers', z, msg);
     },
     updateItems(z, addOrRem, item, who = 0) {
-        console.log('add to update items ' + addOrRem + ' : ' + item.id);
+        // console.log('add to update items ' + addOrRem + ' : ' + item.id);
         var msg = {
             'way': addOrRem,
             'item': item
@@ -192,6 +194,7 @@ module.exports = {
             var departY = actor.data.y;
             var monZ = actor.data.z;
         } else {
+            /* formatage actor isMob */
             var departX = actor.x;
             var departY = actor.y;
             var monZ = actor.z;
@@ -255,7 +258,7 @@ module.exports = {
         var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power, this.wallz);
 
         for (is = 0; is < surface.length; is++) {
-            var damage = this.getPowerOffensiveDamage(actor, power);
+            var damage = this.getDamage(actor, power);
             var x = surface[is][0];
             var y = surface[is][1];
             var delay = surface[is][2];
@@ -283,46 +286,66 @@ module.exports = {
         /// add to refresh client pile
     },
     getDefenses(ws) {
-        var defenses = {
-            physical: 0,
-            humiliation: 0,
-            sex: 0,
-            sanity: 0,
-            karma: 0,
-            money: 0
+        if (ws.data) {
+            var dataref = ws.data;
+        } else {
+            var dataref = ws;
         }
-        return (defenses);
+        if (!dataref.defense) {
+            console.log('error def');
+            this.tools.report(dataref);
+            process.exit();
+        }
+        var def = {
+            "social": dataref.defense.social + dataref.defense.social * dataref.defense.social_mod ? dataref.defense.social_mod : 0,
+            "sex": dataref.defense.sex + dataref.defense.sex * dataref.defense.sex_mod  ? dataref.defense.sex_mod : 0 ,
+            "money": dataref.defense.money + dataref.defense.money * dataref.defense.money_mod  ? dataref.defense.money_mod : 0
+        }
+        return (def);
     },
-    getBuffers(ws) {
-        var buffers = {
-            physical: 0,
-            humiliation: 0,
-            sex: 0,
-            sanity: 0,
-            karma: 0,
-            money: 0
+    getDamage(ws, power) {
+        if (ws.data) {
+            var dataref = ws.data;
+        } else {
+            var dataref = ws;
         }
-        return (buffers);
-    },
-    getPowerOffensiveDamage(attacker, power) {
-        var buffers = this.getBuffers(attacker);
-        var damages = {
-            physical_damage: power.damage.physical + buffers.physical,
-            humiliation_damage: power.damage.humiliation + buffers.physical,
-            sanity_damage: power.damage.sanity + buffers.physical,
-            sex_damage: power.damage.sex + buffers.physical,
-            money_damage: power.damage.money + buffers.physical
+        if (!dataref.damage) {
+            console.log('error damage');
+            this.tools.report(dataref);
+            process.exit();
         }
+        var damage = {
+            "social": dataref.damage.social + power.damage.social,
+            "sex": dataref.damage.sex + power.damage.sex,
+            "money": dataref.damage.money + power.damage.money
+        }
+/*
+        if(isNaN(damage)) {
+            
+            this.tools.fatal('getDamage',damage,false);
+        }*/
+        /*
+        this.tools.fatal('Dataref',dataref.damage,false);
+        this.tools.fatal('Power',power.damage,false);
 
-        return (damages);
+        this.tools.fatal('Damage',damage,false);
+*/
+        return (damage);
     },
     getAppliedDamage(damages, defenses) {
-        var physical_damage = damages.physical_damage - defenses.physical;
-        var humiliation_damage = damages.humiliation_damage - defenses.humiliation;
-        var sanity_damage = damages.sanity_damage - defenses.sanity;
-        var sex_damage = damages.sex_damage - defenses.sex;
-        var money_damage = damages.money_damage - defenses.money;
-        var damage = physical_damage + humiliation_damage + sanity_damage + sex_damage + money_damage;
+        if(isNaN(damages.social)) console.log(damages);
+        if(isNaN(defenses.social)) {
+            console.log(defenses);
+            process.exit();
+        }
+
+        var aDamage = {
+            "social": damages.social - defenses.social,
+            "sex": damages.sex - defenses.sex,
+            "money": damages.money - defenses.money
+        }
+        var damage = aDamage.social + aDamage.sex + aDamage.money;
+
         return (damage);
     },
     createItem(id = null, map = [null, null, null], playerSlot = [null, null], itemUpdate = null) {
@@ -370,12 +393,58 @@ module.exports = {
         }
         return clone;
     },
+    equipItem(ws, equipUID, slot) {
+        /* on trouve litem dans linventory */
+        Object.keys(ws.data.inv).forEach(function (itemkey) {
+            var item = ws.data.inv[itemkey];
+            if (item.uid === equipUID) {
+                //   console.log('chaussing ' + item.id + ' in slot ' + slot);
+                /* was equiped ? */
+                if (item.isEquiped) {
+                    ws.data.equip[item.isEquiped] = 0;
+                }
+
+
+                /* remove old item in new slot*/
+                var oldItem = ws.data.equip[slot];
+                if (oldItem) {
+                    oldItem.isEquiped = 0;
+                    //  console.log(oldItem.uid + ' uneuqiped');
+                }
+
+                var ky = 'item' + item.uid;
+                ws.data.equip[slot] = item;
+                ws.data.inv[ky].isEquiped = slot;
+
+
+                return null;
+            }
+        });
+        this.updatePowersEquiped(ws);
+    },
+    /* UPDATE POWERS AND MODIFIERS */
     updatePowersEquiped(ws) {
         ws.data.powers_equiped.auto.k = null;
         ws.data.powers_equiped.a.k = null;
         ws.data.powers_equiped.b.k = null;
         ws.data.powers_equiped.c.k = null;
         ws.data.powers_equiped.d.k = null;
+        ws.data.damage = {
+            "social": 0,
+            "sex": 0,
+            "money": 0,
+            "social_mod": 0,
+            "sex_mod": 0,
+            "money_mod": 0
+        }
+        ws.data.defense = {
+            "social": 0,
+            "sex": 0,
+            "money": 0,
+            "social_mod": 0,
+            "sex_mod": 0,
+            "money_mod": 0
+        }
 
         for (eqi = 0; eqi < ws.data.equip.length; eqi++) {
             var equItem = ws.data.equip[eqi];
@@ -384,10 +453,29 @@ module.exports = {
             if (equItem) {
                 var lootref = this.bibles.loot[equItem.id];
 
+                if (lootref.damage) {
+                    if (lootref.damage.social) ws.data.damage.social += lootref.damage.social;
+                    if (lootref.damage.sex) ws.data.damage.sex += lootref.damage.sex;
+                    if (lootref.damage.money) ws.data.damage.money += lootref.damage.money;
+                    if (lootref.damage.social_mod) ws.data.damage.social_mod += lootref.damage.social_mod;
+                    if (lootref.damage.sex_mod) ws.data.damage.sex_mod += lootref.damage.sex_mod
+                    if (lootref.damage.money_mod) ws.data.damage.money_mod += lootref.damage.money_mod;
+                }
+
+                if (lootref.defense) {
+                    if (lootref.defense.social) ws.data.defense.social += lootref.defense.social;
+                    if (lootref.defense.sex) ws.data.defense.sex += lootref.defense.sex;
+                    if (lootref.defense.money) ws.data.defense.money += lootref.defense.money;
+                    if (lootref.defense.social_mod) ws.data.defense.social_mod += lootref.defense.social_mod;
+                    if (lootref.defense.sex_mod) ws.data.defense.sex_mod += lootref.defense.sex_mod
+                    if (lootref.defense.money_mod) ws.data.defense.money_mod += lootref.defense.money_mod;
+                }
+
+
                 if (lootref.powers.length) {
                     for (pi = 0; pi < lootref.powers.length; pi++) {
 
-                        console.log('Equiping type : ' + eqi);
+                        // console.log('Equiping type : ' + eqi);
                         //  console.log(lootref);
 
                         if (eqi === 6) { // main droite
@@ -404,6 +492,7 @@ module.exports = {
                             ws.data.powers_equiped.d.k = lootref.powers[pi];
                         }
                     }
+
                 }
             }
 

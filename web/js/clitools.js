@@ -149,7 +149,7 @@ var tools = {
     },
 
     checkKey(evt) {
-        var keyID = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : evt.keyCode);
+        var keyID = (evt.charCode) ? evt.charCode : ((evt.which) ? evt.which : (evt.keyCode ? evt.keyCode : evt.key));
         return (keyID);
     },
     matrix(rows, cols, defaultValue) {

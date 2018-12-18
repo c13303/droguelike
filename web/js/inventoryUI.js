@@ -36,6 +36,40 @@ var selectedSlotType;
 var myItems;
 var selectedItemUid;
 
+function stats_refresh(){
+    pd.lifemax = pd.life.max;
+    pd.lifenow = pd.life.now;
+
+
+
+    pd.damage_social = pd.damage.social;
+    pd.damage_sex = pd.damage.sex;
+    pd.damage_money = pd.damage.money;
+
+    pd.defense_social = pd.defense.social;
+    pd.defense_sex = pd.defense.sex;
+    pd.defense_money = pd.defense.money;
+
+    pd.damage_social_mod = pd.damage.social_mod;
+    pd.damage_sex_mod = pd.damage.sex_mod;
+    pd.damage_money_mod = pd.damage.money_mod;
+
+    pd.defense_social_mod = pd.defense.social_mod;
+    pd.defense_sex_mod = pd.defense.sex_mod;
+    pd.defense_money_mod = pd.defense.money_mod;
+
+    console.log(pd);
+
+    $('.stat').each(function(){
+        var stat = $(this).data('stat');
+        var html = stat;
+        var val = pd[stat];
+       
+        $(this).html(val);
+    });
+}
+
+
 
 
 $(document).ready(function () {

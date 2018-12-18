@@ -3,6 +3,10 @@
     Created on : 8 oct. 2018, 10:03:54
     Author     : roger
 */
+.text {
+  padding: 20px;
+}
+
 @font-face {
   font-family: "cioFont";
   src: url("./fonts/Pixellari.eot");
@@ -40,6 +44,10 @@ input {
 
 #connect {
   text-align: center;
+}
+
+h3 {
+  color: #d77355;
 }
 
 body {
@@ -88,9 +96,9 @@ body #game #console {
   overflow-y: scroll;
   position: fixed;
   bottom: 100px;
-  width: 100%;
+  width: 90%;
+  left: 96px;
   color: #dcf5ff;
-  pointer-events: none;
 }
 
 body #game #console .notice {
@@ -99,6 +107,7 @@ body #game #console .notice {
 
 body canvas {
   display: block;
+  margin: auto;
 }
 
 body canvas,
@@ -131,15 +140,19 @@ body .modal-content h2 {
 body .playerfiche {
   display: none;
   z-index: 220;
-  height: 256px;
+  height: 512px;
   width: 1024px;
   background-color: black;
   position: fixed;
   background-image: url(../img/persona.png);
   background-repeat: no-repeat;
-  background-position: left;
+  background-position: 0 0;
   right: 192px;
   margin-top: 64px;
+}
+
+body .playerfiche .container {
+  height: 256px;
 }
 
 body .playerfiche .item,
@@ -171,6 +184,9 @@ body .playerfiche .looticon {
 
 body .playerfiche .container {
   position: relative;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
 }
 
 body .playerfiche .container #disableFilter {
@@ -269,34 +285,13 @@ body .playerfiche .container .slot8 {
   top: 128px;
 }
 
-body #bar {
+body #powers {
   position: absolute;
-  right: 0;
-  top: 64px;
-  width: 128px;
-  height: 500px;
+  left: 0;
+  bottom: 0;
 }
 
-body #bar .keynum {
-  background: url(../img/key.png);
-  display: inline-block;
-  width: 32px;
-  height: 32px;
-  color: black;
-  text-align: center;
-  padding-top: 5px;
-  pointer-events: none;
-}
-
-body #bar .keynum.autokey {
-  background: url(../img/autokey.png);
-}
-
-body #bar .keynum div, body #bar .keynum span {
-  pointer-events: none;
-}
-
-body #bar .keypower {
+body #powers .keypower {
   display: block;
   position: relative;
   width: 64px;
@@ -308,16 +303,44 @@ body #bar .keypower {
   cursor: pointer;
 }
 
-body #bar .keypower.empty {
+body #powers .keypower.empty {
   opacity: 0;
 }
 
-body #bar .cooling {
+body #powers .keynum {
+  background: url(../img/key.png);
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  color: black;
+  text-align: center;
+  padding-top: 5px;
+  pointer-events: none;
+}
+
+body #powers .keynum.autokey {
+  background: url(../img/autokey.png);
+}
+
+body #powers .keynum div,
+body #powers .keynum span {
+  pointer-events: none;
+}
+
+body #powers .cooling {
   color: #d77355;
 }
 
-body #bar .cooldown {
+body #powers .cooldown {
   margin-left: 20px;
+}
+
+body #bar {
+  position: absolute;
+  right: 0;
+  top: 64px;
+  width: 128px;
+  height: 500px;
 }
 
 body #bar .button64 {

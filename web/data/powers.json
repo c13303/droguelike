@@ -1,4 +1,37 @@
 {
+    "slap": {
+        "id" : "slap",
+        "type": "trig",
+        "duration": 1,
+        "powercool": 600,
+        "delay": 0,
+        "sprite": 0,
+        "name": {
+            "fr": "gifle",
+            "en": "slap"
+        },
+        "surface": {
+            "dist": 1,
+            "style": "dot",
+            "size": 1
+        },
+        "desc": {
+            "fr": "La paume de votre main sur le visage de votre adversaire",
+            "en": "The palm of your hand on the face of your opponent"
+        },
+        "damage": {
+            "social": 10,
+            "sex": 0,
+            "money": 0
+        },
+        "defense": {
+            "social": 0,
+            "sex": 0,
+            "money": 0
+        },
+        "offensive": 3,
+        "depth": 1
+    },
     "ass": {
         "id" : "ass",
         "type": "trig",
@@ -20,11 +53,13 @@
             "en": "The palm of your hand on the ass of your opponent"
         },
         "damage": {
-            "physical": 10,
-            "humiliation": 10,
+            "social": 10,
             "sex": 0,
-            "sanity": 0,
-            "karma": 0,
+            "money": 0
+        },
+        "defense": {
+            "social": 0,
+            "sex": 0,
             "money": 0
         },
         "offensive": 3,
@@ -51,11 +86,13 @@
             "en": "The palm of your hand on the ass of your opponent"
         },
         "damage": {
-            "physical": 10,
-            "humiliation": 10,
+            "social": 10,
             "sex": 0,
-            "sanity": 0,
-            "karma": 0,
+            "money": 0
+        },
+        "defense": {
+            "social": 0,
+            "sex": 0,
             "money": 0
         },
         "offensive": 3,
@@ -82,47 +119,19 @@
             "en": "The palm of your hand on the ass of your opponent"
         },
         "damage": {
-            "physical": 1,
-            "humiliation": 1,
+            "social": 0,
             "sex": 0,
-            "sanity": 0,
-            "karma": 0,
+            "money": 0
+        },
+        "defense": {
+            "social": 0,
+            "sex": 0,
             "money": 0
         },
         "offensive": 3,
         "depth": 1
     },
-    "slap": {
-        "id" : "slap",
-        "type": "trig",
-        "duration": 2,
-        "powercool": 1500,
-        "delay": 0,
-        "sprite": 0,
-        "name": {
-            "fr": "gifle",
-            "en": "slap"
-        },
-        "surface": {
-            "dist": 1,
-            "style": "cross",
-            "size": 1
-        },
-        "desc": {
-            "fr": "La paume de votre main sur le visage de votre adversaire",
-            "en": "The palm of your hand on the face of your opponent"
-        },
-        "damage": {
-            "physical": 10,
-            "humiliation": 5,
-            "sex": 0,
-            "sanity": 0,
-            "karma": 0,
-            "money": 0
-        },
-        "offensive": 3,
-        "depth": 1
-    },
+    
     "foutre": {
         "id" : "foutre",
         "type": "trig",
@@ -144,11 +153,13 @@
             "en": "The palm of your hand on the face of your opponent"
         },
         "damage": {
-            "physical": 1,
-            "humiliation": 5,
-            "sex": 5,
-            "sanity": 0,
-            "karma": 0,
+            "social": 10,
+            "sex": 0,
+            "money": 0
+        },
+        "defense": {
+            "social": 0,
+            "sex": 0,
             "money": 0
         },
         "offensive": 3,
@@ -176,11 +187,13 @@
             "en": "The palm of your hand on the face of your opponent"
         },
         "damage": {
-            "physical": 1,
-            "humiliation": 5,
-            "sex": 5,
-            "sanity": 0,
-            "karma": 0,
+            "social": 10,
+            "sex": 0,
+            "money": 0
+        },
+        "defense": {
+            "social": 0,
+            "sex": 0,
             "money": 0
         },
         "offensive": 3,

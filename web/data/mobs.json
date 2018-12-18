@@ -14,6 +14,17 @@
             "max": 30
         },
         "movecool": 3,
-        "attack" : "enemytarte"
+        "attackcool" : 0,
+        "attack" : "enemytarte",
+        "damage": {
+            "social": 10,
+            "sex": 0,
+            "money": 0
+        },
+        "defense": {
+            "social": 0,
+            "sex": 0,
+            "money": 0
+        }
     }
 }

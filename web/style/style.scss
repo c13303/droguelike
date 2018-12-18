@@ -28,7 +28,9 @@ $bleu : #508cd7;
 $blanc: #dcf5ff;
 $bp : 780px;
 
-
+.text {
+    padding: 20px;
+}
 
 @font-face {
     font-family: "cioFont";
@@ -77,6 +79,10 @@ input {
     text-align: center;
 }
 
+h3 {
+    color: $rouge;
+}
+
 body {
     background: url(../img/bg.png);
     color: $blanc;
@@ -122,11 +128,10 @@ body {
             overflow-y: scroll;
             position: fixed;
             bottom: 100px;
-            width: 100%;
-
+            width: 90%;
+            left: 96px;
 
             color: $blanc;
-            pointer-events: none;
 
             .notice {
                 color: $jaune;
@@ -138,6 +143,7 @@ body {
 
     canvas {
         display: block;
+        margin: auto;
     }
 
     canvas,
@@ -170,15 +176,19 @@ body {
     .playerfiche {
         display: none;
         z-index: 220;
-        height: 256px;
+        height: 512px;
         width: 1024px;
         background-color: black;
         position: fixed;
         background-image: url(../img/persona.png);
         background-repeat: no-repeat;
-        background-position: left;
+        background-position: 0 0;
         right: 192px;
         margin-top: 64px;
+
+        .container {
+            height: 256px;
+        }
 
         .item,
         .unequip {
@@ -209,6 +219,8 @@ body {
 
         .container {
             position: relative;
+            @include flexbox();
+
 
             #disableFilter {
                 position: absolute;
@@ -311,30 +323,10 @@ body {
         }
     }
 
-    #bar {
+    #powers {
         position: absolute;
-        right: 0;
-        top: 64px;
-        width: 128px;
-        height: 500px;
-
-        .keynum {
-            background: url(../img/key.png);
-            display: inline-block;
-            width: 32px;
-            height: 32px;
-            color: black;
-            text-align: center;
-            padding-top: 5px;
-            pointer-events: none;
-            &.autokey {
-                background: url(../img/autokey.png);
-            }
-            div, span{
-                pointer-events: none;
-            }
-
-        }
+        left: 0;
+        bottom: 0;
 
         .keypower {
             display: block;
@@ -345,10 +337,32 @@ body {
             color: $blanc;
             padding: 10px;
             text-align: center;
-            cursor:pointer;
+            cursor: pointer;
+
             &.empty {
                 opacity: 0;
             }
+        }
+
+        .keynum {
+            background: url(../img/key.png);
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            color: black;
+            text-align: center;
+            padding-top: 5px;
+            pointer-events: none;
+
+            &.autokey {
+                background: url(../img/autokey.png);
+            }
+
+            div,
+            span {
+                pointer-events: none;
+            }
+
         }
 
         .cooling {
@@ -358,6 +372,19 @@ body {
         .cooldown {
             margin-left: 20px;
         }
+    }
+
+    #bar {
+        position: absolute;
+        right: 0;
+        top: 64px;
+        width: 128px;
+        height: 500px;
+
+
+
+
+
 
 
         .button64 {
@@ -392,7 +419,6 @@ body {
         }
 
         .arrowscontainer {
-            display:none;
             position: fixed;
             right: 0;
             bottom: 0;

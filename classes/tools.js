@@ -5,6 +5,13 @@ module.exports = {
     fs: null,
     connection: null,
     data: {},
+    fatal: function (msg, dump = null, fatal = true) {
+        console.log('fatal : ' + msg);
+        if (dump) {
+            console.log(dump);
+        }
+        if (fatal) process.exit();
+    },
     setup: function () {
         this.params = require('../params.js');
         this.fs = require('fs');
@@ -20,7 +27,7 @@ module.exports = {
         });
     },
     loadFile(fnam, key, callback = null) {
-        console.log('Loading file : ' + this.params.datapath + fnam);
+        //console.log('Loading file : ' + this.params.datapath + fnam);
         this.fs.readFile(this.params.datapath + fnam, (err, data) => {
             if (err)
                 this.report(err);
@@ -82,10 +89,10 @@ module.exports = {
     getRandomInt: function (max) {
         return Math.floor(Math.random() * Math.floor(max));
     },
-   
+
     calculateSurface(x, y, z, aim, power, wallz) {
 
-      //  console.log('surface from '+x+','+y);
+        //  console.log('surface from '+x+','+y);
         var dist = power.surface.dist;
         var style = power.surface.style;
         var size = power.surface.size;
@@ -155,20 +162,24 @@ module.exports = {
 
         if (size < 1) {
             return ([
-                [sx, sy,1]
+                [sx, sy, 1]
             ]);
         }
         if (style && !isshape) {
+            if (style === 'dot') {
+                p.push([sx, sy, 1]);
+            }
+
             if (style === 'cross') {
-                p.push([sx, sy,1]);
-                p.push([sx + size, sy,1]);
-                p.push([sx - size, sy,1]);
-                p.push([sx, sy + size,1]);
-                p.push([sx, sy - size,1]);
+                p.push([sx, sy, 1]);
+                p.push([sx + size, sy, 1]);
+                p.push([sx - size, sy, 1]);
+                p.push([sx, sy + size, 1]);
+                p.push([sx, sy - size, 1]);
             }
         }
         if (isshape) {
-            p.push([sx, sy,1]); // starting point
+            p.push([sx, sy, 1]); // starting point
             var shape = this.shapes[isshape];
             for (shapeIndex = 0; shapeIndex < shape.length; shapeIndex++) {
                 var line = shape[shapeIndex];
@@ -177,7 +188,7 @@ module.exports = {
                     if (col) {
                         var positionX = sx + (shapeIndexY - 5);
                         var positionY = sy + (shapeIndex - 5);
-                        p.push([positionX, positionY,col]);
+                        p.push([positionX, positionY, col]);
                     }
                 }
             }
@@ -252,5 +263,5 @@ module.exports = {
         }
         return reformat;
     }
-   
+
 }

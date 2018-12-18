@@ -234,6 +234,7 @@ function setup() {
 
 
     setTimeout(function () {
+        console.log('JSON Files Loaded');
         startServer();
     }, 2000);
 
@@ -393,7 +394,10 @@ function startServer() {
                 /* free items */
                 if (ws.data.new) {
                     items.push(rogue.createItem('gant', [0, 10, 10]));
-                    items.push(rogue.createItem('gant', null, [thatId, null]));
+                    var item2Equip = items.push(rogue.createItem('gant', null, [thatId, null]));
+                    console.log(item2Equip);
+                    rogue.equipItem(ws, item2Equip, 6);
+
                     items.push(rogue.createItem('bob_ricard', null, [thatId, null]));
                     items.push(rogue.createItem('slip_de_tete', null, [thatId, null]));
                     ws.data.new = false;
@@ -411,7 +415,7 @@ function startServer() {
                     'myItems': ws.data.inv,
                     'myPowers': ws.data.powers_equiped,
                     'ticrate': tickrate,
-                    'inter': interacs[ws.data.z]
+                    'inter': interacs[ws.data.z],
                     //  'bibles': bibles
                 }));
                 rogue.updateMyPosition(ws);
@@ -594,9 +598,11 @@ function startServer() {
                             var xangle = x;
                             var yangle = y;
                             updateMove = true;
-                            
+
                         } else {
-                            if (obstacle != 'wall') rogue.powerUse(ws, 'auto', [x, y], DelayAoE, mapAoE);
+                            if (obstacle != 'wall') {
+                                rogue.powerUse(ws, 'auto', [x, y], DelayAoE, mapAoE);
+                            }
 
                             var xangle = ws.data.x;
                             var yangle = ws.data.y;
@@ -604,41 +610,41 @@ function startServer() {
                         }
 
                         /* set orientation */
-                        if (x> ws.data.x && y  === ws.data.y) {
+                        if (x > ws.data.x && y === ws.data.y) {
                             ws.data.angle = [xangle + 1, ws.data.y];
                             ws.data.orientation = 0;
                         }
-                        if (x > ws.data.x && y  > ws.data.y) {
+                        if (x > ws.data.x && y > ws.data.y) {
                             ws.data.angle = [xangle + 1, yangle + 1];
                             ws.data.orientation = 1;
                         }
-                        if (x < ws.data.x && y  > ws.data.y) {
+                        if (x < ws.data.x && y > ws.data.y) {
                             ws.data.angle = [xangle - 1, yangle + 1];
                             ws.data.orientation = 3;
                         }
-                        if (x > ws.data.x && y  < ws.data.y) {
+                        if (x > ws.data.x && y < ws.data.y) {
                             ws.data.angle = [xangle + 1, yangle - 1];
                             ws.data.orientation = 7;
                         }
-                        if (x < ws.data.x && y  < ws.data.y) {
+                        if (x < ws.data.x && y < ws.data.y) {
                             ws.data.angle = [xangle - 1, yangle - 1];
                             ws.data.orientation = 5;
                         }
 
-                        if (x === ws.data.x && y  < ws.data.y) {
+                        if (x === ws.data.x && y < ws.data.y) {
                             ws.data.angle = [ws.data.x, yangle - 1];
                             ws.data.orientation = 6;
                         }
-                        if (x === ws.data.x && y  > ws.data.y) {
+                        if (x === ws.data.x && y > ws.data.y) {
                             ws.data.angle = [ws.data.x, yangle + 1];
                             ws.data.orientation = 2;
                         }
-                        if (x < ws.data.x && y  === ws.data.y) {
+                        if (x < ws.data.x && y === ws.data.y) {
                             ws.data.angle = [xangle - 1, ws.data.y];
                             ws.data.orientation = 4;
                         }
 
-                        if(updateMove){
+                        if (updateMove) {
                             ws.data.x = x;
                             ws.data.y = y;
                         }
@@ -688,40 +694,7 @@ function startServer() {
                     }
 
                     var slot = json.slot;
-                    /* on trouve litem dans linventory */
-                    Object.keys(ws.data.inv).forEach(function (itemkey) {
-
-                        var item = ws.data.inv[itemkey];
-
-                        if (item.uid === json.equip) {
-                            //   console.log('chaussing ' + item.id + ' in slot ' + slot);
-
-
-                            /* was equiped ? */
-                            if (item.isEquiped) {
-                                ws.data.equip[item.isEquiped] = 0;
-                            }
-
-
-                            /* remove old item in new slot*/
-                            var oldItem = ws.data.equip[slot];
-                            if (oldItem) {
-                                oldItem.isEquiped = 0;
-                                //  console.log(oldItem.uid + ' uneuqiped');
-                            }
-
-                            var ky = 'item' + item.uid;
-                            ws.data.equip[slot] = item;
-                            ws.data.inv[ky].isEquiped = slot;
-
-                            /* UPDATE DES POUVOIRS */
-
-
-
-                            return null;
-                        }
-                    });
-                    rogue.updatePowersEquiped(ws);
+                    rogue.equipItem(ws, json.equip, slot);
                 }
 
 
@@ -928,54 +901,60 @@ function tick() {
 
             } else {
                 /* MOB ACTION (if survived) >> */
-
-                if (!mob.target) {
-                    /* target selection */
-                    nearest = wss.nearestPlayerFromPoint(mob.x, mob.y, mob.z);
-
-                    if (nearest) {
-                        var dist = tools.getDist(mob.x, nearest.data.x, mob.y, nearest.data.y);
-                        if (dist <= 24) mob.target = nearest;
-
-                    }
+                if (mob.attackcool > 0) {
+                    mob.attackcool = mob.attackcool - 100;
                 } else {
-                    /* HAS TARGET AND VERIF DISTANCE TO DROP OR ATTACK */
-                    /* MOB ATTACK */
-                    var dist = tools.getDist(mob.x, mob.target.data.x, mob.y, mob.target.data.y);
+                    if (!mob.target) {
+                        /* target selection */
+                        nearest = wss.nearestPlayerFromPoint(mob.x, mob.y, mob.z);
 
-                    if (dist > 24) {
-                        mob.target = null;
-                    }
-                    var mobPower = bibles.powers[mob.attack];
-                    if (!mobPower) console.log('no mob power :(' + mob.attack);
-                    if (dist <= mobPower.surface.dist) {
-                        /* ATTACK */
-                        rogue.powerUse(mob, mobPower, [mob.target.data.x, mob.target.data.y], DelayAoE, mapAoE, false, true);
-                    }
+                        if (nearest) {
+                            var dist = tools.getDist(mob.x, nearest.data.x, mob.y, nearest.data.y);
+                            if (dist <= 24) mob.target = nearest;
 
-                }
-
-                /* movecool */
-                if (mob.nextMoveIsRandom && mob.target) {
-                    // console.log('Rmoving');
-                    var newMove = rogue.getRandomMove(mob.x, mob.y);
-                    var x = newMove[0];
-                    var y = newMove[1];
-                    var obstacle = null;
-                    if (occupied[mob.z][x][y]) obstacle = true;
-                    if (rogue.wallz[mob.z][x][y] > -1) obstacle = true;
-                    if (!obstacle) obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
-                    if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
-                    if (!obstacle) {
-                        mob.nextMoveIsRandom = false;
-                        mob.update = true;
-                        mob.x = x;
-                        mob.y = y;
-                        occupied[mob.z][x][y] = true;
+                        }
                     } else {
-                        occupied[mob.z][mob.x][mob.y] = true;
+                        /* HAS TARGET AND VERIF DISTANCE TO DROP OR ATTACK */
+                        /* MOB ATTACK */
+                        var dist = tools.getDist(mob.x, mob.target.data.x, mob.y, mob.target.data.y);
+
+                        if (dist > 24) {
+                            mob.target = null;
+                        }
+                        var mobPower = bibles.powers[mob.attack];
+                        if (!mobPower) console.log('no mob power :(' + mob.attack);
+                        if (dist <= mobPower.surface.dist) {
+                            /* ATTACK */
+                            rogue.powerUse(mob, mobPower, [mob.target.data.x, mob.target.data.y], DelayAoE, mapAoE, false, true);
+                            mob.attackcool = mobPower.powercool;
+                            console.log('Attack Cool Mob : ' + mob.attackcool);
+                        }
+
+                    }
+
+                    /* movecool */
+                    if (mob.nextMoveIsRandom && mob.target) {
+                        // console.log('Rmoving');
+                        var newMove = rogue.getRandomMove(mob.x, mob.y);
+                        var x = newMove[0];
+                        var y = newMove[1];
+                        var obstacle = null;
+                        if (occupied[mob.z][x][y]) obstacle = true;
+                        if (rogue.wallz[mob.z][x][y] > -1) obstacle = true;
+                        if (!obstacle) obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
+                        if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
+                        if (!obstacle) {
+                            mob.nextMoveIsRandom = false;
+                            mob.update = true;
+                            mob.x = x;
+                            mob.y = y;
+                            occupied[mob.z][x][y] = true;
+                        } else {
+                            occupied[mob.z][mob.x][mob.y] = true;
+                        }
                     }
                 }
+
 
                 if (mob.target && mob.target.data && !mob.nextMoveIsRandom) {
                     // console.log('Tmoving');
@@ -1024,7 +1003,7 @@ function tick() {
             }
         }
 
-        /* SPAWWWWWWNERS */
+        /* SPAWWWWWWNERS MOB CREATION */
         // console.log('mobs +' + mobs.length);
         for (spp = 0; spp < spawners.length; spp++) { // foreach spawner
             var spobj = spawners[spp];
@@ -1055,6 +1034,8 @@ function tick() {
                                     now: bibles.mobs[spobj.mob].life.now,
                                     max: bibles.mobs[spobj.mob].life.max
                                 },
+                                damage: bibles.mobs[spobj.mob].damage,
+                                defense: bibles.mobs[spobj.mob].defense,
                                 update: true,
                             }
                             mobs.push(newmob);
