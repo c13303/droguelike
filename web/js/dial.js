@@ -110,7 +110,6 @@ function connect() {
         if (d.pwups && d.pwups.length) {
 
             /* reunir les surfaces */
-
             for (puI = 0; puI < d.pwups.length; puI++) {
                 /* P1 cooldown */
                 if (d.pwups[puI].who === pd.id) {
@@ -119,13 +118,6 @@ function connect() {
                         // utile pour afficher le timer live du boutton
                     }, powersbible[d.pwups[puI].pwup].powercool);
                 }
-
-                /*
-                tools.updateKeumById(d.pwups[puI].who, "poweruse", {
-                    power: d.pwups[puI].pwup,
-                    surface: d.pwups[puI].surf
-                });
-                */
                 var msg = {
                     power: d.pwups[puI].pwup,
                     surface: d.pwups[puI].surf
@@ -134,6 +126,8 @@ function connect() {
                 tools.updateKeumById(d.pwups[puI].who, "release", true);
             }
         }
+
+        
 
         /* mobs update */
         if (d.mobs && d.mobs.length) {
@@ -251,6 +245,11 @@ function connect() {
         }
 
 
+        if(d.inter){
+            console.log(d.inter);
+        }
+
+
 
 
 
@@ -362,6 +361,9 @@ function connect() {
                 pickup();
             }
 
+            
+            
+
 
             /* target selection */
             if (keyCode === 116) { // 
@@ -415,8 +417,11 @@ function connect() {
                 if (!$('.keyd').hasClass('cooling') && keyCode === 39 || keyCode === 52) {
                     keyUse('.keyd');
                 }
-
             }
+
+
+
+
 
 
 

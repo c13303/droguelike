@@ -18,6 +18,8 @@ module.exports = {
             x: ws.data.x,
             y: ws.data.y,
             z: ws.data.z,
+            angle : ws.data.angle,
+            or : ws.data.orientation,
             skin: ws.data.skin,
             pk: ws.data.pk,
             life: ws.data.life,

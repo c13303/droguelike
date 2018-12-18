@@ -24,7 +24,18 @@ var myglobals = {};
 var shapesData;
 var debug;
 
+Array.prototype.rotate = (function () {
+    var unshift = Array.prototype.unshift,
+        splice = Array.prototype.splice;
 
+    return function (count) {
+        var len = this.length >>> 0,
+            count = count >> 0;
+
+        unshift.apply(this, splice.call(this, count % len, len));
+        return this;
+    };
+})();
 
 /* mysql */
 
@@ -199,6 +210,9 @@ stdin.addListener("data", function (d) {
 /* SETUP STEPS */
 if (regularStart) setup();
 
+
+
+
 function setup() {
 
     tools.loadFile('mobs.json', "mobsBible");
@@ -212,8 +226,11 @@ function setup() {
         tools.loadFile('map.json', "mapData");
         tools.loadFile('wallz.json', "wallzData");
     */
+    for (ll = 0; ll < rogue.mapSize; ll++) {
+        tools.loadFile('levels/level0.json', "level" + ll);
 
-    tools.loadFile('levels/level0.json', "level0");
+    }
+
 
 
     setTimeout(function () {
@@ -226,11 +243,17 @@ var mapAoE = [];
 var mapAoEList = [];
 var DelayAoE = [];
 var items = [];
+var interacs = [];
+
 rogue.itemsInWorld = [];
 
 for (livels = 0; livels < rogue.mapSize; livels++) {
     mapAoE.push(tools.matrix(mapSize, mapSize, []));
     rogue.itemsInWorld.push({});
+    interacs.push({
+        'in': [5, 5],
+        'out': [60, 60]
+    });
 }
 
 
@@ -387,7 +410,8 @@ function startServer() {
                     'itemsInWorld': rogue.itemsInWorld[ws.data.z],
                     'myItems': ws.data.inv,
                     'myPowers': ws.data.powers_equiped,
-                    'ticrate': tickrate
+                    'ticrate': tickrate,
+                    'inter': interacs[ws.data.z]
                     //  'bibles': bibles
                 }));
                 rogue.updateMyPosition(ws);
@@ -464,7 +488,7 @@ function startServer() {
                 if (!json.move && !json.cd) console.log(ws.name + ' : ' + message);
 
 
-                if(json.startlevel){
+                if (json.startlevel) {
                     ws.send(JSON.stringify({
                         'startgame': 1,
                         'mydata': ws.data,
@@ -490,7 +514,7 @@ function startServer() {
                         ws.data.y = 2;
                         ws.data.z = 0;
                         ws.send(JSON.stringify({
-                            'reset' : 1,                            
+                            'reset': 1,
                         }));
                         /*
                         ws.send(JSON.stringify({
@@ -559,15 +583,71 @@ function startServer() {
                             }));
                             return null;
                         }
+
+
+
+
                         var obstacle = rogue.isObstacle(x, y, ws.data.z, ws.id);
+                        var updateMove = false;
                         if (!obstacle) {
-                            ws.data.x = x;
-                            ws.data.y = y;
-                            rogue.updateMyPosition(ws);
-                            ws.setMoveCool(params.granu);
+                            /* MOVE IS VALIDATED */
+                            var xangle = x;
+                            var yangle = y;
+                            updateMove = true;
+                            
                         } else {
                             if (obstacle != 'wall') rogue.powerUse(ws, 'auto', [x, y], DelayAoE, mapAoE);
+
+                            var xangle = ws.data.x;
+                            var yangle = ws.data.y;
+
                         }
+
+                        /* set orientation */
+                        if (x> ws.data.x && y  === ws.data.y) {
+                            ws.data.angle = [xangle + 1, ws.data.y];
+                            ws.data.orientation = 0;
+                        }
+                        if (x > ws.data.x && y  > ws.data.y) {
+                            ws.data.angle = [xangle + 1, yangle + 1];
+                            ws.data.orientation = 1;
+                        }
+                        if (x < ws.data.x && y  > ws.data.y) {
+                            ws.data.angle = [xangle - 1, yangle + 1];
+                            ws.data.orientation = 3;
+                        }
+                        if (x > ws.data.x && y  < ws.data.y) {
+                            ws.data.angle = [xangle + 1, yangle - 1];
+                            ws.data.orientation = 7;
+                        }
+                        if (x < ws.data.x && y  < ws.data.y) {
+                            ws.data.angle = [xangle - 1, yangle - 1];
+                            ws.data.orientation = 5;
+                        }
+
+                        if (x === ws.data.x && y  < ws.data.y) {
+                            ws.data.angle = [ws.data.x, yangle - 1];
+                            ws.data.orientation = 6;
+                        }
+                        if (x === ws.data.x && y  > ws.data.y) {
+                            ws.data.angle = [ws.data.x, yangle + 1];
+                            ws.data.orientation = 2;
+                        }
+                        if (x < ws.data.x && y  === ws.data.y) {
+                            ws.data.angle = [xangle - 1, ws.data.y];
+                            ws.data.orientation = 4;
+                        }
+
+                        if(updateMove){
+                            ws.data.x = x;
+                            ws.data.y = y;
+                        }
+
+                        rogue.updateMyPosition(ws);
+                        ws.setMoveCool(params.granu);
+
+
+
                     } else {
                         //  console.log("2quick");
                     }
@@ -862,7 +942,7 @@ function tick() {
                     /* HAS TARGET AND VERIF DISTANCE TO DROP OR ATTACK */
                     /* MOB ATTACK */
                     var dist = tools.getDist(mob.x, mob.target.data.x, mob.y, mob.target.data.y);
-                   
+
                     if (dist > 24) {
                         mob.target = null;
                     }
@@ -877,7 +957,7 @@ function tick() {
 
                 /* movecool */
                 if (mob.nextMoveIsRandom && mob.target) {
-                   // console.log('Rmoving');
+                    // console.log('Rmoving');
                     var newMove = rogue.getRandomMove(mob.x, mob.y);
                     var x = newMove[0];
                     var y = newMove[1];
@@ -898,7 +978,7 @@ function tick() {
                 }
 
                 if (mob.target && mob.target.data && !mob.nextMoveIsRandom) {
-                   // console.log('Tmoving');
+                    // console.log('Tmoving');
                     if (!mob.movecool) {
                         var mobdef = bibles.mobs[mob.mob];
                         mob.movecool = mobdef.movecool;
@@ -945,7 +1025,7 @@ function tick() {
         }
 
         /* SPAWWWWWWNERS */
-       // console.log('mobs +' + mobs.length);
+        // console.log('mobs +' + mobs.length);
         for (spp = 0; spp < spawners.length; spp++) { // foreach spawner
             var spobj = spawners[spp];
             if (spobj.cooldown <= 0) {

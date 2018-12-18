@@ -84,6 +84,8 @@ var tools = {
                 if (pud.name === pd.name) { // if player 1
                     pd.x = pud.x;
                     pd.y = pud.y;
+                    pd.angle = pud.angle;
+                    pd.or = pud.or;
                     pd.holding = pud.isH ? true : false;
                 }
 
@@ -134,8 +136,8 @@ var tools = {
         var height = wtf[0].scrollHeight;
         wtf.scrollTop(height);
     },
-    fluidmove(object, px, py) {
-        var dt = 2;
+    fluidmove(object, px, py,speed = 2) {
+        var dt = speed;
         if (px > object.x)
             object.x += dt;
         if (px < object.x)

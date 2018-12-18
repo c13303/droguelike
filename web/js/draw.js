@@ -72,6 +72,7 @@ function preload() {
 
 }
 
+var keysmove = {};
 
 function create() {
     if (soundEnabled) {
@@ -139,7 +140,30 @@ function create() {
     };
     this.anims.create(deathConfig);
 
+
+
+    /* keyboards */
+    keysmove.RIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NUMPAD_SIX);
+    keysmove.DOWNRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NUMPAD_THREE);
+    keysmove.DOWN = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NUMPAD_TWO);
+    keysmove.DOWNLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NUMPAD_ONE);
+    keysmove.LEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NUMPAD_FOUR);
+    keysmove.UPLEFT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NUMPAD_SEVEN);
+    keysmove.UP = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NUMPAD_EIGHT);
+    keysmove.UPRIGHT = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.NUMPAD_NINE);
+
+
+
 }
+
+
+
+
+
+
+
+
+
 var boomtest;
 var lastrefresh = Date.now();
 var updateRate = null;
@@ -152,15 +176,16 @@ function update() {
 
     /* mouse event */
 
-    const worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);
+    /*const worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);*/
 
-    caseX = layer.worldToTileX(worldPoint.x);
-    caseY = layer.worldToTileY(worldPoint.y);
+    
+    caseX = pd.angle[0];
+    caseY = pd.angle[1];
     $('.coords').html(caseX + ',' + caseY);
     /* cursor */
     cursor.x = layer.tileToWorldX(caseX) + 16;
     cursor.y = layer.tileToWorldY(caseY) + 16;
-
+   // tools.fluidmove(cursor,layer.tileToWorldX(caseX) + 16,layer.tileToWorldY(caseY) + 16,64);
 
 
     /* direction selection */
@@ -192,15 +217,14 @@ function update() {
     pd.dir = dir;
     pd.aim = [caseX, caseY];
 
+    var moveCase = 1;
+    var tx = pd.x;
+    var ty = pd.y;
 
 
+    /* // MOUSE MOVING
     if (this.input.manager.activePointer.isDown && !cooldowns.move) {
-        /* move order to new case */
-        var tx = pd.x;
-        var ty = pd.y;
-
-        var moveCase = 1;
-
+       
         if (caseX > pd.x) {
             tx = pd.x + moveCase;
         }
@@ -212,13 +236,48 @@ function update() {
         }
         if (caseY < pd.y) {
             ty = pd.y - moveCase;
+        }       
+    }
+    */
+    if (!cooldowns.move) {
+        if (keysmove.RIGHT.isDown) {
+            tx = pd.x + moveCase;
         }
-        if (tx != pd.x || ty != pd.y) {
-            tools.cooldown('move', cooldownbible.move);
-            ws.send(JSON.stringify({
-                'move': [tx, ty]
-            }));
+        if (keysmove.UPRIGHT.isDown) {
+            ty = pd.y - moveCase;
+            tx = pd.x + moveCase;
         }
+        if (keysmove.UP.isDown) {
+            ty = pd.y - moveCase;
+        }
+        if (keysmove.UPLEFT.isDown) {
+            ty = pd.y - moveCase;
+            tx = pd.x - moveCase;
+        }
+        if (keysmove.DOWN.isDown) {
+            ty = pd.y + moveCase;
+        }
+        if (keysmove.DOWNRIGHT.isDown) {
+            ty = pd.y + moveCase;
+            tx = pd.x + moveCase;
+        }
+        if (keysmove.DOWNLEFT.isDown) {
+            tx = pd.x - moveCase;
+            ty = pd.y + moveCase;
+        }
+        if (keysmove.LEFT.isDown) {
+            tx = pd.x - moveCase;
+        }
+    }
+
+
+
+
+    if (tx != pd.x || ty != pd.y) {
+        tools.cooldown('move', cooldownbible.move);
+        ws.send(JSON.stringify({
+            'move': [tx, ty]
+        }));
     }
 
 
@@ -569,7 +628,7 @@ function update() {
                 }
                 drawnItems[key].sprite.setScale(0.5);
                 ditem.drawn = true;
-                console.log('drawin item ' + ditem.uid + ', total : ' + Object.keys(drawnItems).length);
+                //   console.log('drawin item ' + ditem.uid + ', total : ' + Object.keys(drawnItems).length);
 
             }
 
@@ -581,9 +640,9 @@ function update() {
         });
     }
     if (pd.itemsHere.length) {
-        $('.takeloot').css('opacity',1);
+        $('.takeloot').css('opacity', 1);
     } else {
-        $('.takeloot').css('opacity',0);
+        $('.takeloot').css('opacity', 0);
     }
 
     /* item removal */

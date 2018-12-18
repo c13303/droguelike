@@ -5,6 +5,8 @@
     "x": 5,
     "y": 5,
     "z": 0,
+    "angle": [6,5],
+    "orientation" : 0,
     "level": 0,
     "life": {
         "max": 200,
