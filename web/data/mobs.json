@@ -15,7 +15,7 @@
         },
         "movecool": 3,
         "attackcool" : 0,
-        "attack" : "enemytarte",
+        "attack" : "giletjauneattack",
         "damage": {
             "social": 10,
             "sex": 0,

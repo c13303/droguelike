@@ -65,8 +65,8 @@
         "offensive": 3,
         "depth": 1
     },
-    "enemytarte": {
-        "id" : "enemytarte",
+    "giletjauneattack": {
+        "id" : "giletjauneattack",
         "type": "trig",
         "duration": 3,
         "powercool": 500,
@@ -82,7 +82,7 @@
             "size": 0
         },
         "desc": {
-            "fr": "La paume de votre main sur cul de votre adversaire",
+            "fr": "Quands les gilets jaunes mettent la main à la patte",
             "en": "The palm of your hand on the ass of your opponent"
         },
         "damage": {
