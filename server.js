@@ -19,7 +19,7 @@ const userRequestMap = new WeakMap();
 var mobs = [];
 var occupiedOriginal = [];
 for (oc = 0; oc < 64; oc++) {
-    occupiedOriginal.push(tools.matrix(mapSize, mapSize,0,true));
+    occupiedOriginal.push(tools.matrix(mapSize, mapSize, 0, true));
 }
 
 
@@ -522,6 +522,7 @@ function startServer() {
                     ws.data.x = 2;
                     ws.data.y = 2;
                     ws.data.z = 0;
+                    //ws.data.rez_signal = true;
                     ws.send(JSON.stringify({
                         'reset': 1,
                     }));
@@ -788,7 +789,7 @@ var occupied = occupiedOriginal.slice(0);
 
 
 function tick() {
-
+    var debug = false;
     ticTime = Date.now();
     lastTictime = ticTime - lastTime;
     lastTime = ticTime;
@@ -844,6 +845,8 @@ function tick() {
                         'surface': []
                     };
                     fxUpdatePile[daFX.uid].surface.push([x, y]);
+                    if (daFX.uid) fxUpdatePile[daFX.uid].uid = daFX.uid;
+
                 }
             } else {
                 if (debug) console.log(tic + ' : ' + daFX.power + ' hold in  ' + x + ',' + y + ' for ' + daFX.delay);
@@ -858,7 +861,7 @@ function tick() {
 
         Object.keys(fxUpdatePile).forEach(function (fxkey) {
             var val = fxUpdatePile[fxkey];
-            rogue.updatePowerUse(val.daFX.owner, val.z, val.daFX.power, val.surface);
+            rogue.updatePowerUse(val.daFX.owner, val.z, val.daFX.power, val.surface, val.uid ? val.uid : null);
         });
 
 
@@ -886,7 +889,7 @@ function tick() {
 
                 for (ifff = 0; ifff < fxtile.length; ifff++) {
                     if (fxtile[ifff].owner != 'mob') {
-
+                        var uid = fxtile[ifff].uid;
                         var damage = fxtile[ifff].damage;
                         var defenses = rogue.getDefenses(mob);
                         var appliedDamage = rogue.getAppliedDamage(damage, defenses);
@@ -952,7 +955,7 @@ function tick() {
                         var x = newMove[0];
                         var y = newMove[1];
                         var obstacle = null;
-                        var debug = true;
+                        var debug = false;
 
                         if (occupied[mob.z][x][y]) {
                             if (debug) console.log('R occupied simplet');
@@ -978,10 +981,10 @@ function tick() {
                             mob.x = x;
                             mob.y = y;
                             occupied[mob.z][x][y] = 'randommovingmob';
-                            if(debug) console.log('random moving mob ');
+                            if (debug) console.log('random moving mob ');
 
                         } else {
-                           
+
                         }
                     }
                 }
@@ -999,7 +1002,7 @@ function tick() {
                         if (moveupdate) {
                             /* check obstacle */
                             var obstacle = null;
-                            var debug = true;
+                            var debug = false;
 
                             if (occupied[mob.z][x][y]) {
                                 if (debug) console.log('occupied simplet');
@@ -1019,7 +1022,7 @@ function tick() {
                             }
                             if (obstacle || obstacleMob) {
                                 mob.nextMoveIsRandom = true;
-                               
+
                             } else {
                                 occupied[mob.z][mob.x][mob.y] = 0;
                                 /* move validated */
@@ -1027,7 +1030,7 @@ function tick() {
                                 mob.x = x;
                                 mob.y = y;
                                 occupied[mob.z][x][y] = 'movingmob';
-                                if(debug) console.log('moving mob ');
+                                if (debug) console.log('moving mob ');
                             }
                         }
 
@@ -1058,8 +1061,8 @@ function tick() {
                 spobj.cooldown = spobj.batchtime;
                 // console.log('new batchtime'+spobj.batchtime);
                 if (occupied[spobj.z][spobj.x][spobj.y]) {
-                    console.log('OCCUPIED BY ' + occupied[spobj.z][spobj.x][spobj.y]);
-                    console.log(occupied[spobj.z][spobj.x]);
+                    //  console.log('OCCUPIED BY ' + occupied[spobj.z][spobj.x][spobj.y]);
+                    //  console.log(occupied[spobj.z][spobj.x]);
                     obstacle = true;
                 }
                 if (rogue.wallz[spobj.z][spobj.x][spobj.y] > -1) obstacle = true;
@@ -1091,11 +1094,11 @@ function tick() {
                             }
                             mobs.push(newmob);
                             occupied[newmob.z][newmob.x][newmob.y] = 'spawnedmob';
-                            if(debug) console.log('spawning mob ');
+                            if (debug) console.log('spawning mob ');
                         }
                     }
                 } else {
-                    console.log('spawnersobstrue');
+                    // console.log('spawnersobstrue');
                 }
 
             } else {

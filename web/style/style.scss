@@ -32,7 +32,9 @@ $violet : #55415f;
 .text {
     padding: 20px;
 }
-
+.noclick{
+    pointer-events: none;
+}
 @font-face {
     font-family: "cioFont";
     src: url("./fonts/Pixellari.eot");
@@ -181,13 +183,13 @@ body {
         display: none;
         z-index: 220;
         height: 512px;
-        width: 1024px;
+        width: 100%;
         background-color: black;
         position: fixed;
         background-image: url(../img/persona.png);
         background-repeat: no-repeat;
         background-position: 0 0;
-        right: 192px;
+        /* right: 192px; */
         margin-top: 64px;
 
         .container {
@@ -397,6 +399,7 @@ body {
             height: 64px;
             position: relative;
             cursor: pointer;
+            float: right;
 
             &:before {
                 content: "";

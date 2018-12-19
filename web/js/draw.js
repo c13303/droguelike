@@ -434,7 +434,8 @@ function update() {
                     for (powerUseIndex = 0; powerUseIndex < surface.length; powerUseIndex++) {
                         var x = layer.tileToWorldX(surface[powerUseIndex][0]) + 16;
                         var y = layer.tileToWorldY(surface[powerUseIndex][1]) + 16;
-
+                       
+                        
                         var firstFrame = powersbible[power].sprite * 3;
                         var lastFrame = firstFrame + 2;
                         if (!animsLib[power]) {
@@ -453,9 +454,8 @@ function update() {
 
 
 
-                        var sprite = this.add.sprite(x, y, 'powers');
-                        sprite.anims.play(power + 'explode');
-
+                        var sprite = this.add.sprite(0, 0, 'powers');
+                        sprite.anims.play(power + 'explode');                       
 
 
                         if (powersbible[power].depth === 1)

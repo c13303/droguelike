@@ -32,7 +32,10 @@ module.exports = {
             "aim": ws.data.holdingPower.aim
         };
         if (ws.data.pk) msg.pk = ws.data.pk;
-
+        if (ws.data.rez_signal) {
+            msg.isdead = ws.data.isdead;
+            msg.rez_signal = 1;
+        }
 
 
         return (msg);
@@ -168,13 +171,15 @@ module.exports = {
         this.wss.addToWaiting('waitingPuds', ws.data.z, pud);
 
     },
-    updatePowerUse(id, z, poweruse, surface) {
+    updatePowerUse(id, z, poweruse, surface, uid = null) {
         // console.log('update Power use '+surface.length);
         var msg = {
             'who': id,
             'pwup': poweruse,
             'surf': surface
         };
+        if (uid) msg.uid = uid;
+
         this.wss.addToWaiting('waitingPowers', z, msg);
     },
     updateItems(z, addOrRem, item, who = 0) {
@@ -250,8 +255,9 @@ module.exports = {
             } else {
                 /* mob holding */
                 actor.movecool = power.delay;
+                var that = this;
                 setTimeout(function () {
-                    rogue.powerUse(actor, power, aime, DelayAoE, mapAoE, true, true);
+                    that.powerUse(actor, power, aim, DelayAoE, mapAoE, true, true);
                 }, power.delay);
             }
 
@@ -278,7 +284,9 @@ module.exports = {
                 'isMob': isMob,
                 'delay': delay
             };
-            content.uid = monZ + '_' + powerId + '_' + content.owner + '_' + delay;
+            content.uid = actor.id;
+
+            // content.uid = monZ + '_' + powerId + '_' + content.owner + '_' + delay;
 
 
             if (x > 0 && y > 0 && x < this.mapSize && y < this.mapSize) {
@@ -339,6 +347,11 @@ module.exports = {
         }
         var damage = aDamage.social + aDamage.sex + aDamage.money;
         if (isNaN(damage)) this.tools.fatal(' getAppliedDamage no damage', dataref);
+
+        if (damage < 0) {
+            damage = 0;
+        }
+
         return (damage);
     },
     createItem(id = null, map = [null, null, null], playerSlot = [null, null], itemUpdate = null) {
@@ -490,7 +503,7 @@ module.exports = {
         }
         //  console.log(ws.data.powers_equiped);
         ws.send(JSON.stringify({
-            'pdata' : ws.data,
+            'pdata': ws.data,
             'myPowers': ws.data.powers_equiped,
         }));
     }

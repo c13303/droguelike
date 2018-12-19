@@ -168,8 +168,8 @@
     "nazi": {
         "id" : "nazi",
         "type": "trig",
-        "duration": 5,
-        "powercool": 3000,
+        "duration": 1,
+        "powercool": 8000,
         "delay": 500,
         "sprite": 3,
         "name": {
@@ -179,12 +179,47 @@
         "surface": {
             "dist": 5,
             "style": 0,
-            "shape": "nova",
+            "shape": "nazi",
             "size": 1
         },
         "desc": {
             "fr": "La paume de votre main sur le visage de votre adversaire",
             "en": "The palm of your hand on the face of your opponent"
+        },
+        "damage": {
+            "social": 10,
+            "sex": 0,
+            "money": 0
+        },
+        "defense": {
+            "social": 0,
+            "sex": 0,
+            "money": 0
+        },
+        "offensive": 3,
+        "depth": 1
+
+    },
+    "nova": {
+        "id" : "nova",
+        "type": "trig",
+        "duration": 5,
+        "powercool": 3000,
+        "delay": 500,
+        "sprite": 3,
+        "name": {
+            "fr": "nova",
+            "en": "nova"
+        },
+        "surface": {
+            "dist": 5,
+            "style": 0,
+            "shape": "nova",
+            "size": 1
+        },
+        "desc": {
+            "fr": "",
+            "en": ""
         },
         "damage": {
             "social": 10,

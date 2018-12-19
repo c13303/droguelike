@@ -6,7 +6,7 @@
             "en": "latex glove"
         },
         "desc":{
-            "fr": "gant en latex de qualité juive",
+            "fr": "gant en latex de seconde main",
             "en": "latex glove"
         },
         "sprite": 4,
@@ -66,7 +66,7 @@
             "en": "latex glove"
         },
         "desc":{
-            "fr": "un Bob Styler",
+            "fr": "Un slip de ouf en coton usagé",
             "en": "latex glove"
         },
         "sprite": 3,
@@ -81,7 +81,7 @@
             "money_mod": 0
         },
         "defense": {
-            "social": 0,
+            "social": 10,
             "sex": 10,
             "money": 0,
             "social_mod": 0,

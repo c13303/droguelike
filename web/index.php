@@ -118,7 +118,7 @@ if ($isdev) {
             </div>
             <div class="itemDetails"></div>
         </div>
-        <div class="container">
+        <div class="container noclick">
             <div id="stats" class="text">
                 <h2>Player</h2>
                 <div>LIFE : <span class="stat" data-stat="lifenow"></span> / <span class="stat" data-stat="lifemax"></span></div>

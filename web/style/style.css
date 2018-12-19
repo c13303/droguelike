@@ -7,6 +7,10 @@
   padding: 20px;
 }
 
+.noclick {
+  pointer-events: none;
+}
+
 @font-face {
   font-family: "cioFont";
   src: url("./fonts/Pixellari.eot");
@@ -145,13 +149,13 @@ body .playerfiche {
   display: none;
   z-index: 220;
   height: 512px;
-  width: 1024px;
+  width: 100%;
   background-color: black;
   position: fixed;
   background-image: url(../img/persona.png);
   background-repeat: no-repeat;
   background-position: 0 0;
-  right: 192px;
+  /* right: 192px; */
   margin-top: 64px;
 }
 
@@ -353,6 +357,7 @@ body #bar .button64 {
   height: 64px;
   position: relative;
   cursor: pointer;
+  float: right;
 }
 
 body #bar .button64:before {

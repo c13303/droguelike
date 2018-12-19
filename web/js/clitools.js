@@ -136,7 +136,7 @@ var tools = {
         var height = wtf[0].scrollHeight;
         wtf.scrollTop(height);
     },
-    fluidmove(object, px, py,speed = 2) {
+    fluidmove(object, px, py, speed = 2) {
         var dt = speed;
         if (px > object.x)
             object.x += dt;
@@ -166,13 +166,25 @@ var tools = {
     killDurations(durationsLib) {
         if (durationsLib) {
             for (durIndex = 0; durIndex < durationsLib.length; durIndex++) {
-                durationsLib[durIndex].timeleft = durationsLib[durIndex].timeleft - updateRate;
-                if (durationsLib[durIndex].timeleft <= 0) {
-                    /* destroy all powers*/
-                    for (spriteArrayIndex = 0; spriteArrayIndex < durationsLib[durIndex].spriteArray.length; spriteArrayIndex++) {
-                        durationsLib[durIndex].spriteArray[spriteArrayIndex].destroy();
+                if (durationsLib[durIndex]) {
+                    durationsLib[durIndex].timeleft = durationsLib[durIndex].timeleft - updateRate;
+                    /* deplacemenet fluide du pouvoir */
+                    /*
+                    for(xxx=0;xxx<durationsLib[durIndex].spriteArray.length;xxx++){
+                        var sprite = durationsLib[durIndex].spriteArray;                                             
+                    }             
+                   */
+
+                    if (durationsLib[durIndex].timeleft <= 0) {
+                        /* destroy all powers*/
+                        for (spriteArrayIndex = 0; spriteArrayIndex < durationsLib[durIndex].spriteArray.length; spriteArrayIndex++) {
+                            durationsLib[durIndex].spriteArray[spriteArrayIndex].destroy();
+
+                        }
+                        delete durationsLib[durIndex];
                     }
                 }
+
             }
         }
     },
@@ -271,9 +283,9 @@ var tools = {
         var uid = selectedItemUid;
         if (autoEquip) {
             uid = autoEquip.uid;
-         //   console.log('AutoEquip ' + autoEquip.id);
+            //   console.log('AutoEquip ' + autoEquip.id);
         } else {
-         //   console.log('Manual Equip ' + uid);
+            //   console.log('Manual Equip ' + uid);
         }
         var itemElement = $('.item' + uid);
 
@@ -285,7 +297,7 @@ var tools = {
             if (autoEquip) slotType = autoEquip.isEquiped;
             if (slot) slotType = slot;
 
-         //   console.log('into slot' + slotType);
+            //   console.log('into slot' + slotType);
 
             var slotTypeElement = $('#the_slot_type_' + slotType);
 

@@ -21,8 +21,8 @@ var canvasH = h - 64
 
 var config = {
     type: Phaser.AUTO,
-    width: Math.round(canvasW / 2),
-    height: Math.round(canvasH / 2),
+    width: Math.round(canvasW / 32) * 16,
+    height: Math.round(canvasH / 32)* 16, 
     pixelArt: true,
     callbacks: {
         postBoot: function (game) {

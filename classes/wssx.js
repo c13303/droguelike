@@ -98,7 +98,9 @@ class wssx extends server {
                 client.send(msg);
             });
         } catch (e) {
-            console.log(e);
+            console.log('websocket closed for '+client.data.name);
+            client.terminate();
+           // console.log(e);
         }
     }
     broadcastToLevel(msg, z) {

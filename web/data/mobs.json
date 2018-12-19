@@ -14,8 +14,8 @@
             "max": 30
         },
         "movecool": 3,
-        "attackcool" : 0,
-        "attack" : "giletjauneattack",
+        "attackcool": 0,
+        "attack": "giletjauneattack",
         "damage": {
             "social": 10,
             "sex": 0,
@@ -25,6 +25,34 @@
             "social": 0,
             "sex": 0,
             "money": 0
+        }
+    },
+    "john": {
+        "skin": 6,
+        "name": {
+            "fr": "ceo",
+            "en": "ceo"
+        },
+        "desc": {
+            "fr": "ceo",
+            "en": "ceo"
+        },
+        "life": {
+            "now": 60,
+            "max": 60
+        },
+        "movecool": 3,
+        "attackcool": 0,
+        "attack": "nazi",
+        "damage": {
+            "social": 10,
+            "sex": 10,
+            "money": 10
+        },
+        "defense": {
+            "social": 10,
+            "sex": 10,
+            "money": 10
         }
     }
 }

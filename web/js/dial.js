@@ -106,6 +106,7 @@ function connect() {
             $.each(d.pdata, function (key, val) {
                 pd[key] = d.pdata[key];
             });
+            stats_refresh();
         }
 
 
