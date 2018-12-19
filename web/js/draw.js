@@ -28,6 +28,16 @@ function soundloadfile(something, key) {
     ]);
 }
 
+function musicloadfile(something,key){
+    soundsToLoad.push(key);
+    something.load.audio(key, [
+        'sfx/music/' + key + '.ogg',
+        'sfx/music/' + key + '.mp3'
+    ]);
+}
+
+
+
 
 function preload() {
     //console.log('preload');
@@ -69,6 +79,12 @@ function preload() {
         soundloadfile(this, 'foutrage');
         soundloadfile(this, 'ouch');
         soundloadfile(this, 'mobdeath');
+
+        /*
+        musicloadfile(this, 'streets2');
+        musicloadfile(this, 'droguelike');
+        musicloadfile(this, 'piano');
+        */
     }
 
 }
@@ -77,26 +93,16 @@ var keysmove = {};
 
 function create() {
     if (soundEnabled) {
-        /*
-        music = this.sound.add('music', {
-            volume: 1,
-        });
-        music.play();
-        music.setLoop(true);
-        */
+        
         for (so = 0; so < soundsToLoad.length; so++) {
             soundlib[soundsToLoad[so]] = this.sound.add(soundsToLoad[so], {
                 volume: 0.3,
             });
         }
-        /*
-        soundsToLoad
 
-       
-         soundlib.foutrage = this.sound.add('foutrage', {
-             volume: 0.3,
-         });
-         */
+    //   mySoundHook('streets2');
+
+        
     }
 
 

@@ -240,7 +240,7 @@ function connect() {
             tools.notice('<span class="notice">' + d.notice + '</span>');
         }
         if (d.dead) {
-            tools.notice('<span class="notice">You are dead. </span>');
+            tools.notice('<span class="notice">You are dead. Press R to Resurrect </span>');
             $('.rez').show();
         }
 
@@ -371,10 +371,11 @@ function connect() {
             var keyCode = tools.checkKey(e);
             if (consolage) console.log(keyCode);
 
+
             if (keyCode === 13) {
-                $("#chat").focus();
-            } else {
                 e.preventDefault();
+                //                 $("#chat").focus();
+
             }
 
             /* player killer mode */

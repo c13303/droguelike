@@ -48,6 +48,10 @@ if ($isdev) {
     <link rel="stylesheet" type="text/css" href="lib/bootstrap/bootstrap.min.css"><!-- couillestrap looool -->
     <script src="lib/bootstrap/bootstrap.min.js"></script>
     <link rel="stylesheet" type="text/css" href="style/style.css?v=<?=$v;?>">
+    <script src="https://bondecampe.5tfu.org/lib/audiojs/audio.min.js"></script>
+
+
+
 
 </head>
 
@@ -123,16 +127,22 @@ if ($isdev) {
             </div>
             <div class="damage text">
                 <h3>DAMAGES </h3>
-                <div> SOCIAL : <span class="stat" data-stat="damage_social"></span> + <span class="stat" data-stat="damage_social_mod"></span> %</div>
-                <div> SEX : <span class="stat" data-stat="damage_sex"></span> + <span class="stat" data-stat="damage_sex_mod"></span>  %</div>
-                <div> MONEY : <span class="stat" data-stat="damage_money"></span>  + <span class="stat" data-stat="damage_money_mod"></span>  %</div>
+                <div> SOCIAL : <span class="stat" data-stat="damage_social"></span> + <span class="stat" data-stat="damage_social_mod"></span>
+                    %</div>
+                <div> SEX : <span class="stat" data-stat="damage_sex"></span> + <span class="stat" data-stat="damage_sex_mod"></span>
+                    %</div>
+                <div> MONEY : <span class="stat" data-stat="damage_money"></span> + <span class="stat" data-stat="damage_money_mod"></span>
+                    %</div>
 
             </div>
             <div class="defense text">
                 <h3>DEFENSES </h3>
-                <div> SOCIAL : <span class="stat" data-stat="defense_social"></span> + <span class="stat" data-stat="defense_social_mod"></span>  % </div>
-                <div> SEX : <span class="stat" data-stat="defense_sex"></span> + <span class="stat" data-stat="defense_sex_mod"></span>  %</div>
-                <div> MONEY : <span class="stat" data-stat="defense_money"></span>  + <span class="stat" data-stat="defense_money_mod"></span>  %</div>
+                <div> SOCIAL : <span class="stat" data-stat="defense_social"></span> + <span class="stat" data-stat="defense_social_mod"></span>
+                    % </div>
+                <div> SEX : <span class="stat" data-stat="defense_sex"></span> + <span class="stat" data-stat="defense_sex_mod"></span>
+                    %</div>
+                <div> MONEY : <span class="stat" data-stat="defense_money"></span> + <span class="stat" data-stat="defense_money_mod"></span>
+                    %</div>
             </div>
         </div>
 
@@ -165,7 +175,30 @@ if ($isdev) {
             </div>
         </div>
     </div>
+    <div class="music">
+    <audio src="/sfx/music/streets2.mp3" preload="auto" volume="0.4" />
+</div>
+    <script>
+        var musicContainer = {'pos' : 0,'volume' : 0.4};
+        audiojs.events.ready(function() {
+            var tunes = [
+                'streets2','droguelike','piano'
+            ];
+            musicContainer.as = audiojs.createAll({
+            trackEnded: function() {
+                musicContainer.pos++;
+                if(musicContainer.pos > tunes.length) musicContainer.pos = 0;
+                musicContainer.as[0].load('/sfx/music/'+tunes[musicContainer.pos]+'.mp3');
+                musicContainer.as[0].play();
+                musicContainer.as[0].setVolume(musicContainer.volume);
 
+                
+            }
+        });
+
+
+      });
+    </script>
 </body>
 
 </html>

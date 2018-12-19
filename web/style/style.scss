@@ -27,6 +27,7 @@ $rouge : #d77355;
 $bleu : #508cd7;
 $blanc: #dcf5ff;
 $bp : 780px;
+$violet : #55415f;
 
 .text {
     padding: 20px;
@@ -88,7 +89,10 @@ body {
     color: $blanc;
     font-family: "cioFont";
     font-size: 20px;
-
+    height: 100%;
+    width: 100%;
+    position: fixed;
+    overflow: hidden;
     a {
         &:hover {
             text-decoration: none;
@@ -531,6 +535,26 @@ body {
 
 
 
+    }
+
+    .music{
+       /*display:none;*/
+       position: absolute;
+       right: 0;
+       top: 0;
+       width: 200px;
+       div{
+           border:none !important;
+           background:$violet !important;
+           color : $bleu !important;
+           background-image : none !important;
+           &.progress{
+            background:$bleu !important;
+           }
+           &.scrubber{
+               width:100px;
+           }
+       }
     }
 
 

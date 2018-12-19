@@ -71,7 +71,7 @@ module.exports = {
             console.log(er);
         }
     },
-    matrix: function (rows, cols, defaultValue = null) {
+    matrix: function (rows, cols, defaultValue = null,nullvalue = false) {
         var arr = [];
         for (var matrixi = 0; matrixi < rows; matrixi++) {
             arr.push([]);
@@ -82,6 +82,7 @@ module.exports = {
                 } else {
                     daval = defaultValue
                 }
+                if(nullvalue) daval = 0;
                 arr[matrixi][matrixj] = daval;
             }
         }

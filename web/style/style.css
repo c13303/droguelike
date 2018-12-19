@@ -55,6 +55,10 @@ body {
   color: #dcf5ff;
   font-family: "cioFont";
   font-size: 20px;
+  height: 100%;
+  width: 100%;
+  position: fixed;
+  overflow: hidden;
 }
 
 body a {
@@ -454,5 +458,28 @@ body #bar .arrowscontainer .arrows .row .arrow.c2:after {
 
 body #bar .arrowscontainer .arrows .row .arrow.c3:after {
   background-position: -128px -128px;
+}
+
+body .music {
+  /*display:none;*/
+  position: absolute;
+  right: 0;
+  top: 0;
+  width: 200px;
+}
+
+body .music div {
+  border: none !important;
+  background: #55415f !important;
+  color: #508cd7 !important;
+  background-image: none !important;
+}
+
+body .music div.progress {
+  background: #508cd7 !important;
+}
+
+body .music div.scrubber {
+  width: 100px;
 }
 /*# sourceMappingURL=style.css.map */

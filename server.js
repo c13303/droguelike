@@ -17,7 +17,13 @@ var regularStart = true;
 var data_example = null;
 const userRequestMap = new WeakMap();
 var mobs = [];
-var occupiedOriginal = tools.matrix(mapSize, mapSize);
+var occupiedOriginal = [];
+for (oc = 0; oc < 64; oc++) {
+    occupiedOriginal.push(tools.matrix(mapSize, mapSize,0,true));
+}
+
+
+
 var ticdiff;
 var bibles = {};
 var myglobals = {};
@@ -415,7 +421,7 @@ function startServer() {
                     'inter': interacs[ws.data.z],
                     //  'bibles': bibles
                 };
-                if(ws.data.isdead) msgS.isdead = ws.data.isdead;
+                if (ws.data.isdead) msgS.isdead = ws.data.isdead;
 
                 ws.send(JSON.stringify(msgS));
                 rogue.updateMyPosition(ws);
@@ -523,7 +529,7 @@ function startServer() {
 
                 /* Commande From Clients */
                 if (json.cd === "say") {
-                    
+
 
 
 
@@ -775,6 +781,12 @@ var ticTime = null;
 var lastTictime = null;
 var deltaTime;
 
+
+var occupied = occupiedOriginal.slice(0);
+
+
+
+
 function tick() {
 
     ticTime = Date.now();
@@ -787,7 +799,8 @@ function tick() {
 
     /* SERVER TICK PREPARE */
     var preparedUpdate = [];
-    var occupied = occupiedOriginal.slice(0);
+
+
     for (iWw = 0; iWw < rogue.maxLevels; iWw++) {
         preparedUpdate[iWw] = {
             moves: [],
@@ -884,6 +897,7 @@ function tick() {
                             var dareport = mob.name + ' killed by ' + fxtile[ifff].power + ' from ' + fxtile[ifff].owner;
                             mob.life.now = 0;
                             mob.isdead = true;
+                            occupied[mob.z][mob.x][mob.y] = 0;
                         }
 
                     }
@@ -938,18 +952,36 @@ function tick() {
                         var x = newMove[0];
                         var y = newMove[1];
                         var obstacle = null;
-                        if (occupied[mob.z][x][y]) obstacle = true;
-                        if (rogue.wallz[mob.z][x][y] > -1) obstacle = true;
-                        if (!obstacle) obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
-                        if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
+                        var debug = true;
+
+                        if (occupied[mob.z][x][y]) {
+                            if (debug) console.log('R occupied simplet');
+                            obstacle = true;
+                        }
+                        if (rogue.wallz[mob.z][x][y] > -1) {
+                            obstacle = true;
+                            if (debug) console.log('R occupied wall');
+                        }
                         if (!obstacle) {
+                            obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
+                            if (obstacle && debug) console.log('R occupied isPlayerHere');
+                        }
+                        if (!obstacle) {
+                            obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
+                            if (obstacleMob && debug) console.log('R occupied obstacleMob');
+                        }
+
+                        if (!obstacle) {
+                            occupied[mob.z][mob.x][mob.y] = 0;
                             mob.nextMoveIsRandom = false;
                             mob.update = true;
                             mob.x = x;
                             mob.y = y;
-                            occupied[mob.z][x][y] = true;
+                            occupied[mob.z][x][y] = 'randommovingmob';
+                            if(debug) console.log('random moving mob ');
+
                         } else {
-                            occupied[mob.z][mob.x][mob.y] = true;
+                           
                         }
                     }
                 }
@@ -967,19 +999,35 @@ function tick() {
                         if (moveupdate) {
                             /* check obstacle */
                             var obstacle = null;
-                            if (occupied[mob.z][x][y]) obstacle = true;
-                            if (rogue.wallz[mob.z][x][y] > -1) obstacle = true;
-                            if (!obstacle) obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
-                            if (!obstacle) obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
+                            var debug = true;
+
+                            if (occupied[mob.z][x][y]) {
+                                if (debug) console.log('occupied simplet');
+                                obstacle = true;
+                            }
+                            if (rogue.wallz[mob.z][x][y] > -1) {
+                                obstacle = true;
+                                if (debug) console.log('occupied wall');
+                            }
+                            if (!obstacle) {
+                                obstacle = rogue.isPlayerHere(wss, x, y, mob.z);
+                                if (obstacle && debug) console.log('occupied isPlayerHere');
+                            }
+                            if (!obstacle) {
+                                obstacleMob = rogue.isMonsterHere(mobs, x, y, mob.z, ii);
+                                if (obstacleMob && debug) console.log('occupied obstacleMob');
+                            }
                             if (obstacle || obstacleMob) {
                                 mob.nextMoveIsRandom = true;
-                                occupied[mob.z][mob.x][mob.y] = true;
+                               
                             } else {
+                                occupied[mob.z][mob.x][mob.y] = 0;
                                 /* move validated */
                                 mob.update = true;
                                 mob.x = x;
                                 mob.y = y;
-                                occupied[mob.z][x][y] = true;
+                                occupied[mob.z][x][y] = 'movingmob';
+                                if(debug) console.log('moving mob ');
                             }
                         }
 
@@ -1009,7 +1057,11 @@ function tick() {
             if (spobj.cooldown <= 0) {
                 spobj.cooldown = spobj.batchtime;
                 // console.log('new batchtime'+spobj.batchtime);
-                if (occupied[spobj.z][spobj.x][spobj.y]) obstacle = true;
+                if (occupied[spobj.z][spobj.x][spobj.y]) {
+                    console.log('OCCUPIED BY ' + occupied[spobj.z][spobj.x][spobj.y]);
+                    console.log(occupied[spobj.z][spobj.x]);
+                    obstacle = true;
+                }
                 if (rogue.wallz[spobj.z][spobj.x][spobj.y] > -1) obstacle = true;
                 if (!obstacle) obstacle = rogue.isPlayerHere(wss, spobj.x, spobj.y, spobj.z);
                 if (!obstacle) obstacle = rogue.isMonsterHere(mobs, spobj.x, spobj.y, spobj.z);
@@ -1038,8 +1090,12 @@ function tick() {
                                 update: true,
                             }
                             mobs.push(newmob);
+                            occupied[newmob.z][newmob.x][newmob.y] = 'spawnedmob';
+                            if(debug) console.log('spawning mob ');
                         }
                     }
+                } else {
+                    console.log('spawnersobstrue');
                 }
 
             } else {
@@ -1174,14 +1230,14 @@ function tick() {
     for (z = 0; z < preparedUpdate.length; z++) {
         if (preparedUpdate[z].moves.length || preparedUpdate[z].items.length || preparedUpdate[z].powers.length || preparedUpdate[z].mobs.length || preparedUpdate[z].deadmobs.length) {
             var msg = {
-               // 't': tic
+                // 't': tic
             };
             if (preparedUpdate[z].moves.length) msg.puds = preparedUpdate[z].moves;
             if (preparedUpdate[z].powers.length) msg.pwups = preparedUpdate[z].powers;
             if (preparedUpdate[z].mobs.length) msg.mobs = preparedUpdate[z].mobs;
             if (preparedUpdate[z].deadmobs.length) msg.dm = preparedUpdate[z].deadmobs;
             if (preparedUpdate[z].items.length) msg.itup = preparedUpdate[z].items;
-         
+
 
 
             wss.broadcastToLevel(JSON.stringify(msg), z);

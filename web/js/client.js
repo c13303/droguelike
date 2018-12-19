@@ -14,6 +14,8 @@ $(document).ready(function () {
     $('#connect').submit(function (e) {
         e.preventDefault();
         connect();
+        musicContainer.as[0].play();
+        musicContainer.as[0].setVolume(musicContainer.volume);
     });
 
 
