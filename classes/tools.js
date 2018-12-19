@@ -6,9 +6,10 @@ module.exports = {
     connection: null,
     data: {},
     fatal: function (msg, dump = null, fatal = true) {
-        console.log('fatal : ' + msg);
+        this.report('fatal : ' + msg);
         if (dump) {
-            console.log(dump);
+            this.report(dump);
+            
         }
         if (fatal) process.exit();
     },

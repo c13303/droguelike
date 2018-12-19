@@ -142,8 +142,8 @@ if ($isdev) {
     <div id="bar">
         <div class="button button64 inventory"></div>
         <div class="button button64 takeloot"></div>
-
-
+        <div class="button button64 rez"></div>
+        <div class="button button64 stairs"></div>
 
         <div class="arrowscontainer">
             <div class="arrows">

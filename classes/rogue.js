@@ -12,7 +12,7 @@ module.exports = {
     maxLevels: 64,
     itemsUid: 0,
     formatPeople(ws) {
-        return ({
+        var msg = {
             id: ws.id,
             name: ws.name,
             x: ws.data.x,
@@ -21,15 +21,21 @@ module.exports = {
             angle: ws.data.angle,
             or: ws.data.orientation,
             skin: ws.data.skin,
-            pk: ws.data.pk,
-            life: ws.data.life,
-            damaged: ws.data.damaged,
-            isdead: ws.data.isdead,
-            isH: ws.data.holdingPower ? {
-                "delay": ws.data.holdingPower.power.delay,
-                "aim": ws.data.holdingPower.aim
-            } : 0, // is holding power
-        });
+            life: ws.data.life
+        };
+
+        if (ws.data.damaged) msg.damaged = ws.data.damaged;
+        if (ws.data.isdead) msg.isdead = ws.data.isdead;
+        if (ws.data.secured) msg.secured = ws.data.secured;
+        if (ws.data.holdingPower) msg.isH = {
+            "delay": ws.data.holdingPower.power.delay,
+            "aim": ws.data.holdingPower.aim
+        };
+        if (ws.data.pk) msg.pk = ws.data.pk;
+
+
+
+        return (msg);
     },
     formatMob(mob) {
         var format = {
@@ -298,46 +304,33 @@ module.exports = {
         }
         var def = {
             "social": dataref.defense.social + dataref.defense.social * dataref.defense.social_mod ? dataref.defense.social_mod : 0,
-            "sex": dataref.defense.sex + dataref.defense.sex * dataref.defense.sex_mod  ? dataref.defense.sex_mod : 0 ,
-            "money": dataref.defense.money + dataref.defense.money * dataref.defense.money_mod  ? dataref.defense.money_mod : 0
+            "sex": dataref.defense.sex + dataref.defense.sex * dataref.defense.sex_mod ? dataref.defense.sex_mod : 0,
+            "money": dataref.defense.money + dataref.defense.money * dataref.defense.money_mod ? dataref.defense.money_mod : 0
         }
         return (def);
     },
     getDamage(ws, power) {
         if (ws.data) {
             var dataref = ws.data;
+            var from = 'player ' + dataref.name;
         } else {
             var dataref = ws;
+            var from = 'mob ' + dataref.id;
         }
-        if (!dataref.damage) {
-            console.log('error damage');
-            this.tools.report(dataref);
-            process.exit();
-        }
+        if (!dataref.damage) this.tools.fatal('getDamage no damage', dataref);
         var damage = {
             "social": dataref.damage.social + power.damage.social,
             "sex": dataref.damage.sex + power.damage.sex,
             "money": dataref.damage.money + power.damage.money
         }
-/*
-        if(isNaN(damage)) {
-            
-            this.tools.fatal('getDamage',damage,false);
-        }*/
         /*
-        this.tools.fatal('Dataref',dataref.damage,false);
-        this.tools.fatal('Power',power.damage,false);
-
-        this.tools.fatal('Damage',damage,false);
-*/
+                this.tools.fatal('Dataref',dataref.damage,false);
+                this.tools.fatal('Power',power.damage,false);
+                this.tools.fatal('Damage',damage,false);
+        */
         return (damage);
     },
     getAppliedDamage(damages, defenses) {
-        if(isNaN(damages.social)) console.log(damages);
-        if(isNaN(defenses.social)) {
-            console.log(defenses);
-            process.exit();
-        }
 
         var aDamage = {
             "social": damages.social - defenses.social,
@@ -345,7 +338,7 @@ module.exports = {
             "money": damages.money - defenses.money
         }
         var damage = aDamage.social + aDamage.sex + aDamage.money;
-
+        if (isNaN(damage)) this.tools.fatal(' getAppliedDamage no damage', dataref);
         return (damage);
     },
     createItem(id = null, map = [null, null, null], playerSlot = [null, null], itemUpdate = null) {
@@ -448,8 +441,6 @@ module.exports = {
 
         for (eqi = 0; eqi < ws.data.equip.length; eqi++) {
             var equItem = ws.data.equip[eqi];
-
-
             if (equItem) {
                 var lootref = this.bibles.loot[equItem.id];
 
@@ -499,6 +490,7 @@ module.exports = {
         }
         //  console.log(ws.data.powers_equiped);
         ws.send(JSON.stringify({
+            'pdata' : ws.data,
             'myPowers': ws.data.powers_equiped,
         }));
     }

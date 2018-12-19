@@ -7,13 +7,21 @@ var soundEnabled = true;
 var powerUseDrawing = [];
 
 
+var soundsToLoad = [];
 
 function mySoundHook(soundKey) {
     if (soundEnabled)
+    try{
         soundlib[soundKey].play();
+    } catch(e){
+        console.log(e);
+        console.log('soundkey : ' + soundKey);
+    }
+        
 }
 
 function soundloadfile(something, key) {
+    soundsToLoad.push(key);
     something.load.audio(key, [
         'sfx/' + key + '.ogg',
         'sfx/' + key + '.mp3'
@@ -60,6 +68,7 @@ function preload() {
         soundloadfile(this, 'load');
         soundloadfile(this, 'foutrage');
         soundloadfile(this, 'ouch');
+        soundloadfile(this, 'mobdeath');
     }
 
 }
@@ -75,13 +84,19 @@ function create() {
         music.play();
         music.setLoop(true);
         */
+        for (so = 0; so < soundsToLoad.length; so++) {
+            soundlib[soundsToLoad[so]] = this.sound.add(soundsToLoad[so], {
+                volume: 0.3,
+            });
+        }
+        /*
+        soundsToLoad
 
-        soundlib.load = this.sound.add('load', {
-            volume: 0.3,
-        });
-        soundlib.foutrage = this.sound.add('foutrage', {
-            volume: 0.3,
-        });
+       
+         soundlib.foutrage = this.sound.add('foutrage', {
+             volume: 0.3,
+         });
+         */
     }
 
 
@@ -307,7 +322,7 @@ function update() {
             drawnPeople[keum.name].sprite.setDepth(keum.y);
             for (killindex = 0; killindex < killingPile.length; killindex++) {
                 if (keum.name === killingPile[killindex]) {
-
+                    mySoundHook('mobdeath');
                     var boom = this.add.sprite(drawnPeople[keum.name].sprite.x, drawnPeople[keum.name].sprite.y, 'skinssheet');
                     boom.anims.play('deathMob');
                     boom.on('animationcomplete', animComplete, this);
@@ -474,6 +489,7 @@ function update() {
 
                 /* damaged */
                 if (keum.damaged) {
+                    mySoundHook('ouch');
                     var damage = keum.damaged;
                     keum.damaged = null;
                     keum.damageLabel = this.add.bitmapText(drawnPeople[keum.name].sprite.x, drawnPeople[keum.name].sprite.y - 64, 'pixelfont', damage);

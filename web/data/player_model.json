@@ -8,6 +8,7 @@
     "angle": [6, 5],
     "orientation": 0,
     "level": 0,
+    "secured" : 0,
     "life": {
         "max": 200,
         "now": 200

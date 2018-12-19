@@ -395,7 +395,6 @@ function startServer() {
                 if (ws.data.new) {
                     items.push(rogue.createItem('gant', [0, 10, 10]));
                     var item2Equip = items.push(rogue.createItem('gant', null, [thatId, null]));
-                    console.log(item2Equip);
                     rogue.equipItem(ws, item2Equip, 6);
 
                     items.push(rogue.createItem('bob_ricard', null, [thatId, null]));
@@ -403,9 +402,7 @@ function startServer() {
                     ws.data.new = false;
                 }
 
-
-
-                ws.send(JSON.stringify({
+                var msgS = {
                     'startgame': 1,
                     'mydata': ws.data,
                     'granu': params.granu,
@@ -417,7 +414,10 @@ function startServer() {
                     'ticrate': tickrate,
                     'inter': interacs[ws.data.z],
                     //  'bibles': bibles
-                }));
+                };
+                if(ws.data.isdead) msgS.isdead = ws.data.isdead;
+
+                ws.send(JSON.stringify(msgS));
                 rogue.updateMyPosition(ws);
 
 
@@ -507,34 +507,23 @@ function startServer() {
                     }));
                 }
 
+
+                if (json.rez) {
+                    console.log(ws.name + ' ressurecting ...');
+                    ws.data.skin = 1;
+                    ws.data.isdead = null;
+                    ws.data.life.now = ws.data.life.max;
+                    ws.data.x = 2;
+                    ws.data.y = 2;
+                    ws.data.z = 0;
+                    ws.send(JSON.stringify({
+                        'reset': 1,
+                    }));
+                }
+
                 /* Commande From Clients */
                 if (json.cd === "say") {
-                    if (json.v === '/rez') {
-                        console.log(ws.name + ' ressurecting ...');
-                        ws.data.skin = 1;
-                        ws.data.isdead = null;
-                        ws.data.life.now = ws.data.life.max;
-                        ws.data.x = 2;
-                        ws.data.y = 2;
-                        ws.data.z = 0;
-                        ws.send(JSON.stringify({
-                            'reset': 1,
-                        }));
-                        /*
-                        ws.send(JSON.stringify({
-                            'startgame': 1,
-                            'mydata': ws.data,
-                            'granu': params.granu,
-                            'people': rogue.getPeopleInZ(ws.data.z, wss, ws),
-                            'mobs': rogue.getMobsInZ(ws.data.z, mobs),
-                            'itemsInWorld': rogue.itemsInWorld[ws.data.z],
-                            'myItems': ws.data.inv,
-                            'myPowers': ws.data.powers_equiped,
-                            'ticrate': tickrate
-                            //  'bibles': bibles
-                        }));
-                        */
-                    }
+                    
 
 
 
@@ -727,6 +716,16 @@ function startServer() {
 
                 }
 
+                if (json.inv) {
+                    //console.log(json);y
+                    if (json.inv == 1) {
+                        ws.data.secured = 1;
+                    }
+                    if (json.inv == 2) {
+                        ws.data.secured = 0;
+                    }
+                }
+
 
 
 
@@ -907,27 +906,27 @@ function tick() {
                     if (!mob.target) {
                         /* target selection */
                         nearest = wss.nearestPlayerFromPoint(mob.x, mob.y, mob.z);
-
                         if (nearest) {
                             var dist = tools.getDist(mob.x, nearest.data.x, mob.y, nearest.data.y);
                             if (dist <= 24) mob.target = nearest;
-
                         }
                     } else {
                         /* HAS TARGET AND VERIF DISTANCE TO DROP OR ATTACK */
                         /* MOB ATTACK */
                         var dist = tools.getDist(mob.x, mob.target.data.x, mob.y, mob.target.data.y);
 
-                        if (dist > 24) {
+                        if (dist > 24 || mob.target.data.secured) {
                             mob.target = null;
                         }
+
                         var mobPower = bibles.powers[mob.attack];
                         if (!mobPower) console.log('no mob power :(' + mob.attack);
-                        if (dist <= mobPower.surface.dist) {
+                        if (mob.target && dist <= mobPower.surface.dist) {
                             /* ATTACK */
+
                             rogue.powerUse(mob, mobPower, [mob.target.data.x, mob.target.data.y], DelayAoE, mapAoE, false, true);
                             mob.attackcool = mobPower.powercool;
-                            console.log('Attack Cool Mob : ' + mob.attackcool);
+                            // console.log('Attack Cool Mob : ' + mob.attackcool);
                         }
 
                     }
@@ -1174,16 +1173,21 @@ function tick() {
     /* on envoie l'update groupée en 1 json par personne /  tick optimisé du cul */
     for (z = 0; z < preparedUpdate.length; z++) {
         if (preparedUpdate[z].moves.length || preparedUpdate[z].items.length || preparedUpdate[z].powers.length || preparedUpdate[z].mobs.length || preparedUpdate[z].deadmobs.length) {
-            wss.broadcastToLevel(JSON.stringify({
-                'puds': preparedUpdate[z].moves,
-                'pwups': preparedUpdate[z].powers,
-                'mobs': preparedUpdate[z].mobs,
-                'dm': preparedUpdate[z].deadmobs,
-                'itup': preparedUpdate[z].items,
-                'tic': tic
-            }), z);
+            var msg = {
+               // 't': tic
+            };
+            if (preparedUpdate[z].moves.length) msg.puds = preparedUpdate[z].moves;
+            if (preparedUpdate[z].powers.length) msg.pwups = preparedUpdate[z].powers;
+            if (preparedUpdate[z].mobs.length) msg.mobs = preparedUpdate[z].mobs;
+            if (preparedUpdate[z].deadmobs.length) msg.dm = preparedUpdate[z].deadmobs;
+            if (preparedUpdate[z].items.length) msg.itup = preparedUpdate[z].items;
+         
+
+
+            wss.broadcastToLevel(JSON.stringify(msg), z);
         }
     }
+
 
 
 

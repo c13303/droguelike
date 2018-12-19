@@ -62,8 +62,14 @@ function connect() {
 
     ws.onmessage = function (event) {
 
+        try {
+            var d = JSON.parse(event.data);
+        } catch (e) {
+            console.log(event.data);
+            console.log(e);
 
-        var d = JSON.parse(event.data);
+        }
+
         tools.peoplehere = peoplehere;
 
         /* CONSOLAGE */
@@ -77,26 +83,30 @@ function connect() {
             $('#autoreconnect').remove();
             $('#game').removeClass("hidden");
 
-
             pd = d.mydata;
-            
-            
+
+            if (!d.isdead) {
+                $('.rez').hide();
+            }
 
             pd.mypowertimer = {};
-
 
             if (d.granu)
                 cooldownbible.move = d.granu;
 
             peoplehere = d.people;
-
-
             game = new Phaser.Game(config);
             stats_refresh();
             //  $('#logo').remove();
-
         }
 
+
+        if (d.pdata) {
+            console.log('update pdata');
+            $.each(d.pdata, function (key, val) {
+                pd[key] = d.pdata[key];
+            });
+        }
 
 
 
@@ -230,7 +240,8 @@ function connect() {
             tools.notice('<span class="notice">' + d.notice + '</span>');
         }
         if (d.dead) {
-            tools.notice('<span class="notice">You are dead. Type /rez to resurrect</span>');
+            tools.notice('<span class="notice">You are dead. </span>');
+            $('.rez').show();
         }
 
         if (d.reset) {
@@ -319,8 +330,24 @@ function connect() {
     });
 
     $('#bar .inventory').click(function () {
-        $('.playerfiche').toggle();
+        inventory();
     });
+
+
+    function inventory() {
+        if ($('.playerfiche').hasClass('isopen')) {
+            ws.send(JSON.stringify({
+                'inv': 2
+            }));
+            $('.playerfiche').hide().removeClass('isopen');
+        } else {
+            ws.send(JSON.stringify({
+                'inv': 1
+            }));
+            $('.playerfiche').show().addClass('isopen');
+        }
+
+    }
 
     function pickup() {
         if (pd.itemsHere.length) {
@@ -359,11 +386,14 @@ function connect() {
             }
 
             if (keyCode === 105 || keyCode === 48 || keyCode === 32) {
-                $('.playerfiche').toggle();
+                inventory();
             }
 
             if (keyCode === 112 || keyCode === 53) {
                 pickup();
+            }
+            if(keyCode === 114){
+                $('.rez').trigger('click');
             }
 
 
@@ -456,9 +486,16 @@ function connect() {
     $('#powers').on('click', '.keypower', function () {
         if (!$(this).hasClass('cooling')) {
             var dak = $(this).data('key');
-            console.log('power ' + dak);
+            // console.log('power ' + dak);
             keyUse('.key' + dak);
         }
+    });
+
+    $(".rez").click(function () {
+        console.log('rez button');
+        ws.send(JSON.stringify({
+            'rez': 1
+        }));
     });
 
 } /* end of connect */

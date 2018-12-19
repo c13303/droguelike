@@ -394,28 +394,38 @@ body {
             position: relative;
             cursor: pointer;
 
+            &:before {
+                content: "";
+                background-image: url(../img/buttons.png);
+                width: 64px;
+                height: 64px;
+                position: absolute;
+            }
+
             &.inventory {
                 &:before {
-                    content: "";
-                    background-image: url(../img/buttons.png);
-                    width: 64px;
-                    height: 64px;
-                    position: absolute;
                     background-position: -128px 0;
                 }
             }
 
             &.takeloot {
-                &:before {
-                    content: "";
-                    background-image: url(../img/buttons.png);
-                    width: 64px;
-                    height: 64px;
-                    position: absolute;
+                &:before {                   
                     background-position: -64px 0;
                 }
-
             }
+
+            &.rez {
+                &:before {                   
+                    background-position: -192px 0;
+                }
+            }
+            &.stairs {
+                &:before {                   
+                    background-position: -256px 0;
+                }
+            }
+
+
         }
 
         .arrowscontainer {

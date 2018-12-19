@@ -351,22 +351,28 @@ body #bar .button64 {
   cursor: pointer;
 }
 
-body #bar .button64.inventory:before {
+body #bar .button64:before {
   content: "";
   background-image: url(../img/buttons.png);
   width: 64px;
   height: 64px;
   position: absolute;
+}
+
+body #bar .button64.inventory:before {
   background-position: -128px 0;
 }
 
 body #bar .button64.takeloot:before {
-  content: "";
-  background-image: url(../img/buttons.png);
-  width: 64px;
-  height: 64px;
-  position: absolute;
   background-position: -64px 0;
+}
+
+body #bar .button64.rez:before {
+  background-position: -192px 0;
+}
+
+body #bar .button64.stairs:before {
+  background-position: -256px 0;
 }
 
 body #bar .arrowscontainer {
