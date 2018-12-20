@@ -11,13 +11,13 @@ var soundsToLoad = [];
 
 function mySoundHook(soundKey) {
     if (soundEnabled)
-    try{
-        soundlib[soundKey].play();
-    } catch(e){
-        console.log(e);
-        console.log('soundkey : ' + soundKey);
-    }
-        
+        try {
+            soundlib[soundKey].play();
+        } catch (e) {
+            console.log(e);
+            console.log('soundkey : ' + soundKey);
+        }
+
 }
 
 function soundloadfile(something, key) {
@@ -28,7 +28,7 @@ function soundloadfile(something, key) {
     ]);
 }
 
-function musicloadfile(something,key){
+function musicloadfile(something, key) {
     soundsToLoad.push(key);
     something.load.audio(key, [
         'sfx/music/' + key + '.ogg',
@@ -38,11 +38,12 @@ function musicloadfile(something,key){
 
 
 
-
 function preload() {
     //console.log('preload');
 
     this.load.bitmapFont('pixelfont', '../style/fonts/pixel.png', '../style/fonts/pixel.xml');
+
+
 
 
     this.load.spritesheet("skinssheet", "img/skinssheet.png?v=" + v, {
@@ -91,18 +92,45 @@ function preload() {
 
 var keysmove = {};
 
+
+
+
+
+var line;
+var graphics;
+var lines = [];
+
+function makeline(x, y, x2, y2, t = 1) {
+    console.log('making line');
+    var line = new Phaser.Geom.Line(x, y, x2, y2);
+    graphics.strokeLineShape(line);
+}
+
+
+
 function create() {
+    graphics = this.add.graphics({
+        lineStyle: {
+            width: 2,
+            color: 0xffffff
+        }
+    });
+
+
+
+
+
+
+
+
     if (soundEnabled) {
-        
         for (so = 0; so < soundsToLoad.length; so++) {
             soundlib[soundsToLoad[so]] = this.sound.add(soundsToLoad[so], {
                 volume: 0.3,
             });
         }
 
-    //   mySoundHook('streets2');
-
-        
+        //   mySoundHook('streets2');
     }
 
 
@@ -192,6 +220,7 @@ function update() {
     /* mouse event */
 
     /*const worldPoint = this.input.activePointer.positionToCamera(this.cameras.main);*/
+    graphics.clear();
 
 
     caseX = pd.angle[0];
@@ -434,8 +463,8 @@ function update() {
                     for (powerUseIndex = 0; powerUseIndex < surface.length; powerUseIndex++) {
                         var x = layer.tileToWorldX(surface[powerUseIndex][0]) + 16;
                         var y = layer.tileToWorldY(surface[powerUseIndex][1]) + 16;
-                       
-                        
+
+
                         var firstFrame = powersbible[power].sprite * 3;
                         var lastFrame = firstFrame + 2;
                         if (!animsLib[power]) {
@@ -455,7 +484,7 @@ function update() {
 
 
                         var sprite = this.add.sprite(0, 0, 'powers');
-                        sprite.anims.play(power + 'explode');                       
+                        sprite.anims.play(power + 'explode');
 
 
                         if (powersbible[power].depth === 1)
@@ -551,7 +580,11 @@ function update() {
 
         var power = powerUseDrawing[pin].power;
         var surface = powerUseDrawing[pin].surface;
+        var from = powerUseDrawing[pin].from;
+        if (!from) {
+            console.log(powerUseDrawing[pin]);
 
+        }
         mySoundHook('foutrage');
         var powersAnimeArray = [];
 
@@ -577,8 +610,12 @@ function update() {
 
 
             // console.log(power);
+
+
+
             var sprite = this.add.sprite(x, y, 'powers');
             sprite.anims.play(power + 'explode');
+           // if (from) makeline(x, y, layer.tileToWorldX(from[0]) + 16, layer.tileToWorldX(from[1]) + 16);
 
 
 

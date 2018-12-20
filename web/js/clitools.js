@@ -79,6 +79,7 @@ var tools = {
         drawnPeople[name].lifebar = that.add.sprite(oriX + lifebarOffsetX, y + lifebarOffsetY, 'fxtiles', 0);
         drawnPeople[name].lifebar.setScale(1, 0.25);
         drawnPeople[name].lifebar.setDepth(-0.1);
+        drawnPeople[name].lines = [];
         return (char);
     },
     updatePlayer(pud) {

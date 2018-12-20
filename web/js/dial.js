@@ -135,7 +135,8 @@ function connect() {
                 }
                 var msg = {
                     power: d.pwups[puI].pwup,
-                    surface: d.pwups[puI].surf
+                    surface: d.pwups[puI].surf,
+                    from: d.pwups[puI].from
                 }
                 powerUseDrawing.push(msg);
                 tools.updateKeumById(d.pwups[puI].who, "release", true);

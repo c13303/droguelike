@@ -59,8 +59,8 @@ var db_config = {
 
 
 /* helpers */
-function fatal(e,f){
-    tools.fatal(e,f);
+function fatal(e, f) {
+    tools.fatal(e, f);
 }
 
 
@@ -123,7 +123,7 @@ process.argv.forEach(function (val, index, array) {
         //   regen();
     }
 
-    if(val ==='keepmobs');{
+    if (val === 'keepmobs'); {
         keepMobs = true;
     }
 
@@ -262,7 +262,7 @@ function setup() {
     setTimeout(function () {
         console.log('JSON Files Loaded');
         startServer();
-    }, 5000);
+    }, 1000);
 
 }
 
@@ -866,16 +866,12 @@ function tick() {
                     newFXOnThisTile.push(daFX);
                     DelayAoE[AoZ].disabled = true;
                     DelayAoE.splice(AoZ, 1);
-                    /*
-                    rogue.updatePowerUse(daFX.owner, z, daFX.power, [
-                        [x, y]
-                    ]);
-                    */
 
                     if (!fxUpdatePile[daFX.uid]) fxUpdatePile[daFX.uid] = {
                         'daFX': daFX,
                         'z': z,
-                        'surface': []
+                        'surface': [],
+
                     };
                     fxUpdatePile[daFX.uid].surface.push([x, y]);
                     if (daFX.uid) fxUpdatePile[daFX.uid].uid = daFX.uid;
@@ -891,10 +887,19 @@ function tick() {
                 fxlist: newFXOnThisTile
             });
         }
-
+        var poum = 0;
         Object.keys(fxUpdatePile).forEach(function (fxkey) {
             var val = fxUpdatePile[fxkey];
-            rogue.updatePowerUse(val.daFX.owner, val.z, val.daFX.power, val.surface, val.uid ? val.uid : null);
+
+            rogue.updatePowerUse(
+                val.daFX.owner,
+                val.z,
+                val.daFX.power,
+                val.surface,
+                val.uid ? val.uid : null,
+                (val.daFX.from && !poum) ? val.daFX.from : null,
+            );
+            poum = true;
         });
 
 
@@ -970,14 +975,14 @@ function tick() {
                         }
 
                         var mobPower = bibles.powers[mob.attack];
-                        if (!mobPower || !mobPower.surface) fatal('no mob power :( ' + mob.attack,mobPower);
+                        if (!mobPower || !mobPower.surface) fatal('no mob power :( ' + mob.attack, mobPower);
                         if (mob.target && dist <= mobPower.surface.dist) {
                             /* ATTACK */
                             var aim = [mob.target.data.x, mob.target.data.y];
-                            if(!aim)fatal(' no AIME');
+                            if (!aim) fatal(' no AIME');
                             rogue.powerUse(mob, mobPower, aim, DelayAoE, mapAoE, false, true);
                             mob.attackcool = mobPower.powercool;
-                          //  console.log('Attack MOB ! Cool Mob : ' + mob.attackcool);
+                            //  console.log('Attack MOB ! Cool Mob : ' + mob.attackcool);
                         }
 
                     }

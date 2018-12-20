@@ -171,7 +171,8 @@ module.exports = {
         this.wss.addToWaiting('waitingPuds', ws.data.z, pud);
 
     },
-    updatePowerUse(id, z, poweruse, surface, uid = null) {
+    updatePowerUse(id, z, poweruse, surface, uid = null,from = null) {
+        
         // console.log('update Power use '+surface.length);
         var msg = {
             'who': id,
@@ -179,6 +180,7 @@ module.exports = {
             'surf': surface
         };
         if (uid) msg.uid = uid;
+        if(from)msg.from = from;
 
         this.wss.addToWaiting('waitingPowers', z, msg);
     },
@@ -288,6 +290,7 @@ module.exports = {
                 'delay': delay
             };
             content.uid = actor.id;
+            content.from = [departX,departY];
 
             // content.uid = monZ + '_' + powerId + '_' + content.owner + '_' + delay;
 
@@ -298,9 +301,10 @@ module.exports = {
             }
             /* debug nazi */
             if (isMob && powerId === 'nazi') {
+                /*
                 console.log('debug nazi delayAOE.push ' + DelayAoE.length);
-                //console.log('debug nazi content ' + content);
                 console.log(actor.id + ' : movecool ' + actor.movecool);
+                */
             }
         }
         if (!isMob) {
