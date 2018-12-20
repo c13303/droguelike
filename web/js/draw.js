@@ -582,8 +582,7 @@ function update() {
         var surface = powerUseDrawing[pin].surface;
         var from = powerUseDrawing[pin].from;
         if (!from) {
-            console.log(powerUseDrawing[pin]);
-
+        //    console.log(powerUseDrawing[pin]);
         }
         mySoundHook('foutrage');
         var powersAnimeArray = [];

@@ -144,7 +144,7 @@
             "en": "foutrage"
         },
         "surface": {
-            "dist": 5,
+            "dist": 1,
             "style": "cross",
             "size": 1
         },
@@ -177,7 +177,7 @@
             "en": "alt-right"
         },
         "surface": {
-            "dist": 5,
+            "dist": 1,
             "style": 0,
             "shape": "nazi",
             "size": 1

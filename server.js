@@ -236,46 +236,136 @@ stdin.addListener("data", function (d) {
 /* SETUP STEPS */
 if (regularStart) setup();
 
+var scriptstoload;
+var completedFiles = 0;
 
+function fileCompleteLoader(a) {
 
+    completedFiles++;
+    var max = scriptstoload.length;
+
+    if (completedFiles == max) {
+        console.log(max + ' JSON Files Loaded :-) !');
+        startGenesis();
+    }
+}
 
 function setup() {
 
-    tools.loadFile('mobs.json', "mobsBible", mobGenesis);
-    tools.loadFile('powers.json', 'powersBible');
-    tools.loadFile('spawners.json', "spawnersData");
-    tools.loadFile('shapes.json', "shapesData");
-    tools.loadFile('player_model.json', "data_example");
-    tools.loadFile('lootbible.json', "lootBible");
-    tools.loadFile('item_model.json', "item_example");
-    /*
-        tools.loadFile('map.json', "mapData");
-        tools.loadFile('wallz.json', "wallzData");
-    */
-    for (ll = 0; ll < rogue.mapSize; ll++) {
-        tools.loadFile('levels/level0.json', "level" + ll);
+    console.log('Start loading JSON files ...');
+    scriptstoload = [
+        ['powersBible', 'powers.json'],
+        ['spawnersData', 'spawners.json'],
+        ['shapesData', 'shapes.json'],
+        ['data_example', 'player_model.json'],
+        ['item_example', 'item_model.json'],
+        ['lootBible', 'lootbible.json'],
+        ['mobsBible', 'mobs.json']
+    ];
 
+    for (ll = 0; ll < rogue.mapSize; ll++) {
+        scriptstoload.push(["level" + ll, 'levels/level0.json']);
+    }
+
+    for (scr = 0; scr < scriptstoload.length; scr++) {
+        tools.loadFile(scriptstoload[scr][1], scriptstoload[scr][0], fileCompleteLoader);
     }
 
 
-
-    setTimeout(function () {
-        console.log('JSON Files Loaded');
-        startServer();
-    }, 1000);
-
 }
 
-function mobGenesis() {
+
+
+var itemsTypesN = 0;
+
+function startGenesis() {
+    console.log('Start Genesis ...');
+
+    /* data loaded distribution */
+    var data = tools.data;
+    var level0 = JSON.parse(data.level0);
+    bibles.mobs = JSON.parse(data.mobsBible);
+    bibles.powers = JSON.parse(data.powersBible);
+    spawners = JSON.parse(data.spawnersData);
+    data_example = JSON.parse(data.data_example);
+    tools.shapes = JSON.parse(data.shapesData);
+    bibles.loot = JSON.parse(data.lootBible);
+    rogue.item_example = JSON.parse(data.item_example);
+    rogue.bibles = bibles;
+    rogue.tools = tools;
+    rogue.bibles = bibles;
+    rogue.DelayAoE = DelayAoE;
+    rogue.mapAoE = mapAoE;
+
+
+    /* MOB GENERATOR */
     mobgenerator.tools = tools;
+    mobgenerator.rogue = rogue;
     var mobsBible = JSON.parse(tools.data.mobsBible);
     if (!mobsBible) {
         tools.fatal("no rogue mobs bible");
     }
-    /* MOB GENERATOR */
     mobgenerator.mobs = mobsBible;
     mobgenerator.genesis();
+
+
+    /* ITEMS GEN PREPARETION */
+    Object.keys(bibles.loot).forEach(function each(itr) {
+        itemsTypesN++;
+    });
+    console.log(itemsTypesN + ' items type');
+
+    /* MAP FILES GENERATION , CONVERSION FROM TILED JSON*/
+    /* WALLZ BUILDUING */
+    rogue.wallz = tools.matrix(64, 0);
+    rogue.tickrate = tickrate;
+    rogue.mobs = mobs;
+    level0.layers.forEach(function each(layer) {
+        var levelRawData = layer.data;
+        var formatedData = tools.reformatJsonFromTiledSoftware(levelRawData);
+        if (!formatedData) {
+            console.log('Layer Data Missing');
+            process.exit();
+        }
+        if (layer.name == "floor") {
+            tools.saveFile('formatedLevels/level0_floor.json', JSON.stringify(formatedData));
+        }
+        if (layer.name == "wall") {
+            tools.saveFile('formatedLevels/level0_wallz.json', JSON.stringify(formatedData));
+            var newArray = formatedData[0].map(function (col, i) {
+                return formatedData.map(function (row) {
+                    return row[i];
+                });
+            });
+            rogue.wallz[0] = newArray;
+        }
+    });
+
+
+
+
+
+
+
+
+    startServer();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -307,48 +397,7 @@ for (livels = 0; livels < rogue.mapSize; livels++) {
 
 
 function startServer() {
-    var data = tools.data;
-    bibles.mobs = JSON.parse(data.mobsBible);
-    bibles.powers = JSON.parse(data.powersBible);
-    spawners = JSON.parse(data.spawnersData);
-    data_example = JSON.parse(data.data_example);
-    tools.shapes = JSON.parse(data.shapesData);
-    bibles.loot = JSON.parse(data.lootBible);
-    rogue.item_example = JSON.parse(data.item_example);
-    rogue.bibles = bibles;
 
-    /* WALLZ BUILDUING */
-
-    var level0 = JSON.parse(data.level0);
-
-    rogue.wallz = tools.matrix(64, 0);
-    rogue.tickrate = tickrate;
-    rogue.mobs = mobs;
-
-
-    level0.layers.forEach(function each(layer) {
-        var levelRawData = layer.data;
-        var formatedData = tools.reformatJsonFromTiledSoftware(levelRawData);
-        if (!formatedData) {
-            console.log('Layer Data Missing');
-            process.exit();
-        }
-        if (layer.name == "floor") {
-            tools.saveFile('formatedLevels/level0_floor.json', JSON.stringify(formatedData));
-        }
-        if (layer.name == "wall") {
-            tools.saveFile('formatedLevels/level0_wallz.json', JSON.stringify(formatedData));
-
-            var newArray = formatedData[0].map(function (col, i) {
-                return formatedData.map(function (row) {
-                    return row[i];
-                });
-            });
-
-
-            rogue.wallz[0] = newArray;
-        }
-    });
 
 
 
@@ -385,10 +434,6 @@ function startServer() {
     });
     wss.subinit();
 
-    rogue.bibles = bibles;
-    rogue.tools = tools;
-    rogue.DelayAoE = DelayAoE;
-    rogue.mapAoE = mapAoE;
 
 
 
@@ -430,16 +475,19 @@ function startServer() {
                 var thatId = ws.id;
 
 
-                /* free items */
+                /* free items startup */
                 if (ws.data.new) {
-                    items.push(rogue.createItem('gant', [0, 10, 10]));
-                    var item2Equip = items.push(rogue.createItem('gant', null, [thatId, null]));
+                    items.push(rogue.createItem(0, 'gant', [0, 10, 10]));
+                    var item2Equip = items.push(rogue.createItem(0, 'gant', null, [thatId, null]));
                     rogue.equipItem(ws, item2Equip, 6);
-
-                    items.push(rogue.createItem('bob_ricard', null, [thatId, null]));
-                    items.push(rogue.createItem('slip_de_tete', null, [thatId, null]));
+                    items.push(rogue.createItem(0, 'bob_ricard', null, [thatId, null]));
+                    items.push(rogue.createItem(0, 'slip_de_tete', null, [thatId, null]));
                     ws.data.new = false;
                 }
+
+
+
+
 
                 var msgS = {
                     'startgame': 1,
@@ -604,7 +652,7 @@ function startServer() {
                     if (!ws.data.movecooling) {
                         var x = parseInt(json.move[0]);
                         var y = parseInt(json.move[1]);
-                        if (x < 0 || y < 0 || x > mapSize || y > mapSize) {
+                        if (x < 0 || y < 0 || x >= mapSize || y >= mapSize) {
                             report('ILLEGAL MOVE : ' + x + ',' + y + '');
                             return null;
                         }
@@ -706,14 +754,9 @@ function startServer() {
 
 
 
+                /* unequip */
                 if (json.dequip && json.slot) {
-                    var oldItem = ws.data.equip[json.slot];
-                    if (oldItem) {
-                        oldItem.isEquiped = 0;
-                        ws.data.equip[json.slot] = 0;
-                        //  console.log('DEchaussing ' + oldItem.id + ' in slot ' + json.slot);
-                        rogue.updatePowersEquiped(ws);
-                    }
+                    rogue.unequip(ws, json.slot);
                 }
 
                 /* equip */
@@ -729,7 +772,7 @@ function startServer() {
 
                 if (json.pic) {
                     var itemHere = json.pic;
-                    //    console.log(itemHere.length + 'picked up');
+                    // console.log(itemHere.length + 'picked up');
                     var update = false;
                     for (ih = 0; ih < itemHere.length; ih++) {
                         var ditem = rogue.itemsInWorld[ws.data.z]['item' + itemHere[ih]];
@@ -737,9 +780,9 @@ function startServer() {
                             console.log('error item not found');
                         } else {
                             //  console.log(ditem);
-                            // console.log(ditem.id + '('+ditem.uid+') here and picked up');
+                            //  console.log(ditem.id + '(' + ditem.uid + ') here and picked up');
 
-                            rogue.createItem(null, null, [ws.id, null], ditem);
+                            rogue.createItem(0, null, null, [ws.id, null], ditem);
                             delete rogue.itemsInWorld[ws.data.z]['item' + itemHere[ih]];
                             update = true;
                         }
@@ -897,8 +940,9 @@ function tick() {
                 val.daFX.power,
                 val.surface,
                 val.uid ? val.uid : null,
-                (val.daFX.from && !poum) ? val.daFX.from : null,
+                val.daFX.from ? val.daFX.from : null,
             );
+
             poum = true;
         });
 
@@ -916,7 +960,7 @@ function tick() {
         for (ii = 0; ii < mobs.length; ii++) {
             var mob = mobs[ii];
             mob.update = false;
-
+            var mobdef = tools.data.cloneBible[mob.mob];
             /* IS DAMAGED */
             var x = mob.x;
             var y = mob.y;
@@ -935,10 +979,19 @@ function tick() {
                         mob.damaged = appliedDamage;
                         mob.update = true;
                         if (mob.life.now <= 0) {
+                            /* MOB IS KILLED */
                             var dareport = mob.name + ' killed by ' + fxtile[ifff].power + ' from ' + fxtile[ifff].owner;
                             mob.life.now = 0;
                             mob.isdead = true;
                             occupied[mob.z][mob.x][mob.y] = 0;
+
+                            /* drop loot */
+                            /* create loot inside */
+                            var de = tools.getRandomInt(6);
+                            if (de < 2) {
+                                var drop = rogue.createItem(mob.z, 'gant', [mob.z, mob.x, mob.y], [null, null]);
+                                items.push(drop);
+                            }
                         }
 
                     }

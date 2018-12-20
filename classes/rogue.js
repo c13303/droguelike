@@ -171,8 +171,8 @@ module.exports = {
         this.wss.addToWaiting('waitingPuds', ws.data.z, pud);
 
     },
-    updatePowerUse(id, z, poweruse, surface, uid = null,from = null) {
-        
+    updatePowerUse(id, z, poweruse, surface, uid = null, from = null) {
+
         // console.log('update Power use '+surface.length);
         var msg = {
             'who': id,
@@ -180,7 +180,7 @@ module.exports = {
             'surf': surface
         };
         if (uid) msg.uid = uid;
-        if(from)msg.from = from;
+        if (from && from != 'undefined') msg.from = from;
 
         this.wss.addToWaiting('waitingPowers', z, msg);
     },
@@ -202,6 +202,8 @@ module.exports = {
         var debug = false;
         var fatal = this.tools.fatal;
 
+        if (!aim) fatal('no aim in poweruse');
+
         if (!isMob) {
             var departX = actor.data.x;
             var departY = actor.data.y;
@@ -218,7 +220,6 @@ module.exports = {
         if (afterHold) {
             var power = powerkeyboard;
             var powerId = power.id;
-            if (isMob && powerId === 'nazi') console.log('--- afterHold ' + power.name.en);
         } else if (!isMob) {
 
             /* power use from player only */
@@ -257,8 +258,8 @@ module.exports = {
                 return null;
             } else {
                 /* mob holding */
-                if (isMob && powerId === 'nazi') console.log('set tup holding');
-                if(!aim) fatal('no aim at mob is holding');
+                // if (isMob && powerId === 'nazi') console.log('nazimob holding');
+                if (!aim) fatal('no aim at mob is holding');
                 actor.movecool = power.delay / 100;
                 var that = this;
                 setTimeout(function () {
@@ -270,7 +271,7 @@ module.exports = {
         if (afterHold && !isMob) {
             actor.data.holdingPower = false;
         }
-        if (isMob && powerId === 'nazi') console.log('RELEASE !' + power.name.en);
+        if (debug) console.log('RELEASE !' + power.name.en);
         /* calcul of AREA O_____O + duration of effect */
         var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power, this.wallz);
         //if (isMob && powerId === 'nazi') fatal ('surface mob nazi',surface);
@@ -290,13 +291,13 @@ module.exports = {
                 'delay': delay
             };
             content.uid = actor.id;
-            content.from = [departX,departY];
+            content.from = [departX, departY];
 
             // content.uid = monZ + '_' + powerId + '_' + content.owner + '_' + delay;
 
 
             if (x > 0 && y > 0 && x < this.mapSize && y < this.mapSize) {
-               // if (debug) console.log('pushing tileFX on ' + x + ',' + y);
+                // if (debug) console.log('pushing tileFX on ' + x + ',' + y);
                 DelayAoE.push(content);
             }
             /* debug nazi */
@@ -367,13 +368,15 @@ module.exports = {
 
         return (damage);
     },
-    createItem(id = null, map = [null, null, null], playerSlot = [null, null], itemUpdate = null) {
+    createItem(level = 0, id = null, map = [null, null, null], playerSlot = [null, null], itemUpdate = null) {
+        console.log(itemUpdate ? 'update item' : 'create item');
         var debug = true;
         if (!itemUpdate) {
             var clone = JSON.parse(JSON.stringify(this.item_example));
             clone.id = id;
             this.itemsUid++;
             clone.uid = this.itemsUid;
+
         } else {
             clone = itemUpdate;
             if (!clone.uid) {
@@ -383,6 +386,40 @@ module.exports = {
         }
 
         var itemRef = this.bibles.loot[clone.id];
+
+        if (!itemRef && !itemUpdate) {
+            console.log(clone);
+            this.tools.fatal('no ref ' + clone.id);
+        }
+
+        if (!itemUpdate) {
+            /* generation caracts randoms */
+            /* RANDOMISER */
+            var de = this.tools.getRandomInt(6);
+            de = (de - 3) / 10;
+
+            var factor = Math.round(l + l * de);
+
+            clone.damage = {
+                "social": itemRef.damage.social + itemRef.damage.social * factor,
+                "sex": 0,
+                "money": 0,
+                "social_mod": 0,
+                "sex_mod": 0,
+                "money_mod": 0
+            };
+            clone.defense = {
+                "social": 0,
+                "sex": 0,
+                "money": 0,
+                "social_mod": 0,
+                "sex_mod": 0,
+                "money_mod": 0
+            }
+
+        }
+
+
         if (map) {
             clone.map = map;
             var z = map[0];
@@ -411,6 +448,15 @@ module.exports = {
             }));
         }
         return clone;
+    },
+    unequip(ws, slot) {
+        var oldItem = ws.data.equip[slot];
+        if (oldItem) {
+            oldItem.isEquiped = 0;
+            ws.data.equip[slot] = 0;
+            //  console.log('DEchaussing ' + oldItem.id + ' in slot ' + json.slot);
+            this.updatePowersEquiped(ws);
+        }
     },
     equipItem(ws, equipUID, slot) {
         /* on trouve litem dans linventory */
