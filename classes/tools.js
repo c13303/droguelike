@@ -6,10 +6,10 @@ module.exports = {
     connection: null,
     data: {},
     fatal: function (msg, dump = null, fatal = true) {
-        this.report('fatal : ' + msg);
+        console.log('fatal : ' + msg);
         if (dump) {
-            this.report(dump);
-            
+            console.log(dump);
+
         }
         if (fatal) process.exit();
     },
@@ -71,7 +71,7 @@ module.exports = {
             console.log(er);
         }
     },
-    matrix: function (rows, cols, defaultValue = null,nullvalue = false) {
+    matrix: function (rows, cols, defaultValue = null, nullvalue = false) {
         var arr = [];
         for (var matrixi = 0; matrixi < rows; matrixi++) {
             arr.push([]);
@@ -82,7 +82,7 @@ module.exports = {
                 } else {
                     daval = defaultValue
                 }
-                if(nullvalue) daval = 0;
+                if (nullvalue) daval = 0;
                 arr[matrixi][matrixj] = daval;
             }
         }
@@ -100,6 +100,7 @@ module.exports = {
         var size = power.surface.size;
         var isshape = power.surface.shape ? power.surface.shape : null;
         var p = [];
+        if (!aim) this.fatal('no aim in calculateSurface',aim);
         var caseX = aim[0];
         var caseY = aim[1];
         var sx = null;

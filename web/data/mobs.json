@@ -1,6 +1,6 @@
 {
     "giletjaune": {
-        "skin": 2,
+        "skin": 0,
         "name": {
             "fr": "gilet jaune",
             "en": "yellow jacket"
@@ -9,26 +9,11 @@
             "fr": "le fameux manifestant pro-carburant",
             "en": "cheap fuel protester"
         },
-        "life": {
-            "now": 30,
-            "max": 30
-        },
-        "movecool": 3,
-        "attackcool": 0,
-        "attack": "giletjauneattack",
-        "damage": {
-            "social": 10,
-            "sex": 0,
-            "money": 0
-        },
-        "defense": {
-            "social": 0,
-            "sex": 0,
-            "money": 0
-        }
+        "attack": "giletjauneattack"
+       
     },
     "john": {
-        "skin": 6,
+        "skin": 2,
         "name": {
             "fr": "ceo",
             "en": "ceo"
@@ -37,22 +22,31 @@
             "fr": "ceo",
             "en": "ceo"
         },
-        "life": {
-            "now": 60,
-            "max": 60
+        "attack": "nazi"
+       
+    },
+    "cat": {
+        "skin": 3,
+        "name": {
+            "fr": "cat",
+            "en": "cat"
         },
-        "movecool": 3,
-        "attackcool": 0,
-        "attack": "nazi",
-        "damage": {
-            "social": 10,
-            "sex": 10,
-            "money": 10
+        "desc": {
+            "fr": "ceo",
+            "en": "ceo"
         },
-        "defense": {
-            "social": 10,
-            "sex": 10,
-            "money": 10
-        }
+        "attack": "foutre"        
+    },
+    "shoe": {
+        "skin": 4,
+        "name": {
+            "fr": "shoe",
+            "en": "shoe"
+        },
+        "desc": {
+            "fr": "ceo",
+            "en": "ceo"
+        },
+        "attack": "ass"        
     }
 }

@@ -55,8 +55,12 @@ var tools = {
         var oriX = layer.tileToWorldX(x);
         var x = oriX + tilesize / 2;
         var y = layer.tileToWorldY(y);
-        var char = that.add.sprite(x, y, 'skinssheet', skin);
+        if (!isMob)
+            var char = that.add.sprite(x, y, 'skinssheet', skin);
+        else
+            var char = that.add.sprite(x, y, 'mobs', skin);
 
+            
         drawnPeopleIndex.push(name);
         drawnPeople[name] = {};
         drawnPeople[name].sprite = char;

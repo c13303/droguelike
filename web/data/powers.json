@@ -136,7 +136,7 @@
         "id" : "foutre",
         "type": "trig",
         "duration": 5,
-        "powercool": 0,
+        "powercool": 1000,
         "delay": 1000,
         "sprite": 2,
         "name": {
@@ -168,7 +168,7 @@
     "nazi": {
         "id" : "nazi",
         "type": "trig",
-        "duration": 1,
+        "duration": 3,
         "powercool": 8000,
         "delay": 500,
         "sprite": 3,

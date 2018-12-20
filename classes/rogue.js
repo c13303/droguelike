@@ -198,7 +198,7 @@ module.exports = {
     /* AREA OF EFFECT AoE */
     powerUse(actor, powerkeyboard, aim, DelayAoE, mapAoE, afterHold = false, isMob = false) {
         var debug = false;
-
+        var fatal = this.tools.fatal;
 
         if (!isMob) {
             var departX = actor.data.x;
@@ -216,7 +216,7 @@ module.exports = {
         if (afterHold) {
             var power = powerkeyboard;
             var powerId = power.id;
-            if (!isMob && debug) console.log('--- afterHold ' + power.name.en);
+            if (isMob && powerId === 'nazi') console.log('--- afterHold ' + power.name.en);
         } else if (!isMob) {
 
             /* power use from player only */
@@ -234,6 +234,7 @@ module.exports = {
             }
         }
         if (!power || !power.type) {
+            fatal('powerUSE POWER UNDEFINED');
             console.log('power not defined error . Afterhold : ' + afterHold);
             return null;
         }
@@ -254,7 +255,9 @@ module.exports = {
                 return null;
             } else {
                 /* mob holding */
-                actor.movecool = power.delay;
+                if (isMob && powerId === 'nazi') console.log('set tup holding');
+                if(!aim) fatal('no aim at mob is holding');
+                actor.movecool = power.delay / 100;
                 var that = this;
                 setTimeout(function () {
                     that.powerUse(actor, power, aim, DelayAoE, mapAoE, true, true);
@@ -265,10 +268,10 @@ module.exports = {
         if (afterHold && !isMob) {
             actor.data.holdingPower = false;
         }
-        if (!isMob && debug) console.log('RELEASE !' + power.name.en);
+        if (isMob && powerId === 'nazi') console.log('RELEASE !' + power.name.en);
         /* calcul of AREA O_____O + duration of effect */
         var surface = this.tools.calculateSurface(departX, departY, monZ, aim, power, this.wallz);
-
+        //if (isMob && powerId === 'nazi') fatal ('surface mob nazi',surface);
         for (is = 0; is < surface.length; is++) {
             var damage = this.getDamage(actor, power);
             var x = surface[is][0];
@@ -290,8 +293,14 @@ module.exports = {
 
 
             if (x > 0 && y > 0 && x < this.mapSize && y < this.mapSize) {
-                if (debug) console.log('pushing tileFX on ' + x + ',' + y);
+               // if (debug) console.log('pushing tileFX on ' + x + ',' + y);
                 DelayAoE.push(content);
+            }
+            /* debug nazi */
+            if (isMob && powerId === 'nazi') {
+                console.log('debug nazi delayAOE.push ' + DelayAoE.length);
+                //console.log('debug nazi content ' + content);
+                console.log(actor.id + ' : movecool ' + actor.movecool);
             }
         }
         if (!isMob) {

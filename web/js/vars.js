@@ -72,9 +72,7 @@ var lootbible = [];
 $.get("data/powers.json?v=" + Date.now(), function (data) {
     powersbible = data;
 });
-$.get("data/mobs.json?v=" + Date.now(), function (data) {
-    mobsbible = data;
-});
+
 $.get("data/spawners.json?v=" + Date.now(), function (data) {
     spawners = data;
 });
@@ -102,6 +100,10 @@ var cursorPowerDelayedSprite;
 var cursorDelayTrigger;
 var wallLayer = wallData = null;
 
+
+$.get("data/formatedLevels/MOBS_level_0.json?v=" + Date.now(), function (data) {
+    mobsbible = data;
+});
 
 $.get("data/formatedLevels/level0_floor.json?v=" + Date.now(), function (data) {
     level = data;

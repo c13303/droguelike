@@ -3,6 +3,8 @@ console.log(' --- go --- ');
 var params = require('./params.js');
 var tools = require('./classes/tools.js');
 var rogue = require('./classes/rogue.js');
+var mobgenerator = require('./classes/mobgenerator.js');
+
 var express = require('express');
 var app = express();
 var fs = require('fs');
@@ -21,6 +23,8 @@ var occupiedOriginal = [];
 for (oc = 0; oc < 64; oc++) {
     occupiedOriginal.push(tools.matrix(mapSize, mapSize, 0, true));
 }
+
+
 
 
 
@@ -52,6 +56,17 @@ var db_config = {
     password: params.password,
     database: params.database
 };
+
+
+/* helpers */
+function fatal(e,f){
+    tools.fatal(e,f);
+}
+
+
+
+
+
 
 
 
@@ -90,7 +105,7 @@ handleDisconnect();
 
 
 
-
+var keepMobs = false;
 
 
 /* ARGS  */
@@ -107,6 +122,11 @@ process.argv.forEach(function (val, index, array) {
     if (val === '-regen') {
         //   regen();
     }
+
+    if(val ==='keepmobs');{
+        keepMobs = true;
+    }
+
 });
 /*
 function regen() {
@@ -221,7 +241,7 @@ if (regularStart) setup();
 
 function setup() {
 
-    tools.loadFile('mobs.json', "mobsBible");
+    tools.loadFile('mobs.json', "mobsBible", mobGenesis);
     tools.loadFile('powers.json', 'powersBible');
     tools.loadFile('spawners.json', "spawnersData");
     tools.loadFile('shapes.json', "shapesData");
@@ -242,9 +262,22 @@ function setup() {
     setTimeout(function () {
         console.log('JSON Files Loaded');
         startServer();
-    }, 2000);
+    }, 5000);
 
 }
+
+function mobGenesis() {
+    mobgenerator.tools = tools;
+    var mobsBible = JSON.parse(tools.data.mobsBible);
+    if (!mobsBible) {
+        tools.fatal("no rogue mobs bible");
+    }
+    /* MOB GENERATOR */
+    mobgenerator.mobs = mobsBible;
+    mobgenerator.genesis();
+}
+
+
 
 var mapAoE = [];
 var mapAoEList = [];
@@ -937,13 +970,14 @@ function tick() {
                         }
 
                         var mobPower = bibles.powers[mob.attack];
-                        if (!mobPower) console.log('no mob power :(' + mob.attack);
+                        if (!mobPower || !mobPower.surface) fatal('no mob power :( ' + mob.attack,mobPower);
                         if (mob.target && dist <= mobPower.surface.dist) {
                             /* ATTACK */
-
-                            rogue.powerUse(mob, mobPower, [mob.target.data.x, mob.target.data.y], DelayAoE, mapAoE, false, true);
+                            var aim = [mob.target.data.x, mob.target.data.y];
+                            if(!aim)fatal(' no AIME');
+                            rogue.powerUse(mob, mobPower, aim, DelayAoE, mapAoE, false, true);
                             mob.attackcool = mobPower.powercool;
-                            // console.log('Attack Cool Mob : ' + mob.attackcool);
+                          //  console.log('Attack MOB ! Cool Mob : ' + mob.attackcool);
                         }
 
                     }
@@ -992,8 +1026,8 @@ function tick() {
 
                 if (mob.target && mob.target.data && !mob.nextMoveIsRandom) {
                     // console.log('Tmoving');
-                    if (!mob.movecool) {
-                        var mobdef = bibles.mobs[mob.mob];
+                    if (mob.movecool < 1) {
+                        var mobdef = tools.data.cloneBible[mob.mob];
                         mob.movecool = mobdef.movecool;
                         var newMove = rogue.getNextMove(mob.x, mob.y, mob.target.data.x, mob.target.data.y);
                         var x = newMove.x;
@@ -1072,6 +1106,12 @@ function tick() {
                     for (sp = 0; sp < spobj.batchnumber; sp++) { // foreach batch
                         if (mobs.length < 10) {
                             mobIndex++;
+                            var clonebible = tools.data.cloneBible;
+                            var cloneref = clonebible[spobj.mob];
+
+                            if (!cloneref) {
+                                fatal('no mob bible ', spobj);
+                            }
                             var newmob = {
                                 id: '_m' + mobIndex,
                                 name: '_m' + mobIndex,
@@ -1079,17 +1119,17 @@ function tick() {
                                 x: spobj.x,
                                 y: spobj.y,
                                 z: spobj.z,
-                                skin: bibles.mobs[spobj.mob].skin,
+                                skin: cloneref.skin,
                                 attackcool: null,
                                 movecool: null,
-                                attack: bibles.mobs[spobj.mob].attack,
+                                attack: cloneref.attack,
                                 target: 0,
                                 life: {
-                                    now: bibles.mobs[spobj.mob].life.now,
-                                    max: bibles.mobs[spobj.mob].life.max
+                                    now: cloneref.life.now,
+                                    max: cloneref.life.max
                                 },
-                                damage: bibles.mobs[spobj.mob].damage,
-                                defense: bibles.mobs[spobj.mob].defense,
+                                damage: cloneref.damage,
+                                defense: cloneref.defense,
                                 update: true,
                             }
                             mobs.push(newmob);
