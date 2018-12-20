@@ -104,6 +104,9 @@ $(document).ready(function () {
         selectedItemUid = $(this).data('uid');
         tools.displayItemInfo();
     });
+
+
+    
     $('#disableFilter').hide();
     $('#disableFilter').click(function () {
         $('#disableFilter').hide();

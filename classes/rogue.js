@@ -11,6 +11,7 @@ module.exports = {
     mapSize: 64,
     maxLevels: 64,
     itemsUid: 0,
+    fullItemDocumentation : {},
     formatPeople(ws) {
         var msg = {
             id: ws.id,
@@ -169,6 +170,7 @@ module.exports = {
         if (!ws || !ws.data || !this.wss) return null;
         var pud = this.formatPeople(ws);
         this.wss.addToWaiting('waitingPuds', ws.data.z, pud);
+        ws.data.rez_signal = null;
 
     },
     updatePowerUse(id, z, poweruse, surface, uid = null, from = null) {
@@ -402,20 +404,23 @@ module.exports = {
 
             clone.damage = {
                 "social": itemRef.damage.social + itemRef.damage.social * factor,
-                "sex": 0,
-                "money": 0,
-                "social_mod": 0,
-                "sex_mod": 0,
-                "money_mod": 0
+                "sex":  itemRef.damage.sex + itemRef.damage.sex * factor,
+                "money":  itemRef.damage.money + itemRef.damage.money * factor,
+                "social_mod":  itemRef.damage.social_mod + itemRef.damage.social_mod * factor,
+                "sex_mod":  itemRef.damage.sex_mod + itemRef.damage.sex_mod * factor,
+                "money_mod":  itemRef.damage.money_mod + itemRef.damage.somoney_modial * factor
             };
             clone.defense = {
-                "social": 0,
-                "sex": 0,
-                "money": 0,
-                "social_mod": 0,
-                "sex_mod": 0,
-                "money_mod": 0
+                "social": itemRef.damage.social + itemRef.damage.social * factor,
+                "sex":  itemRef.damage.sex + itemRef.damage.sex * factor,
+                "money":  itemRef.damage.money + itemRef.damage.money * factor,
+                "social_mod":  itemRef.damage.social_mod + itemRef.damage.social_mod * factor,
+                "sex_mod":  itemRef.damage.sex_mod + itemRef.damage.sex_mod * factor,
+                "money_mod":  itemRef.damage.money_mod + itemRef.damage.somoney_modial * factor
             }
+
+
+            this.fullItemDocumentation['item' + clone.uid] = clone;
 
         }
 

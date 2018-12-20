@@ -117,6 +117,7 @@ if ($isdev) {
                 <?php endfor;?>
             </div>
             <div class="itemDetails"></div>
+            <div id="itemDetails_loot"></div>
         </div>
         <div class="container noclick">
             <div id="stats" class="text">

@@ -603,17 +603,19 @@ function startServer() {
                     ws.data.x = 2;
                     ws.data.y = 2;
                     ws.data.z = 0;
-                    //ws.data.rez_signal = true;
+                    ws.data.rez_signal = true;
                     ws.send(JSON.stringify({
                         'reset': 1,
                     }));
+                    wss.broadcast(JSON.stringify({  'gone': ws.data.name}));
                 }
+
+
+               
+
 
                 /* Commande From Clients */
                 if (json.cd === "say") {
-
-
-
 
                     if (json.v.indexOf("/") === 0) {
                         var com = json.v.split(" ");
@@ -621,6 +623,12 @@ function startServer() {
                             ws.data.skin = com[1];
                             rogue.updateMyPosition(ws);
                         }
+
+                        if (com[0] === '/down') {
+                           json.down = true;
+                        }
+
+
                         console.log('--adm cd :  ' + com[0] + ' ' + com[1]);
                     } else {
                         try {
@@ -635,8 +643,24 @@ function startServer() {
                         }
 
                     }
-
                 }
+
+
+
+
+                if(json.down){
+                    ws.data.z++;
+                    ws.data.rez_signal = true;
+                    ws.send(JSON.stringify({
+                        'reset': 1,
+                    }));
+                    wss.broadcast(JSON.stringify({  'gone': ws.data.name}));
+                }
+
+
+
+
+
 
                 /* Dead = null */
                 if (ws.data.isdead) {
@@ -807,6 +831,15 @@ function startServer() {
                     if (json.inv == 2) {
                         ws.data.secured = 0;
                     }
+                }
+
+                if (json.details) {
+                    console.log('Get details item ' + json.details);
+                    var def = rogue.fullItemDocumentation['item' + json.details];
+                    console.log(def);
+                    ws.send(JSON.stringify({
+                        'itmdet': def
+                    }));
                 }
 
 
@@ -1294,6 +1327,7 @@ function tick() {
                             }
                             client.data.life.now -= appliedDamage;
                             client.data.damaged = appliedDamage;
+                            /* PLAYER DEATH */
                             /* death :o */
                             if (client.data.life.now <= 0 && !client.data.isdead) {
                                 var dareport = client.data.name + ' killed by ' + fxtile[damageTileIndex].power + ' from ' + fxtile[damageTileIndex].owner;
@@ -1303,10 +1337,11 @@ function tick() {
                                     dead: 1
                                 }));
                                 wss.broadcast(JSON.stringify({
-                                    'notice': report
+                                    'notice': report,                                  
                                 }));
                                 client.data.isdead = true;
                                 wss.clearMobTarget(mobs, client.data.id);
+                               
                             }
                             var pud = rogue.formatPeople(client);
                             client.data.damaged = 0;

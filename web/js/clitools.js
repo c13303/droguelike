@@ -1,3 +1,6 @@
+var specifiedLoot = {};
+
+
 function timer(callback, delay) {
     var id, started, remaining = delay,
         running;
@@ -60,7 +63,7 @@ var tools = {
         else
             var char = that.add.sprite(x, y, 'mobs', skin);
 
-            
+
         drawnPeopleIndex.push(name);
         drawnPeople[name] = {};
         drawnPeople[name].sprite = char;
@@ -143,6 +146,12 @@ var tools = {
     },
     fluidmove(object, px, py, speed = 2) {
         var dt = speed;
+        var dist = Math.sqrt(Math.pow(object.x - px, 2) + Math.pow(object.y - py, 2));
+        if (dist < 0.01) {
+            //   console.log('endedemove');
+            return null;
+        }
+
         if (px > object.x)
             object.x += dt;
         if (px < object.x)
@@ -151,6 +160,13 @@ var tools = {
             object.y += dt;
         if (py < object.y)
             object.y -= dt;
+
+        if (dist > 192) {
+            object.x = px;
+            object.y = py;
+        }
+
+
     },
 
     checkKey(evt) {
@@ -247,11 +263,28 @@ var tools = {
     inventoryPutInSlot(inventorySlot, htmlItem) {
         inventorySlot.html(htmlItem).addClass('occupied');
     },
+    formatSpecItem(item) {
+        var html = '';
+        if (item.damage) html += '<h2>Damage</h2>';
+        if (item.damage.social) html += '<li>Social : ' + item.damage.social + '</li>';
+        return html;
+    },
     displayItemInfo() {
+
         var itemElement = $('.item' + selectedItemUid);
         var key = itemElement.attr('data-id');
         var loot = lootbible[key];
         var div = $('.itemDetails');
+
+        if (!specifiedLoot[key]) {
+            ws.send(JSON.stringify({
+                'details': selectedItemUid
+            }));
+        } else {
+            $('#itemDetails_loot').html(tools.formatSpecItem(specifiedLoot[key]));
+        }
+
+
         //console.log(loot);
         div.html("<h2>" + loot.name.fr + '<h2>');
         div.append('<p>' + loot.desc.fr + '</p>');

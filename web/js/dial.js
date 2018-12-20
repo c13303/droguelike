@@ -212,7 +212,11 @@ function connect() {
                 }
             }
         }
-
+        if(d.itmdet){
+            console.log(d.itmdet);
+            specifiedLoot[d.itmdet.key] = d.itmdet;
+            $('#itemDetails_loot').html(tools.formatSpecItem(specifiedLoot[d.itmdet.key]));
+        }
 
 
         /* other player leaves*/
@@ -266,6 +270,8 @@ function connect() {
         if (d.inter) {
             console.log(d.inter);
         }
+
+     
 
 
 

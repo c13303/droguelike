@@ -570,6 +570,13 @@ function update() {
                         drawnPeople[keum.name].sprite.clearTint();
                     }
                 }
+
+                if(keum.rez_signal){
+                    /*
+                    drawnPeople[keum.name].sprite.x = layer.tileToWorldX(keum.x + tilesize / 2);
+                    drawnPeople[keum.name].sprite.y = layer.tileToWorldY(keum.y );
+                    keum.rez_signal = null;*/
+                }
             }
 
         }
